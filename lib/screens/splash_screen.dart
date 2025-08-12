@@ -94,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen>
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -124,7 +124,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Text(
                       'Gérez vos finances personnelles',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                        color: Theme.of(context).colorScheme.onBackground.withValues(alpha: 0.7),
                       ),
                     ),
                     

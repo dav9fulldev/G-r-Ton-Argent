@@ -112,7 +112,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Text(
                         'Rejoignez GèrTonArgent pour gérer vos finances',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                          color: Theme.of(context).colorScheme.onBackground.withValues(alpha: 0.7),
                         ),
                         textAlign: TextAlign.center,
                       ),

@@ -26,7 +26,7 @@ class TransactionListItem extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: _getCategoryColor(transaction.category).withOpacity(0.1),
+            color: _getCategoryColor(transaction.category).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -49,13 +49,13 @@ class TransactionListItem extends StatelessWidget {
             Text(
               _getCategoryName(transaction.category),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             Text(
               DateFormat('dd MMM yyyy, HH:mm').format(transaction.date),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
           ],
@@ -74,7 +74,7 @@ class TransactionListItem extends StatelessWidget {
             Text(
               isIncome ? 'Revenu' : 'Dépense',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: amountColor.withOpacity(0.7),
+                color: amountColor.withValues(alpha: 0.7),
               ),
             ),
           ],

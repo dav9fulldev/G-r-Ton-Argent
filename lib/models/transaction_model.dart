@@ -54,4 +54,58 @@ class TransactionModel extends HiveObject {
     required this.description,
     required this.createdAt,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'amount': amount,
+      'type': type.name,
+      'category': category.name,
+      'date': date.toIso8601String(),
+      'description': description,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
+  factory TransactionModel.fromMap(Map<String, dynamic> map) {
+    return TransactionModel(
+      id: map['id'] ?? '',
+      userId: map['userId'] ?? '',
+      amount: (map['amount'] ?? 0.0).toDouble(),
+      type: TransactionType.values.firstWhere(
+        (e) => e.name == map['type'],
+        orElse: () => TransactionType.expense,
+      ),
+      category: TransactionCategory.values.firstWhere(
+        (e) => e.name == map['category'],
+        orElse: () => TransactionCategory.other,
+      ),
+      date: DateTime.parse(map['date']),
+      description: map['description'] ?? '',
+      createdAt: DateTime.parse(map['createdAt']),
+    );
+  }
+
+  TransactionModel copyWith({
+    String? id,
+    String? userId,
+    double? amount,
+    TransactionType? type,
+    TransactionCategory? category,
+    DateTime? date,
+    String? description,
+    DateTime? createdAt,
+  }) {
+    return TransactionModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      amount: amount ?? this.amount,
+      type: type ?? this.type,
+      category: category ?? this.category,
+      date: date ?? this.date,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }

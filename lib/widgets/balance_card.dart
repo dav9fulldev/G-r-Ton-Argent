@@ -44,12 +44,12 @@ class BalanceCard extends StatelessWidget {
                 Text(
                   'Solde du mois',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ),
                 Icon(
                   Icons.account_balance_wallet,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 24,
                 ),
               ],
@@ -98,13 +98,13 @@ class BalanceCard extends StatelessWidget {
                       Text(
                         'Budget mensuel',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                       Text(
                         '${budgetPercentage.toStringAsFixed(1)}%',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -115,7 +115,7 @@ class BalanceCard extends StatelessWidget {
                   
                   LinearProgressIndicator(
                     value: budgetPercentage / 100,
-                    backgroundColor: Colors.white.withOpacity(0.2),
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                     valueColor: AlwaysStoppedAnimation<Color>(
                       budgetPercentage > 80 
                           ? Colors.red[100]! 
@@ -130,7 +130,7 @@ class BalanceCard extends StatelessWidget {
                   Text(
                     '${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(remainingBudget)} restant sur ${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(monthlyBudget)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
                 ],

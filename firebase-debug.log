@@ -1,0 +1,65 @@
+[debug] [2025-08-12T17:42:13.295Z] ----------------------------------------------------------------------
+[debug] [2025-08-12T17:42:13.222Z] ----------------------------------------------------------------------
+[debug] [2025-08-12T17:42:13.300Z] Command:       C:\nvm\nodejs\node.exe C:\nvm\nodejs\node_modules\firebase-tools\lib\bin\firebase.js projects:create gertonargent --json
+[debug] [2025-08-12T17:42:13.227Z] Command:       C:\nvm\nodejs\node.exe C:\nvm\nodejs\node_modules\firebase-tools\lib\bin\firebase.js projects:list --json
+[debug] [2025-08-12T17:42:13.301Z] CLI Version:   14.12.0
+[debug] [2025-08-12T17:42:13.228Z] CLI Version:   14.12.0
+[debug] [2025-08-12T17:42:13.302Z] Platform:      win32
+[debug] [2025-08-12T17:42:13.302Z] Node Version:  v20.19.4
+[debug] [2025-08-12T17:42:13.228Z] Platform:      win32
+[debug] [2025-08-12T17:42:13.302Z] Time:          Tue Aug 12 2025 17:42:13 GMT+0000 (Greenwich Mean Time)
+[debug] [2025-08-12T17:42:13.228Z] Node Version:  v20.19.4
+[debug] [2025-08-12T17:42:13.302Z] ----------------------------------------------------------------------
+[debug] [2025-08-12T17:42:13.228Z] Time:          Tue Aug 12 2025 17:42:13 GMT+0000 (Greenwich Mean Time)
+[debug] 
+[debug] [2025-08-12T17:42:13.228Z] ----------------------------------------------------------------------
+[debug] [2025-08-12T17:42:13.378Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] 
+[debug] [2025-08-12T17:42:13.378Z] > authorizing via signed-in user (broudavid505@gmail.com)
+[debug] [2025-08-12T17:42:13.378Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-12T17:42:13.436Z] Checked if tokens are valid: false, expires at: 1755019854423
+[debug] [2025-08-12T17:42:13.379Z] > authorizing via signed-in user (broudavid505@gmail.com)
+[debug] [2025-08-12T17:42:13.436Z] Checked if tokens are valid: false, expires at: 1755019854423
+[debug] [2025-08-12T17:42:13.436Z] Checked if tokens are valid: false, expires at: 1755019854423
+[debug] [2025-08-12T17:42:13.437Z] > refreshing access token with scopes: []
+[debug] [2025-08-12T17:42:13.437Z] Checked if tokens are valid: false, expires at: 1755019854423
+[debug] [2025-08-12T17:42:13.548Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-08-12T17:42:13.437Z] > refreshing access token with scopes: []
+[debug] [2025-08-12T17:42:13.548Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-08-12T17:42:13.548Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-08-12T17:42:13.549Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-08-12T17:42:21.793Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-08-12T17:42:21.793Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-08-12T17:42:21.793Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-08-12T17:42:22.893Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects [none]
+[debug] [2025-08-12T17:42:22.893Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects {"projectId":"gertonargent","name":"gertonargent"}
+[debug] [2025-08-12T17:42:21.794Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2025-08-12T17:42:22.932Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2025-08-12T17:42:23.375Z] FirebaseError: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+    at invalidCredentialError (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\auth.js:167:12)
+    at refreshTokens (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\auth.js:556:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async getAccessToken (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\apiv2.js:42:18)
+    at async Client.addAuthHeader (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\apiv2.js:169:21)
+    at async Client.request (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\apiv2.js:120:34)
+    at async getProjectPage (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\management\projects.js:267:17)
+    at async getFirebaseProjectPage (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\management\projects.js:284:23)
+    at async listFirebaseProjects (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\management\projects.js:315:29)
+    at async Command.actionFn (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\commands\projects-list.js:51:20)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2025-08-12T17:42:23.954Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects 409
+[debug] [2025-08-12T17:42:23.954Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects {"error":{"code":409,"message":"Requested entity already exists","status":"ALREADY_EXISTS"}}
+[debug] [2025-08-12T17:42:24.225Z] FirebaseError: Request to https://cloudresourcemanager.googleapis.com/v1/projects had HTTP Error: 409, Requested entity already exists
+    at responseToError (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\responseToError.js:52:12)
+    at RetryOperation._fn (C:\Users\hp\AppData\Local\nvm\v20.19.4\node_modules\firebase-tools\lib\apiv2.js:312:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to create project because there is already a project with ID gertonargent. Please try again with a unique project ID.
