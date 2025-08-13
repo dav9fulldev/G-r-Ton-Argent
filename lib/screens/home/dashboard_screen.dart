@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../services/auth_service.dart';
-import '../../services/transaction_service.dart';
+import '../../services/mock_auth_service.dart';
+import '../../services/mock_transaction_service.dart';
 import '../../models/transaction_model.dart';
 import '../transactions/add_transaction_screen.dart';
 import '../transactions/transaction_details_screen.dart';
+import '../transactions/transaction_list_screen.dart';
 import '../settings/settings_screen.dart';
 import '../../widgets/balance_card.dart';
 import '../../widgets/expense_chart.dart';
 import '../../widgets/transaction_list_item.dart';
+import '../../widgets/financial_tips_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -28,8 +30,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadData() async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final transactionService = Provider.of<TransactionService>(context, listen: false);
+    final authService = Provider.of<MockAuthService>(context, listen: false);
+    final transactionService = Provider.of<MockTransactionService>(context, listen: false);
     
     if (authService.currentUser != null) {
       await transactionService.loadTransactions(authService.currentUser!.uid);
@@ -53,10 +55,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: Consumer2<AuthService, TransactionService>(
+             body: Consumer2<MockAuthService, MockTransactionService>(
         builder: (context, authService, transactionService, child) {
           if (authService.currentUser == null) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          // Handle different tabs
+          if (_selectedIndex == 1) {
+            return const TransactionListScreen();
           }
 
           return RefreshIndicator(
@@ -133,6 +140,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: 24),
                   ],
 
+                  // Financial Tips
+                  const FinancialTipsWidget(),
+
+                  const SizedBox(height: 24),
+
                   // Recent Transactions
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -145,9 +157,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          setState(() {
-                            _selectedIndex = 1;
-                          });
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const TransactionListScreen()),
+                          );
                         },
                         child: const Text('Voir tout'),
                       ),

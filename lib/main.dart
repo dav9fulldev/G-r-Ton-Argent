@@ -1,30 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'services/auth_service.dart';
-import 'services/transaction_service.dart';
-import 'services/notification_service.dart';
-import 'models/user_model.dart';
-import 'models/transaction_model.dart';
+import 'services/mock_auth_service.dart';
+import 'services/mock_transaction_service.dart';
+import 'services/mock_notification_service.dart';
+import 'services/ai_service.dart';
 import 'screens/splash_screen.dart';
 import 'utils/theme.dart';
-import '../firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Firebase with platform-specific options
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Initialize mock services for testing
+  final notificationService = MockNotificationService();
+  await notificationService.initialize();
   
-  // Initialize Hive
-  await Hive.initFlutter();
-  Hive.registerAdapter(UserModelAdapter());
-  Hive.registerAdapter(TransactionModelAdapter());
-  await Hive.openBox<UserModel>('users');
-  await Hive.openBox<TransactionModel>('transactions');
+  // Initialize mock data
+  final authService = MockAuthService();
+  final transactionService = MockTransactionService();
+  
+  authService.initializeWithMockUser();
+  transactionService.initializeWithMockData();
   
   runApp(const GerTonArgentApp());
 }
@@ -36,9 +33,10 @@ class GerTonArgentApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
-        ChangeNotifierProvider(create: (_) => TransactionService()),
-        ChangeNotifierProvider(create: (_) => NotificationService()),
+        ChangeNotifierProvider(create: (_) => MockAuthService()),
+        ChangeNotifierProvider(create: (_) => MockTransactionService()),
+        ChangeNotifierProvider(create: (_) => MockNotificationService()),
+        ChangeNotifierProvider(create: (_) => AIService()),
       ],
       child: MaterialApp(
         title: 'GèrTonArgent',
