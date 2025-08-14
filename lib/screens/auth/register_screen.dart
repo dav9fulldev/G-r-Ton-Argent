@@ -53,7 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
         name: _nameController.text.trim(),
       );
-      
+
       if (mounted && authService.currentUser != null) {
         // Update budget if provided
         final budget = double.tryParse(_budgetController.text);
@@ -92,19 +92,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 400),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                     // Logo and Title
                     const Center(
                       child: Column(
-                        children: [
+                    children: [
                           AppLogo(size: 80),
                           SizedBox(height: 16),
                           Text(
@@ -112,19 +112,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
+                          color: Colors.white,
+                        ),
+                      ),
                           SizedBox(height: 8),
-                          Text(
+                      Text(
                             'Créez votre compte',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.white70,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                       ),
                     ),
                     
@@ -156,13 +156,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             
                             const SizedBox(height: 24),
-                            
-                            // Name Field
-                            TextFormField(
-                              controller: _nameController,
+
+                  // Name Field
+                  TextFormField(
+                    controller: _nameController,
                               style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
-                                labelText: 'Nom complet',
+                      labelText: 'Nom complet',
                                 labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
                                 prefixIcon: Icon(Icons.person, color: Colors.white.withOpacity(0.8)),
                                 border: OutlineInputBorder(
@@ -185,27 +185,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: Colors.red[300]!),
                                 ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Veuillez entrer votre nom';
-                                }
-                                if (value.length < 2) {
-                                  return 'Le nom doit contenir au moins 2 caractères';
-                                }
-                                return null;
-                              },
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            // Email Field
-                            TextFormField(
-                              controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer votre nom';
+                      }
+                      if (value.length < 2) {
+                        return 'Le nom doit contenir au moins 2 caractères';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Email Field
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
                               style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
-                                labelText: 'Email',
+                      labelText: 'Email',
                                 labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
                                 prefixIcon: Icon(Icons.email, color: Colors.white.withOpacity(0.8)),
                                 border: OutlineInputBorder(
@@ -228,40 +228,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: Colors.red[300]!),
                                 ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Veuillez entrer votre email';
-                                }
-                                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                                  return 'Veuillez entrer un email valide';
-                                }
-                                return null;
-                              },
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            // Password Field
-                            TextFormField(
-                              controller: _passwordController,
-                              obscureText: _obscurePassword,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer votre email';
+                      }
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        return 'Veuillez entrer un email valide';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Password Field
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
                               style: const TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                labelText: 'Mot de passe',
+                    decoration: InputDecoration(
+                      labelText: 'Mot de passe',
                                 labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
                                 prefixIcon: Icon(Icons.lock, color: Colors.white.withOpacity(0.8)),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
                                     color: Colors.white.withOpacity(0.8),
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
-                                  },
-                                ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
@@ -282,40 +282,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: Colors.red[300]!),
                                 ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Veuillez entrer un mot de passe';
-                                }
-                                if (value.length < 6) {
-                                  return 'Le mot de passe doit contenir au moins 6 caractères';
-                                }
-                                return null;
-                              },
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            // Confirm Password Field
-                            TextFormField(
-                              controller: _confirmPasswordController,
-                              obscureText: _obscureConfirmPassword,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer un mot de passe';
+                      }
+                      if (value.length < 6) {
+                        return 'Le mot de passe doit contenir au moins 6 caractères';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Confirm Password Field
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: _obscureConfirmPassword,
                               style: const TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                labelText: 'Confirmer le mot de passe',
+                    decoration: InputDecoration(
+                      labelText: 'Confirmer le mot de passe',
                                 labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
                                 prefixIcon: Icon(Icons.lock_outline, color: Colors.white.withOpacity(0.8)),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
                                     color: Colors.white.withOpacity(0.8),
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                                    });
-                                  },
-                                ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
+                          });
+                        },
+                      ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
@@ -336,18 +336,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: Colors.red[300]!),
                                 ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Veuillez confirmer votre mot de passe';
-                                }
-                                if (value != _passwordController.text) {
-                                  return 'Les mots de passe ne correspondent pas';
-                                }
-                                return null;
-                              },
-                            ),
-                            
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez confirmer votre mot de passe';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Les mots de passe ne correspondent pas';
+                      }
+                      return null;
+                    },
+                  ),
+
                             const SizedBox(height: 16),
                             
                             // Monthly Budget Field
@@ -423,8 +423,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             
                             const SizedBox(height: 24),
-                            
-                            // Register Button
+
+                  // Register Button
                             Consumer<AuthService>(
                               builder: (context, authService, child) {
                                 return ElevatedButton(
@@ -439,9 +439,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     elevation: 2,
                                   ),
                                   child: authService.isLoading
-                                      ? const SizedBox(
-                                          height: 20,
-                                          width: 20,
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1E3A8A)),
@@ -456,23 +456,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                 );
                               },
-                            ),
-                            
-                            const SizedBox(height: 24),
-                            
-                            // Login Link
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Login Link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
                                   'Déjà un compte? ',
                                   style: TextStyle(
                                     color: Colors.white.withOpacity(0.8),
                                     fontSize: 14,
                                   ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
+                      ),
+                      TextButton(
+                        onPressed: () {
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
                                         builder: (_) => const LoginScreen(),
@@ -487,10 +487,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                      ),
+                    ],
+                  ),
+                ],
                         ),
                       ),
                     ),
