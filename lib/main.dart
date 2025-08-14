@@ -20,6 +20,12 @@ import 'utils/theme.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+// 🔹 Handler pour notifications reçues en arrière-plan
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  print("📩 Notification reçue en arrière-plan: ${message.notification?.title}");
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -35,6 +41,9 @@ void main() async {
   // Open Hive boxes
   await Hive.openBox<TransactionModel>('transactions');
   await Hive.openBox('offline_queue');
+
+  // 🔹 Écoute notifications en arrière-plan
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
   // Initialize Firebase
   try {
@@ -91,29 +100,36 @@ void main() async {
   // Initialize notification service
   final notificationService = NotificationService();
   await notificationService.initialize();
-  // Notification FCM
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  RemoteNotification? notification = message.notification;
-  AndroidNotification? android = message.notification?.android;
 
-  if (notification != null && android != null) {
-    flutterLocalNotificationsPlugin.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'default_channel', // Même ID que dans AndroidManifest
-          'Default Notifications',
-          channelDescription: 'Used for important notifications',
-          importance: Importance.max,
-          priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
+  // 🔹 Notification FCM en premier plan
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            'default_channel', // Même ID que dans AndroidManifest
+            'Default Notifications',
+            channelDescription: 'Used for important notifications',
+            importance: Importance.max,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
         ),
-      ),
-    );
-  }
-});
+      );
+    }
+  });
+
+  // 🔹 Gérer le clic sur une notification
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    print("📲 Notification cliquée : ${message.data}");
+    // Tu peux ajouter ici une navigation vers une page spécifique
+  });
 
   runApp(const GerTonArgentApp());
 }
@@ -125,7 +141,6 @@ class GerTonArgentApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Use real services if Firebase is available, otherwise fallback to mock services
         ChangeNotifierProvider<AuthService>(
           create: (_) => AuthService(),
         ),
