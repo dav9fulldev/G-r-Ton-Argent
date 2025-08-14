@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/ai_service.dart';
-import '../services/mock_auth_service.dart';
-import '../services/mock_transaction_service.dart';
+import '../services/auth_service.dart';
+import '../services/transaction_service.dart';
 
 class FinancialTipsWidget extends StatefulWidget {
   const FinancialTipsWidget({super.key});

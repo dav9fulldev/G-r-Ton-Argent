@@ -62,7 +62,7 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
                   Expanded(
                     child: _InsightCard(
                       title: 'Dépense Moyenne',
-                      value: insights.averageDailySpending,
+                      value: insights.averageDailySpending.toDouble(),
                       subtitle: 'par jour',
                       color: Colors.blue,
                       icon: Icons.trending_up,
@@ -72,7 +72,7 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
                   Expanded(
                     child: _InsightCard(
                       title: 'Plus Grande Dépense',
-                      value: insights.largestExpense,
+                      value: insights.largestExpense.toDouble(),
                       subtitle: insights.largestExpenseCategory,
                       color: Colors.red,
                       icon: Icons.warning,
@@ -174,10 +174,10 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
     
     // Calculate average daily spending
     final daysInPeriod = _getDaysInPeriod();
-    final averageDailySpending = daysInPeriod > 0 ? totalExpenses / daysInPeriod : 0;
+    final averageDailySpending = daysInPeriod > 0 ? totalExpenses / daysInPeriod : 0.0;
 
     // Find largest expense
-    final largestExpense = expenses.isNotEmpty ? expenses.map((e) => e.amount).reduce((a, b) => a > b ? a : b) : 0;
+    final largestExpense = expenses.isNotEmpty ? expenses.map((e) => e.amount).reduce((a, b) => a > b ? a : b) : 0.0;
     final largestExpenseTransaction = expenses.where((e) => e.amount == largestExpense).firstOrNull;
     final largestExpenseCategory = largestExpenseTransaction?.category.name ?? '';
 
@@ -204,9 +204,9 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
     // Generate recommendations
     final recommendations = _generateRecommendations(
       totalExpenses,
-      averageDailySpending,
+      averageDailySpending.toDouble(),
       categoryTotals,
-      largestExpense,
+      largestExpense.toDouble(),
     );
 
     return SpendingInsights(

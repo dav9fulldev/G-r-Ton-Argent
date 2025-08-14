@@ -184,9 +184,11 @@ class TransactionService extends ChangeNotifier {
             .collection('transactions')
             .doc(transaction.id)
             .set(transaction.toMap());
+        print('Transaction saved to Firestore: ${transaction.id}');
       } else {
         // Queue for later sync
         await _addToOfflineQueue(transaction);
+        print('Transaction queued for offline sync: ${transaction.id}');
       }
     } catch (e) {
       // Remove from local list if Firestore fails
@@ -194,6 +196,7 @@ class TransactionService extends ChangeNotifier {
       await _saveToLocal();
       notifyListeners();
       _setError('Erreur lors de l\'ajout de la transaction: $e');
+      print('Error adding transaction: $e');
       rethrow;
     }
   }

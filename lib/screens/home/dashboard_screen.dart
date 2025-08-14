@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../services/mock_auth_service.dart';
-import '../../services/mock_transaction_service.dart';
+// Removed mock service imports; using real services below
 import '../transactions/add_transaction_screen.dart';
 import '../transactions/transaction_details_screen.dart';
 import '../transactions/transaction_list_screen.dart';
@@ -13,6 +12,8 @@ import '../../widgets/financial_tips_widget.dart';
 import '../../widgets/budget_planning_widget.dart';
 import '../../widgets/spending_insights_widget.dart';
 import '../../widgets/app_logo.dart';
+import '../../services/auth_service.dart';
+import '../../services/transaction_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

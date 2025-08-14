@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../services/mock_transaction_service.dart';
-import '../../services/mock_auth_service.dart';
-import '../../services/mock_notification_service.dart';
+import '../../services/transaction_service.dart';
+import '../../services/auth_service.dart';
+import '../../services/notification_service.dart';
 import '../../services/ai_service.dart';
 import '../../models/transaction_model.dart';
 
@@ -38,9 +38,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final amount = double.tryParse(_amountController.text);
     if (amount == null || amount <= 0) return;
 
-         final auth = context.read<MockAuthService>();
-     final tx = context.read<MockTransactionService>();
-     final ai = context.read<AIService>();
+    final auth = context.read<AuthService>();
+    final tx = context.read<TransactionService>();
+    final ai = context.read<AIService>();
     
     if (auth.currentUser == null) return;
 
@@ -74,9 +74,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-         final auth = context.read<MockAuthService>();
-     final tx = context.read<MockTransactionService>();
-     final notification = context.read<MockNotificationService>();
+    final auth = context.read<AuthService>();
+    final tx = context.read<TransactionService>();
+    final notification = context.read<NotificationService>();
     if (auth.currentUser == null) return;
 
     final amount = double.parse(_amountController.text);

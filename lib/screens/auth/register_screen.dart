@@ -348,114 +348,114 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
 
-                            const SizedBox(height: 16),
-                            
-                            // Monthly Budget Field
-                            TextFormField(
-                              controller: _budgetController,
-                              keyboardType: TextInputType.number,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                labelText: 'Budget mensuel (FCFA) - Optionnel',
-                                labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-                                prefixIcon: Icon(Icons.account_balance_wallet, color: Colors.white.withOpacity(0.8)),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.white),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.red[300]!),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.red[300]!),
-                                ),
-                              ),
-                              validator: (value) {
-                                if (value != null && value.isNotEmpty) {
-                                  final budget = double.tryParse(value);
-                                  if (budget == null || budget < 0) {
-                                    return 'Veuillez entrer un montant valide';
-                                  }
-                                }
-                                return null;
-                              },
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            // Terms and Conditions
-                            Row(
-                              children: [
-                                Checkbox(
-                                  value: _agreeToTerms,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _agreeToTerms = value ?? false;
-                                    });
-                                  },
-                                  fillColor: MaterialStateProperty.resolveWith(
-                                    (states) => states.contains(MaterialState.selected)
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                  ),
-                                  checkColor: const Color(0xFF1E3A8A),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    'J\'accepte les conditions d\'utilisation et la politique de confidentialité',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.8),
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            
-                            const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+                  
+                  // Monthly Budget Field
+                  TextFormField(
+                    controller: _budgetController,
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Budget mensuel (FCFA) - Optionnel',
+                      labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+                      prefixIcon: Icon(Icons.account_balance_wallet, color: Colors.white.withOpacity(0.8)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12), 
+                        borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.red[300]!),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.red[300]!),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value != null && value.isNotEmpty) {
+                        final budget = double.tryParse(value);
+                        if (budget == null || budget < 0) {
+                          return 'Veuillez entrer un montant valide';
+                        }
+                      }
+                      return null;
+                    },
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Terms and Conditions
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _agreeToTerms,
+                        onChanged: (value) {
+                          setState(() {
+                            _agreeToTerms = value ?? false;
+                          });
+                        },
+                        fillColor: MaterialStateProperty.resolveWith(
+                          (states) => states.contains(MaterialState.selected)
+                              ? Colors.white
+                              : Colors.transparent,
+                        ),
+                        checkColor: const Color(0xFF1E3A8A),
+                      ),
+                      Expanded(
+                        child: Text(
+                          'J\'accepte les conditions d\'utilisation et la politique de confidentialité',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 24),
 
                   // Register Button
-                            Consumer<AuthService>(
-                              builder: (context, authService, child) {
-                                return ElevatedButton(
-                                  onPressed: authService.isLoading ? null : _signUp,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: const Color(0xFF1E3A8A),
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 2,
-                                  ),
-                                  child: authService.isLoading
+                  Consumer<AuthService>(
+                    builder: (context, authService, child) {
+                      return ElevatedButton(
+                        onPressed: authService.isLoading ? null : _signUp,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF1E3A8A),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: authService.isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1E3A8A)),
-                                          ),
-                                        )
-                                      : const Text(
-                                          'S\'inscrire',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                );
-                              },
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1E3A8A)),
+                            ),
+                          )
+                        : const Text(
+                            'S\'inscrire',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 24),
@@ -465,28 +465,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                                  'Déjà un compte? ',
-                                  style: TextStyle(
-                                    color: Colors.white.withOpacity(0.8),
-                                    fontSize: 14,
-                                  ),
+                        'Déjà un compte? ',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 14,
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (_) => const LoginScreen(),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Se connecter',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => const LoginScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Se connecter',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),

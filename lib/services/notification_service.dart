@@ -12,23 +12,31 @@ class NotificationService extends ChangeNotifier {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    // Request permission for push notifications
-    await requestPermission();
+    try {
+      // Request permission for push notifications
+      await requestPermission();
 
-    // Initialize local notifications
-    await _initializeLocalNotifications();
+      // Initialize local notifications
+      await _initializeLocalNotifications();
 
-    // Handle background messages
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      // Create notification channels
+      await _createNotificationChannels();
 
-    // Handle foreground messages
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+      // Handle background messages
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // Handle notification taps
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+      // Handle foreground messages
+      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
-    _isInitialized = true;
-    notifyListeners();
+      // Handle notification taps
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+
+      _isInitialized = true;
+      notifyListeners();
+      print('NotificationService initialized successfully');
+    } catch (e) {
+      print('Error initializing NotificationService: $e');
+    }
   }
 
   Future<void> _initializeLocalNotifications() async {
@@ -166,6 +174,44 @@ class NotificationService extends ChangeNotifier {
   void _handleNotificationTap(RemoteMessage message) {
     print('Notification tapped: ${message.data}');
     // Handle navigation based on notification type
+  }
+
+  Future<void> _createNotificationChannels() async {
+    // Create budget alerts channel
+    const AndroidNotificationChannel budgetChannel = AndroidNotificationChannel(
+      'budget_alerts',
+      'Budget Alerts',
+      description: 'Notifications for budget overruns and financial alerts',
+      importance: Importance.high,
+    );
+
+    // Create AI advice channel
+    const AndroidNotificationChannel aiChannel = AndroidNotificationChannel(
+      'ai_advice',
+      'AI Advice',
+      description: 'AI-powered spending advice',
+      importance: Importance.high,
+    );
+
+    // Create default channel
+    const AndroidNotificationChannel defaultChannel = AndroidNotificationChannel(
+      'default_channel',
+      'Default Notifications',
+      description: 'Used for important notifications',
+      importance: Importance.max,
+    );
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(budgetChannel);
+    
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(aiChannel);
+    
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(defaultChannel);
   }
 
   void _onNotificationTapped(NotificationResponse response) {

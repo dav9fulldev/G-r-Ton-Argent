@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../services/mock_transaction_service.dart';
-import '../../services/mock_auth_service.dart';
+import '../../services/transaction_service.dart';
+import '../../services/auth_service.dart';
 import '../../models/transaction_model.dart';
 import 'transaction_details_screen.dart';
 import 'add_transaction_screen.dart';
@@ -38,8 +38,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   Future<void> _loadTransactions() async {
     setState(() => _isLoading = true);
     
-         final authService = Provider.of<MockAuthService>(context, listen: false);
-     final transactionService = Provider.of<MockTransactionService>(context, listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final transactionService = Provider.of<TransactionService>(context, listen: false);
     
     if (authService.currentUser != null) {
       await transactionService.loadTransactions(authService.currentUser!.uid);
@@ -49,7 +49,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   }
 
   List<TransactionModel> get _filteredTransactions {
-         final transactionService = Provider.of<MockTransactionService>(context, listen: false);
+    final transactionService = Provider.of<TransactionService>(context, listen: false);
     List<TransactionModel> transactions = transactionService.transactions;
 
     // Apply search filter
@@ -177,7 +177,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
           // Transaction list
           Expanded(
-                         child: Consumer<MockTransactionService>(
+            child: Consumer<TransactionService>(
               builder: (context, transactionService, child) {
                 if (_isLoading) {
                   return const Center(child: CircularProgressIndicator());
