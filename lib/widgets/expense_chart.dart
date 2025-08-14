@@ -25,31 +25,83 @@ class ExpenseChart extends StatelessWidget {
       ));
     });
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 220,
-              child: PieChart(
-                PieChartData(
-                  sections: sections,
-                  sectionsSpace: 2,
-                  centerSpaceRadius: 32,
+    // Si aucune donnée, afficher un message
+    if (expensesByCategory.isEmpty || total == 0) {
+      return Container(
+        height: 200,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.pie_chart_outline,
+                size: 48,
+                color: Colors.white70,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Aucune donnée disponible',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              children: expensesByCategory.keys.map((c) {
-                return _legendItem(context, c, _getCategoryColor(c));
-              }).toList(),
-            )
-          ],
+              SizedBox(height: 8),
+              Text(
+                'Ajoutez des transactions pour voir\nla répartition de vos dépenses',
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 200,
+            child: PieChart(
+              PieChartData(
+                sections: sections,
+                sectionsSpace: 2,
+                centerSpaceRadius: 32,
+                borderData: FlBorderData(show: false),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            children: expensesByCategory.keys.map((c) {
+              return _legendItem(context, c, _getCategoryColor(c));
+            }).toList(),
+          )
+        ],
       ),
     );
   }
@@ -85,9 +137,23 @@ class ExpenseChart extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
+        Container(
+          width: 12, 
+          height: 12, 
+          decoration: BoxDecoration(
+            color: color, 
+            borderRadius: BorderRadius.circular(2)
+          )
+        ),
         const SizedBox(width: 6),
-        Text(_categoryName(category), style: Theme.of(context).textTheme.bodySmall),
+        Text(
+          _categoryName(category), 
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          )
+        ),
       ],
     );
   }

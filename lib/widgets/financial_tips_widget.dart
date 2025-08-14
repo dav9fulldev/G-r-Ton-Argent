@@ -53,34 +53,49 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-              const SizedBox(width: 16),
-              Text(
-                'Analyse de vos finances...',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.2),
+            width: 1,
           ),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              'Analyse de vos finances...',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       );
     }
 
     if (_tips.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Card(
-      child: Padding(
+      return Container(
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -88,42 +103,123 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
               children: [
                 Icon(
                   Icons.lightbulb,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Colors.white,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   'Conseils financiers',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.refresh, size: 18),
+                  icon: const Icon(Icons.refresh, size: 18, color: Colors.white),
                   onPressed: _loadTips,
                   tooltip: 'Actualiser les conseils',
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            ..._tips.map((tip) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.info_outline,
+                    color: Colors.white70,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      tip,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      'Ajoutez des transactions pour recevoir des conseils personnalisés',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white70,
+                      ),
                     ),
                   ),
                 ],
               ),
-            )).toList(),
+            ),
           ],
         ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.lightbulb,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Conseils financiers',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.refresh, size: 18, color: Colors.white),
+                onPressed: _loadTips,
+                tooltip: 'Actualiser les conseils',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ..._tips.map((tip) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.tips_and_updates,
+                    color: Colors.amber,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      tip,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )).toList(),
+        ],
       ),
     );
   }

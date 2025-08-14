@@ -188,9 +188,12 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                 ),
               ] else ...[
                 // Budget Overview
-                Row(
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: 120,
                       child: _BudgetInfoCard(
                         title: 'Budget Mensuel',
                         amount: monthlyBudget,
@@ -198,8 +201,8 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                         icon: Icons.account_balance_wallet,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                    SizedBox(
+                      width: 120,
                       child: _BudgetInfoCard(
                         title: 'Dépensé',
                         amount: currentExpenses,
@@ -207,8 +210,8 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                         icon: Icons.shopping_cart,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                    SizedBox(
+                      width: 120,
                       child: _BudgetInfoCard(
                         title: 'Restant',
                         amount: remainingBudget,

@@ -45,13 +45,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF1E3A8A), // Bleu royal
-              Color(0xFF3B82F6), // Bleu plus clair
-            ],
+          image: DecorationImage(
+            image: AssetImage('assets/images/backgrounds/image_fond.png'),
+            fit: BoxFit.cover,
           ),
         ),
         child: Column(
@@ -235,36 +231,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 24),
 
                   // Expense Chart
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                    Text(
-                      'Répartition des dépenses',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                                SizedBox(
-                                  height: 200,
-                                  child: ExpenseChart(
-                                    expensesByCategory: transactionService.expensesByCategory,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                  ExpenseChart(
+                    expensesByCategory: transactionService.expensesByCategory,
+                  ),
 
                     const SizedBox(height: 24),
 
@@ -311,23 +280,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                                ...transactionService.currentMonthTransactions.take(3).map((transaction) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: TransactionListItem(
-                              transaction: transaction,
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => TransactionDetailsScreen(
-                                      transaction: transaction,
+                                if (transactionService.currentMonthTransactions.isEmpty)
+                                  const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(24.0),
+                                      child: Column(
+                                        children: [
+                                          Icon(
+                                            Icons.receipt_long_outlined,
+                                            size: 48,
+                                            color: Colors.white70,
+                                          ),
+                                          SizedBox(height: 16),
+                                          Text(
+                                            'Aucune transaction',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            'Commencez par ajouter\ndes transactions',
+                                            style: TextStyle(
+                                              color: Colors.white54,
+                                              fontSize: 14,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  )
+                                else
+                                  ...transactionService.currentMonthTransactions.take(3).map((transaction) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 8),
+                                      child: TransactionListItem(
+                                transaction: transaction,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => TransactionDetailsScreen(
+                                        transaction: transaction,
+                                      ),
                                     ),
                                   );
-                                }),
+                                },
+                                      ),
+                                    );
+                                  }),
                               ],
                             ),
                           ),

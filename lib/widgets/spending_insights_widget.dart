@@ -57,9 +57,12 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
               const SizedBox(height: 20),
 
               // Key Metrics
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
                 children: [
-                  Expanded(
+                  SizedBox(
+                    width: 150,
                     child: _InsightCard(
                       title: 'Dépense Moyenne',
                       value: insights.averageDailySpending.toDouble(),
@@ -68,8 +71,8 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
                       icon: Icons.trending_up,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
+                  SizedBox(
+                    width: 150,
                     child: _InsightCard(
                       title: 'Plus Grande Dépense',
                       value: insights.largestExpense.toDouble(),
@@ -78,12 +81,8 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
                       icon: Icons.warning,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
+                  SizedBox(
+                    width: 150,
                     child: _InsightCard(
                       title: 'Économies',
                       value: insights.savings,
@@ -92,17 +91,18 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
                       icon: insights.savings >= 0 ? Icons.savings : Icons.trending_down,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
+                  SizedBox(
+                    width: 150,
                     child: _InsightCard(
                       title: 'Jours Restants',
-                      value: insights.daysLeftInMonth.toDouble(),
-                      subtitle: 'dans le mois',
-                      color: Colors.orange,
-                      icon: Icons.calendar_today,
+                        value: insights.daysLeftInMonth.toDouble(),
+                        subtitle: 'dans le mois',
+                        color: Colors.orange,
+                        icon: Icons.calendar_today,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
 
