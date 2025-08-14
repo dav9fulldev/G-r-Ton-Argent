@@ -55,9 +55,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/backgrounds/image_fond.png'),
-            fit: BoxFit.cover,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1E3A8A), // Bleu royal foncé
+              Color(0xFF3B82F6), // Bleu moyen
+              Color(0xFF60A5FA), // Bleu clair
+              Color(0xFF93C5FD), // Bleu très clair
+            ],
+            stops: [0.0, 0.3, 0.7, 1.0],
           ),
         ),
         child: SafeArea(
@@ -82,6 +89,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black26,
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                ),
+                              ],
                             ),
                           ),
                           SizedBox(height: 8),
@@ -89,7 +103,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             'Mot de passe oublié',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.white70,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -101,14 +116,26 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     
                     // Reset Password Form
                     Container(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white.withOpacity(0.95),
+                        borderRadius: BorderRadius.circular(24),
                         border: Border.all(
                           color: Colors.white.withOpacity(0.2),
                           width: 1,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                          BoxShadow(
+                            color: Colors.white.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, -10),
+                          ),
+                        ],
                       ),
                       child: Form(
                         key: _formKey,
@@ -118,7 +145,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             Text(
                               'Réinitialiser le mot de passe',
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: Colors.white,
+                                color: const Color(0xFF1E3A8A),
                                 fontWeight: FontWeight.bold,
                               ),
                               textAlign: TextAlign.center,
@@ -128,43 +155,52 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             
                             Text(
                               'Entrez votre adresse email pour recevoir un lien de réinitialisation de mot de passe.',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                              style: const TextStyle(
+                                color: Color(0xFF6B7280),
                                 fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                               textAlign: TextAlign.center,
                             ),
                             
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 32),
                             
                             // Email Field
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(
+                                color: Color(0xFF1E3A8A),
+                                fontWeight: FontWeight.w500,
+                              ),
                               decoration: InputDecoration(
                                 labelText: 'Email',
-                                labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-                                prefixIcon: Icon(Icons.email, color: Colors.white.withOpacity(0.8)),
+                                labelStyle: const TextStyle(
+                                  color: Color(0xFF6B7280),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                prefixIcon: const Icon(Icons.email, color: Color(0xFF3B82F6)),
+                                filled: true,
+                                fillColor: const Color(0xFFF8FAFC),
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide.none,
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide.none,
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.red[300]!),
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: Colors.red[400]!, width: 2),
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.red[300]!),
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: Colors.red[400]!, width: 2),
                                 ),
                               ),
                               validator: (value) {
@@ -178,54 +214,73 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               },
                             ),
                             
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 32),
                             
                             // Reset Button
                             Consumer<AuthService>(
                               builder: (context, authService, child) {
-                                return ElevatedButton(
-                                  onPressed: authService.isLoading ? null : _resetPassword,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: const Color(0xFF1E3A8A),
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF3B82F6),
+                                        Color(0xFF1E3A8A),
+                                      ],
                                     ),
-                                    elevation: 2,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF3B82F6).withOpacity(0.3),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
-                                  child: authService.isLoading
-                                      ? const SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1E3A8A)),
+                                  child: ElevatedButton(
+                                    onPressed: authService.isLoading ? null : _resetPassword,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: authService.isLoading
+                                        ? const SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Envoyer le lien',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        )
-                                      : const Text(
-                                          'Envoyer le lien',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                                  ),
                                 );
                               },
                             ),
                             
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 32),
                             
                             // Back to Login
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text(
+                              child: const Text(
                                 'Retour à la connexion',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Color(0xFF3B82F6),
                                   fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),

@@ -45,9 +45,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/backgrounds/image_fond.png'),
-            fit: BoxFit.cover,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1E3A8A), // Bleu royal foncé
+              Color(0xFF3B82F6), // Bleu moyen
+              Color(0xFF60A5FA), // Bleu clair
+              Color(0xFF93C5FD), // Bleu très clair
+            ],
+            stops: [0.0, 0.3, 0.7, 1.0],
           ),
         ),
         child: Column(
@@ -56,11 +63,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withOpacity(0.95),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
@@ -70,27 +84,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Text(
                       'GèrTonArgent',
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
+                        color: const Color(0xFF1E3A8A),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    icon: const Icon(Icons.notifications, color: Color(0xFF3B82F6)),
                     onPressed: () {
                       // TODO: Ouvrir les notifications
                     },
                   ),
-          IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+                  IconButton(
+                    icon: const Icon(Icons.settings, color: Color(0xFF3B82F6)),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
             // Contenu principal
             Expanded(
@@ -117,14 +131,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     'Bonjour, ${authService.currentUser!.name}',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  offset: const Offset(1, 1),
-                                  blurRadius: 2,
-                                ),
-                              ],
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.5),
+                          offset: const Offset(1, 1),
+                          blurRadius: 3,
+                        ),
+                      ],
                     ),
                   ),
                   
@@ -133,10 +147,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Text(
                     'Voici un aperçu de vos finances',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 16,
-                              shadows: [
-                                Shadow(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      shadows: [
+                        Shadow(
                                   color: Colors.black.withOpacity(0.3),
                                   offset: const Offset(1, 1),
                                   blurRadius: 2,

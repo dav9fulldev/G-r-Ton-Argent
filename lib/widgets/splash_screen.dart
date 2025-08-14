@@ -52,27 +52,25 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget>
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1E3A8A), // Bleu royal
-              Color(0xFF3B82F6), // Bleu plus clair
-              Color(0xFF1E40AF), // Bleu intermédiaire
-            ],
-            stops: [0.0, 0.5, 1.0],
+          image: DecorationImage(
+            image: AssetImage('assets/images/backgrounds/image_fond.png'),
+            fit: BoxFit.cover,
           ),
         ),
         child: Stack(
           children: [
-            // Image de fond avec effet de flou
+            // Overlay pour améliorer la lisibilité
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: const AssetImage('assets/images/logo.png'),
-                    fit: BoxFit.cover,
-                    opacity: 0.1, // Très transparent pour l'effet de fond
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.3),
+                      Colors.black.withOpacity(0.1),
+                      Colors.black.withOpacity(0.3),
+                    ],
                   ),
                 ),
               ),
@@ -109,7 +107,7 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget>
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(25),
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.black.withOpacity(0.6),
                               border: Border.all(
                                 color: Colors.white.withOpacity(0.3),
                                 width: 1,
@@ -123,7 +121,7 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget>
                                 fontSize: 32,
                                 shadows: [
                                   Shadow(
-                                    color: Colors.black.withOpacity(0.3),
+                                    color: Colors.black.withOpacity(0.5),
                                     offset: const Offset(2, 2),
                                     blurRadius: 4,
                                   ),
@@ -140,7 +138,7 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget>
                               fontWeight: FontWeight.w500,
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.3),
+                                  color: Colors.black.withOpacity(0.5),
                                   offset: const Offset(1, 1),
                                   blurRadius: 2,
                                 ),
@@ -153,7 +151,7 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget>
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.black.withOpacity(0.6),
                               border: Border.all(
                                 color: Colors.white.withOpacity(0.3),
                                 width: 1,

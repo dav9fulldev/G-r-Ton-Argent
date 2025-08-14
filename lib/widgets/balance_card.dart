@@ -18,7 +18,7 @@ class BalanceCard extends StatelessWidget {
     final budgetPercentage = monthlyBudget > 0 ? (remainingBudget / monthlyBudget) * 100 : 0;
 
     return Card(
-      elevation: 4,
+      elevation: 8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -26,14 +26,21 @@ class BalanceCard extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.primary.withOpacity(0.8),
+              Color(0xFF1E3A8A),
+              Color(0xFF3B82F6),
             ],
           ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF3B82F6).withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,12 +51,13 @@ class BalanceCard extends StatelessWidget {
                 Text(
                   'Solde du mois',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.account_balance_wallet,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white,
                   size: 24,
                 ),
               ],
@@ -98,14 +106,15 @@ class BalanceCard extends StatelessWidget {
                       Text(
                         'Budget mensuel',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       Text(
                         '${budgetPercentage.toStringAsFixed(1)}%',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -130,7 +139,8 @@ class BalanceCard extends StatelessWidget {
                   Text(
                     '${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(remainingBudget)} restant sur ${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(monthlyBudget)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
