@@ -43,7 +43,7 @@ class DefaultFirebaseOptions {
   // TODO: Replace with your actual Firebase project credentials
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBbt6ovImCtkmG4i5tj1EylGZ5NOSbrDO4',
+    
     appId: '1:1067663277279:web:61d7a3e18a61580f20bd6a',
     messagingSenderId: '1067663277279',
     projectId: 'gertonargent-app',
@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
   // Run 'flutterfire configure' to generate these automatically
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDCN19C9jIbUzZMlbwvF6dyioka4RAM7Zw',
+    
     appId: '1:1067663277279:android:3392e26eb31ccb1520bd6a',
     messagingSenderId: '1067663277279',
     projectId: 'gertonargent-app',
@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBTNADrWCMbFch8NO1Zty3ift_RYba1VmQ',
+  
     appId: '1:1067663277279:ios:aa6173e87a15c36020bd6a',
     messagingSenderId: '1067663277279',
     projectId: 'gertonargent-app',
@@ -81,7 +81,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBbt6ovImCtkmG4i5tj1EylGZ5NOSbrDO4',
+   
     appId: '1:1067663277279:web:a84932d798f218b320bd6a',
     messagingSenderId: '1067663277279',
     projectId: 'gertonargent-app',
