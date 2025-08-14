@@ -9,9 +9,13 @@ class TransactionService extends ChangeNotifier {
   final Uuid _uuid = const Uuid();
   List<TransactionModel> _transactions = [];
   bool _isLoading = false;
+  String? _error;
+  bool _isOnline = true;
 
   List<TransactionModel> get transactions => _transactions;
   bool get isLoading => _isLoading;
+  String? get error => _error;
+  bool get isOnline => _isOnline;
 
   // Get transactions for current month
   List<TransactionModel> get currentMonthTransactions {
@@ -55,23 +59,37 @@ class TransactionService extends ChangeNotifier {
     return categoryExpenses;
   }
 
+  // Get total income for current month
+  double get totalIncome {
+    return currentMonthTransactions
+        .where((t) => t.type == TransactionType.income)
+        .fold(0.0, (sum, t) => sum + t.amount);
+  }
+
+  // Get total expenses for current month
+  double get totalExpenses {
+    return currentMonthTransactions
+        .where((t) => t.type == TransactionType.expense)
+        .fold(0.0, (sum, t) => sum + t.amount);
+  }
+
   Future<void> loadTransactions(String userId) async {
-    _isLoading = true;
-    notifyListeners();
+    _setLoading(true);
+    _clearError();
 
     try {
       // Load from local storage first
       await _loadFromLocal(userId);
       
-      // Then sync with Firestore
-      await _loadFromFirestore(userId);
+      // Then sync with Firestore if online
+      if (_isOnline) {
+        await _loadFromFirestore(userId);
+      }
       
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      print('Error loading transactions: $e');
+      _setError('Erreur lors du chargement des transactions: $e');
+      _setLoading(false);
     }
   }
 
@@ -83,6 +101,7 @@ class TransactionService extends ChangeNotifier {
           .toList();
       
       _transactions = localTransactions;
+      _transactions.sort((a, b) => b.date.compareTo(a.date));
     } catch (e) {
       print('Error loading from local storage: $e');
     }
@@ -120,6 +139,7 @@ class TransactionService extends ChangeNotifier {
       await _saveToLocal();
     } catch (e) {
       print('Error loading from Firestore: $e');
+      _isOnline = false;
     }
   }
 
@@ -153,67 +173,139 @@ class TransactionService extends ChangeNotifier {
     );
 
     try {
-      // Add to Firestore
-      await _firestore
-          .collection('transactions')
-          .doc(transaction.id)
-          .set(transaction.toMap());
-
-      // Add to local list
+      // Add to local list immediately for responsive UI
       _transactions.insert(0, transaction);
-      
-      // Save to local storage
       await _saveToLocal();
-
       notifyListeners();
+
+      // Add to Firestore if online
+      if (_isOnline) {
+        await _firestore
+            .collection('transactions')
+            .doc(transaction.id)
+            .set(transaction.toMap());
+      } else {
+        // Queue for later sync
+        await _addToOfflineQueue(transaction);
+      }
     } catch (e) {
-      print('Error adding transaction: $e');
+      // Remove from local list if Firestore fails
+      _transactions.removeAt(0);
+      await _saveToLocal();
+      notifyListeners();
+      _setError('Erreur lors de l\'ajout de la transaction: $e');
       rethrow;
     }
   }
 
   Future<void> updateTransaction(TransactionModel transaction) async {
     try {
-      // Update in Firestore
-      await _firestore
-          .collection('transactions')
-          .doc(transaction.id)
-          .update(transaction.toMap());
-
-      // Update in local list
+      // Update in local list immediately
       final index = _transactions.indexWhere((t) => t.id == transaction.id);
       if (index != -1) {
         _transactions[index] = transaction;
+        await _saveToLocal();
+        notifyListeners();
       }
-      
-      // Save to local storage
-      await _saveToLocal();
 
-      notifyListeners();
+      // Update in Firestore if online
+      if (_isOnline) {
+        await _firestore
+            .collection('transactions')
+            .doc(transaction.id)
+            .update(transaction.toMap());
+      } else {
+        // Queue for later sync
+        await _addToOfflineQueue(transaction, isUpdate: true);
+      }
     } catch (e) {
-      print('Error updating transaction: $e');
+      _setError('Erreur lors de la mise à jour de la transaction: $e');
       rethrow;
     }
   }
 
   Future<void> deleteTransaction(String transactionId) async {
     try {
-      // Delete from Firestore
-      await _firestore
-          .collection('transactions')
-          .doc(transactionId)
-          .delete();
-
-      // Remove from local list
+      // Remove from local list immediately
       _transactions.removeWhere((t) => t.id == transactionId);
-      
-      // Save to local storage
       await _saveToLocal();
-
       notifyListeners();
+
+      // Delete from Firestore if online
+      if (_isOnline) {
+        await _firestore
+            .collection('transactions')
+            .doc(transactionId)
+            .delete();
+      } else {
+        // Queue for later sync
+        await _addToOfflineQueue(null, transactionId: transactionId, isDelete: true);
+      }
     } catch (e) {
-      print('Error deleting transaction: $e');
+      _setError('Erreur lors de la suppression de la transaction: $e');
       rethrow;
+    }
+  }
+
+  Future<void> _addToOfflineQueue(
+    TransactionModel? transaction, {
+    String? transactionId,
+    bool isUpdate = false,
+    bool isDelete = false,
+  }) async {
+    try {
+      final box = Hive.box('offline_queue');
+      final queueItem = {
+        'action': isDelete ? 'delete' : (isUpdate ? 'update' : 'add'),
+        'transaction': transaction?.toMap(),
+        'transactionId': transactionId,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      };
+      await box.add(queueItem);
+    } catch (e) {
+      print('Error adding to offline queue: $e');
+    }
+  }
+
+  Future<void> syncOfflineQueue() async {
+    if (!_isOnline) return;
+
+    try {
+      final box = Hive.box('offline_queue');
+      final queue = box.values.toList();
+      
+      for (final item in queue) {
+        try {
+          switch (item['action']) {
+            case 'add':
+              final transaction = TransactionModel.fromMap(item['transaction']);
+              await _firestore
+                  .collection('transactions')
+                  .doc(transaction.id)
+                  .set(transaction.toMap());
+              break;
+            case 'update':
+              final transaction = TransactionModel.fromMap(item['transaction']);
+              await _firestore
+                  .collection('transactions')
+                  .doc(transaction.id)
+                  .update(transaction.toMap());
+              break;
+            case 'delete':
+              await _firestore
+                  .collection('transactions')
+                  .doc(item['transactionId'])
+                  .delete();
+              break;
+          }
+        } catch (e) {
+          print('Error syncing queue item: $e');
+        }
+      }
+      
+      await box.clear();
+    } catch (e) {
+      print('Error syncing offline queue: $e');
     }
   }
 
@@ -225,17 +317,25 @@ class TransactionService extends ChangeNotifier {
     }).toList();
   }
 
-  // Get total income for a period
-  double getTotalIncome(List<TransactionModel> transactions) {
-    return transactions
-        .where((t) => t.type == TransactionType.income)
-        .fold(0.0, (sum, t) => sum + t.amount);
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
   }
 
-  // Get total expenses for a period
-  double getTotalExpenses(List<TransactionModel> transactions) {
-    return transactions
-        .where((t) => t.type == TransactionType.expense)
-        .fold(0.0, (sum, t) => sum + t.amount);
+  void _setError(String error) {
+    _error = error;
+    notifyListeners();
+  }
+
+  void _clearError() {
+    _error = null;
+    notifyListeners();
+  }
+
+  void setOnlineStatus(bool online) {
+    _isOnline = online;
+    if (online) {
+      syncOfflineQueue();
+    }
   }
 }

@@ -25,8 +25,8 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
     setState(() => _isLoading = true);
     
     try {
-             final authService = Provider.of<MockAuthService>(context, listen: false);
-       final transactionService = Provider.of<MockTransactionService>(context, listen: false);
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final transactionService = Provider.of<TransactionService>(context, listen: false);
       final aiService = Provider.of<AIService>(context, listen: false);
       
       if (authService.currentUser != null) {

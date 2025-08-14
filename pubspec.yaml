@@ -30,6 +30,8 @@ dependencies:
   # Utils
   uuid: ^4.4.0
   flutter_local_notifications: ^17.2.2
+  http: ^1.2.0
+  connectivity_plus: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -40,5 +42,16 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/images/backgrounds/
 
-
+flutter_native_splash:
+  color: "#000000"
+  image: "assets/images/logo.png"
+  web: false
+  android: true
+  ios: true
+  windows: false
+  linux: false
+  macos: false

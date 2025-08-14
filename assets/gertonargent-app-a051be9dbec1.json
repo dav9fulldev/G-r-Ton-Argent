@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "gertonargent-app",
+  "private_key_id": "a051be9dbec19a2be87f03f7f62090608428da59",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDAoLwtEnNj0xw1\nrpJQMrlICr1I53VajGwuatDZbfEE7kpCSi5Z3VXvshn7Bui+SIRGkQv4bW0tXPv2\nVwmdiSZTdeK6s6U+qdiHYSR+v6u/FwpwVcgg4z8rGzzQI8xgNMCv2rs/l5vV/TSg\nyK1IV2CA5TYh4XMKFWlynBC8p6g2yuZzPZ6dSiVKH3r+qZDnq4wiNuwNlQvYlfLX\nTrNEhLZWeN7L5h70C9iehCNr/dhASh+lT+1Jr6nlTOhcqEBOBUPDGGS9N1qU4oZ3\nizCntdaU4o2QrkOjV6bwnbqPgehf6sjoorMht2Q8DmIumVW8TVtLiGIIjPRlLjIm\n7/WVRQKRAgMBAAECggEAI0Env44JbWM1XgPRxnjKHUvN4dpuyYA6ynIFQE4VVwQv\nthsyiYLvV/u+MonMrgrCntGsIa8RVMSYXrkGSv1PdOX19ZqsayAVv41Bays0SThz\n0iR5CL/ej0qgYi2zGYZ+H5FGRPi/7jW13Jlt0XggcubAdgn3johlsLKsg4Kh0EkX\n2pYJLJBaI+ipS2RS3vLMfIabVV/iiM9ut+xQ3gdcv+RgiragTXj8Aq80Idj3tOgx\nSvgc94e5TJHES8pk+U+DDtcV8/hLJu75VdjSyvVjenAVOlg428jsCjiStDX0tx67\n4BdJ3D53/iSQ6tMr1aRwFgl7QGS6f3p8MJbMrS7O4wKBgQDskxKl3CeCombuX6QK\ndpfQXFKDfJnrLqXYJAtIpbZx/Bav8ZPSzqsZwL5bluCueXZso9Gz/jE2ssBPXpTe\njNiGR41GlXrcGARmWipvDYJ3lK5JvF9Qzf4WeParpSUBoPMw5TmEzxwC7dL39Ict\nODBciBbHWJNcMPClXbwZRvWmiwKBgQDQceExlA7eBrD6lGwVejrK86OiloaIN2lV\nJAoljq0VS/arIcDYAV2u5eZVL9So0wFehr15uglayQx9Ct3pZXlwgEoJT/6tLoD0\n/qwok60td5Xn+xRIXaQZJUl93JJjhuDn+qKl+LPl9hroeUQZBmLFiEzw+DjLOGnS\nmQKS2pv60wKBgHx0XrIMoGhz4Sxz+gtbGkCN4Qa1DRARSUPsqlb8fn92e8TxlK+o\n85AnurzaIbcHxQogIFjNV7yLyum2OyDc/aeeiq7gQnL424+wzXQAqmsYN5wo0gfj\nZlESL8papZ42utk1Lc41WmocDQlOhbJ/RcnX+gvDCDrOsDp+lk7B6sdDAoGBAIGr\nJhzSbwE9hmELbcVamTJhqBzfqOcaGWOGnO1KOW/zJorE35NAHkhL6iJ6M7+mK8bi\n6QHNcj5QrX0oAm5L2uTaWbQ7WEHhmQVPXEeNvoB3UQDT14VBA3FFGde7HDHf2Q9W\nglHfSgI3O/v8XBl5OH6LUNnigGojOOlymABFEB1TAoGBAMbmBWgqhaeIHW6mXpoy\n3DDHJbtbNrt+zeTX9R1zLZ5E6OAxxr5aN1ZngHm0cOlubReiX7oziqj7L73ATPm8\nrog34TtQbGybjsPegIfvnLXPtNCGIUA1BrZQ6u4D74jbCJtFNGVrwXbJsMU+7aeL\nspDSFrBKnLoEhsH3x0C4P5fz\n-----END PRIVATE KEY-----\n",
+  "client_email": "flutterfire-config@gertonargent-app.iam.gserviceaccount.com",
+  "client_id": "117256921699561585948",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/flutterfire-config%40gertonargent-app.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1067663277279",
+    "project_id": "gertonargent-app",
+    "storage_bucket": "gertonargent-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067663277279:android:3392e26eb31ccb1520bd6a",
+        "android_client_info": {
+          "package_name": "com.example.ger_ton_argent"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCN19C9jIbUzZMlbwvF6dyioka4RAM7Zw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

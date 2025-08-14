@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import '../../services/mock_auth_service.dart';
 import '../../services/mock_transaction_service.dart';
-import '../../models/transaction_model.dart';
 import '../transactions/add_transaction_screen.dart';
 import '../transactions/transaction_details_screen.dart';
 import '../transactions/transaction_list_screen.dart';
@@ -12,6 +10,9 @@ import '../../widgets/balance_card.dart';
 import '../../widgets/expense_chart.dart';
 import '../../widgets/transaction_list_item.dart';
 import '../../widgets/financial_tips_widget.dart';
+import '../../widgets/budget_planning_widget.dart';
+import '../../widgets/spending_insights_widget.dart';
+import '../../widgets/app_logo.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -30,8 +31,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadData() async {
-    final authService = Provider.of<MockAuthService>(context, listen: false);
-    final transactionService = Provider.of<MockTransactionService>(context, listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final transactionService = Provider.of<TransactionService>(context, listen: false);
     
     if (authService.currentUser != null) {
       await transactionService.loadTransactions(authService.currentUser!.uid);
@@ -41,12 +42,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        title: const Text('GèrTonArgent'),
-        actions: [
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF1E3A8A), // Bleu royal
+              Color(0xFF3B82F6), // Bleu plus clair
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            // AppBar personnalisé
+            Container(
+              padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const AppLogo(size: 40),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'GèrTonArgent',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    onPressed: () {
+                      // TODO: Ouvrir les notifications
+                    },
+                  ),
           IconButton(
-            icon: const Icon(Icons.settings),
+                    icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -55,15 +94,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-             body: Consumer2<MockAuthService, MockTransactionService>(
+            ),
+            // Contenu principal
+            Expanded(
+              child: Consumer2<AuthService, TransactionService>(
         builder: (context, authService, transactionService, child) {
           if (authService.currentUser == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Handle different tabs
-          if (_selectedIndex == 1) {
-            return const TransactionListScreen();
+                  // Handle different tabs
+                  if (_selectedIndex == 1) {
+                    return const TransactionListScreen();
           }
 
           return RefreshIndicator(
@@ -78,6 +120,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     'Bonjour, ${authService.currentUser!.name}',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  offset: const Offset(1, 1),
+                                  blurRadius: 2,
+                                ),
+                              ],
                     ),
                   ),
                   
@@ -86,7 +136,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Text(
                     'Voici un aperçu de vos finances',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 16,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  offset: const Offset(1, 1),
+                                  blurRadius: 2,
+                                ),
+                              ],
                     ),
                   ),
 
@@ -94,87 +152,168 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   // Balance Card
                   BalanceCard(
-                    balance: transactionService.currentMonthBalance,
-                    monthlyBudget: authService.currentUser!.monthlyBudget,
+                            balance: transactionService.currentMonthBalance,
+                            monthlyBudget: 100000.0, // You might want to get this from user settings
                   ),
 
                   const SizedBox(height: 24),
 
-                  // Quick Stats
+                          // Quick Actions
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Actions rapides',
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
-                        child: _buildStatCard(
-                          'Revenus',
-                          transactionService.getTotalIncome(transactionService.currentMonthTransactions),
-                          Icons.trending_up,
-                          Colors.green,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
+                                      child: ElevatedButton.icon(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => const AddTransactionScreen(),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.add),
+                                        label: const Text('Ajouter'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: const Color(0xFF1E3A8A),
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
                       Expanded(
-                        child: _buildStatCard(
-                          'Dépenses',
-                          transactionService.getTotalExpenses(transactionService.currentMonthTransactions),
-                          Icons.trending_down,
-                          Colors.red,
+                                      child: ElevatedButton.icon(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => const TransactionListScreen(),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.list),
+                                        label: const Text('Voir tout'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white.withOpacity(0.2),
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
                         ),
                       ),
                     ],
+                                ),
+                              ],
+                            ),
                   ),
 
                   const SizedBox(height: 24),
 
                   // Expense Chart
-                  if (transactionService.expensesByCategory.isNotEmpty) ...[
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                     Text(
                       'Répartition des dépenses',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ExpenseChart(
-                      expensesByCategory: transactionService.expensesByCategory,
-                    ),
+                                SizedBox(
+                                  height: 200,
+                                  child: ExpenseChart(
+                                    expensesByCategory: transactionService.expensesByCategory,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
                     const SizedBox(height: 24),
-                  ],
-
-                  // Financial Tips
-                  const FinancialTipsWidget(),
-
-                  const SizedBox(height: 24),
 
                   // Recent Transactions
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'Transactions récentes',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
                         ),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const TransactionListScreen()),
-                          );
-                        },
-                        child: const Text('Voir tout'),
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => const TransactionListScreen(),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        'Voir tout',
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.8),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Transaction List
-                  if (transactionService.transactions.isEmpty)
-                    _buildEmptyState()
-                  else
-                    ...transactionService.transactions
-                        .take(5)
-                        .map((transaction) => TransactionListItem(
+                                ...transactionService.currentMonthTransactions.take(3).map((transaction) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: TransactionListItem(
                               transaction: transaction,
                               onTap: () {
                                 Navigator.of(context).push(
@@ -185,13 +324,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                 );
                               },
-                            ))
-                        .toList(),
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+
+                                            const SizedBox(height: 24),
+
+                  // Budget Planning Widget
+                  const BudgetPlanningWidget(),
+
+                  const SizedBox(height: 24),
+
+                  // Spending Insights Widget
+                  const SpendingInsightsWidget(),
+
+                  const SizedBox(height: 24),
+
+                  // Financial Tips
+                  const FinancialTipsWidget(),
+
+                          const SizedBox(height: 24),
                 ],
               ),
             ),
           );
         },
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const AddTransactionScreen(),
+            ),
+          );
+        },
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF1E3A8A),
+        child: const Icon(Icons.add),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -200,6 +376,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _selectedIndex = index;
           });
         },
+        backgroundColor: Colors.white.withOpacity(0.1),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white.withOpacity(0.6),
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
@@ -208,81 +388,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Transactions',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Ajouter',
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const AddTransactionScreen()),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String title, double amount, IconData icon, Color color) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(amount)}',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          Icon(
-            Icons.receipt_long,
-            size: 64,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Aucune transaction',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Commencez par ajouter votre première transaction',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-            ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

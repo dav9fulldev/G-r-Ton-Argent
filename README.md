@@ -1,236 +1,249 @@
-## GèrTonArgent (BudgetWise)
+# GèrTonArgent - Gestionnaire de Budget Personnel
 
-Personal finance manager for Côte d'Ivoire: track income, expenses, and your real‑time monthly balance. Cross‑platform with Flutter (Android, iOS, Web), backed by Firebase. Includes proactive budget overrun alerts and an optional AI “pre‑spending advice” feature.
+Une application mobile et web moderne pour la gestion de budget personnel, spécialement conçue pour les utilisateurs en Côte d'Ivoire.
 
----
+## 🚀 Fonctionnalités
 
-### 1) Problem Statement
-Many young people (students, young professionals) in Côte d'Ivoire lack a structured tool to manage personal finances. Daily spending happens without a clear overview, leading to frequent budget overruns by month‑end. This project provides a simple, intuitive, and visual tool to manage a monthly budget, track income and expenses, and view the remaining balance in real time.
+### ✅ Fonctionnalités Implémentées
+- **Authentification Firebase** - Connexion sécurisée avec email/mot de passe
+- **Gestion des Transactions** - Ajout, modification et suppression de transactions
+- **Dashboard Interactif** - Vue d'ensemble des finances avec graphiques
+- **Planification de Budget** - Définition et suivi du budget mensuel
+- **Analyses de Dépenses** - Insights détaillés sur les habitudes de dépenses
+- **Conseils IA** - Recommandations personnalisées basées sur les données
+- **Stockage Hors Ligne** - Synchronisation automatique avec Hive
+- **Notifications Push** - Alertes de dépassement de budget
+- **Interface Responsive** - Compatible mobile et web
 
-### 2) Solution Overview
-GèrTonArgent (aka “BudgetWise”) is a Flutter application for mobile (Android/iOS) and Web. Users can:
-- Create a personal account
-- Record income and expenses
-- See real‑time remaining balance
-- View a pie chart breakdown of expenses by category
-- Receive alerts in case of budget overruns
+### 🔄 Fonctionnalités en Développement
+- Intégration GPT API complète
+- Fonctionnalités sociales
+- Commandes vocales
+- Paiements QR Code
+- Gamification
 
-### 3) Feature Breakdown
-#### 3.1 User Interface (Flutter)
-- **Dashboard**: monthly balance, expense distribution (pie chart), transaction history
-- **Transaction Form**: add income/expense; fields for amount, category, date, description; set monthly budget
-- **Authentication**: account creation/login with Firebase Auth (email/password)
+## 🛠️ Technologies Utilisées
 
-#### 3.2 Back End / Services (Firebase + Cloud Functions)
-- Store users and transactions in Firestore
-- Compute balance and statistics
-- Send push alerts via Firebase Cloud Messaging when budget is exceeded
+- **Frontend**: Flutter 3.x
+- **Backend**: Firebase (Auth, Firestore, Cloud Messaging)
+- **Base de Données**: Firestore + Hive (stockage local)
+- **Graphiques**: fl_chart
+- **IA**: OpenAI GPT API (optionnel)
+- **Notifications**: Firebase Cloud Messaging
+- **État**: Provider Pattern
 
-#### 3.3 Database (Firestore; Hive for offline)
-Collections:
-- `users`: email, name, monthlyBudget
-- `transactions`: amount, type (income|expense), category, date, userUid
+## 📱 Captures d'Écran
 
-### 4) Technical Architecture
-- **Frontend**: Flutter 3.x (mobile + web)
-- **Backend**: Firebase (Auth, Firestore, Cloud Functions)
-- **Offline Storage**: Hive
-- **Charts**: `fl_chart`
-- **Notifications**: Firebase Cloud Messaging (FCM)
+*Captures d'écran à ajouter*
 
-### 5) User Study – Feature Expectations (n=30)
-- **Planning of monthly budget**: 78%
-- **Budget overrun alerts**: 68%
-- **Expense breakdown (chart)**: 58%
-- **Transaction history**: 56%
-- **Real‑time balance**: 52%
-- **Advice before spending**: 2%
+## 🚀 Installation et Configuration
 
-These results validate the need for a clear, graphical, and proactive tool. The low selection of “advice before spending” leaves room for future innovation via smart, optional coaching.
+### Prérequis
+- Flutter SDK 3.8.0 ou supérieur
+- Dart SDK
+- Firebase Project
+- Compte OpenAI (optionnel pour les conseils IA)
 
-### 6) Development Plan
-- **Sprint 1**: Auth + Base UI (Home, Login/Register; Firebase Auth), Transaction model
-- **Sprint 2**: Transaction Entry (form, save to Firestore, history list)
-- **Sprint 3**: Visualization (dashboard + pie chart)
-- **Sprint 4**: Monthly Budget + Alerts (limit + FCM notifications)
-- **Sprint 5**: Finalization (responsive web, testing across Android/iOS/Web, documentation)
-
-### 7) Deployment
-- **Web**: Firebase Hosting
-- **Android**: APK/AAB for testing/distribution
-- **Data**: Firestore
-
-### 8) Technical Stack Summary
-- **Language**: Dart (Flutter)
-- **Backend**: Firebase
-- **Database**: Firestore (+ Hive offline)
-- **Charts**: `fl_chart`
-- **Notifications**: Firebase Messaging (FCM)
-- **Hosting**: Firebase Hosting
-
-### 9) Artificial Intelligence: Pre‑Spending Advice
-Optional AI advice is shown when the user is about to record an expense, to encourage reflection and reduce impulsive spending.
-
-Objectives:
-- Deliver personalized prompts like “Do you really need to make this expense now? It might affect your monthly budget.”
-- Adapt to remaining balance, percentage of budget used, and expense category (leisure, food, transport, etc.).
-
-Technology:
-- GPT API (OpenAI)
-- Triggered via a Firebase Cloud Function on new expense
-- Dynamic response shown in Flutter UI
-
-Example message:
-“Your current balance is 12,500 FCFA. This expense of 5,000 FCFA represents 40% of your remaining monthly funds. Is this essential? You might want to wait or reduce the amount.”
-
-Processing flow:
-Flutter Form → Cloud Function → GPT API (OpenAI) → Message to UI
-
-Advantages:
-- Supports better decision‑making
-- Interactive, intelligent UX
-- Differentiating feature
-
-Limitations:
-- Advice only; not enforced
-- Data anonymized
-- Feature can be disabled in settings
-
----
-
-## Project Structure (high level)
-```
-lib/
-  main.dart
-  models/
-    transaction_model.dart
-    user_model.dart
-  screens/
-    auth/
-      login_screen.dart
-      register_screen.dart
-    home/
-      dashboard_screen.dart
-    transactions/
-      add_transaction_screen.dart
-      transaction_details_screen.dart
-    settings/
-      settings_screen.dart
-    splash_screen.dart
-  services/
-    auth_service.dart
-    transaction_service.dart
-    notification_service.dart
-  utils/
-    theme.dart
-  widgets/
-    balance_card.dart
-    expense_chart.dart
-    transaction_list_item.dart
-firebase_options.dart
-pubspec.yaml
+### 1. Cloner le Projet
+```bash
+git clone https://github.com/votre-username/ger-ton-argent.git
+cd ger-ton-argent
 ```
 
----
-
-## Getting Started (Development)
-
-### Prerequisites
-- Flutter SDK 3.x installed
-- Dart SDK (bundled with Flutter)
-- Firebase project created (Auth, Firestore, FCM, Hosting)
-- Node.js 18+ (for Cloud Functions if you enable AI advice)
-
-### 1) Install dependencies
-```
+### 2. Installer les Dépendances
+```bash
 flutter pub get
 ```
 
-### 2) Configure Firebase
-Use FlutterFire CLI to generate `firebase_options.dart` (already present in this repo, regenerate if needed):
-```
-dart pub global activate flutterfire_cli
-flutterfire configure
-```
+### 3. Configuration Firebase
 
-Enable in Firebase Console:
-- Authentication: Email/Password
-- Firestore: rules per your needs (start in test mode for dev)
-- Cloud Messaging (FCM): set up for Android/iOS/Web
+#### Créer un Projet Firebase
+1. Allez sur [Firebase Console](https://console.firebase.google.com/)
+2. Créez un nouveau projet
+3. Activez Authentication (Email/Password)
+4. Créez une base de données Firestore
+5. Configurez Cloud Messaging
 
-### 3) Run the app
-```
-flutter run -d chrome      # Web
-flutter run -d windows     # Windows (if enabled)
-flutter run -d android     # Android
-flutter run -d ios         # iOS (on macOS)
-```
+#### Configurer l'Application
+1. Ajoutez votre application Android/iOS dans Firebase
+2. Téléchargez le fichier `google-services.json` (Android) ou `GoogleService-Info.plist` (iOS)
+3. Placez le fichier dans le dossier approprié :
+   - Android: `android/app/google-services.json`
+   - iOS: `ios/Runner/GoogleService-Info.plist`
 
----
+#### Mettre à Jour firebase_options.dart
+Remplacez les valeurs mock dans `lib/firebase_options.dart` par vos vraies valeurs Firebase :
 
-## AI Advice via Cloud Functions (optional)
-
-This feature is optional and off by default. Implementation outline:
-
-1) In your Firebase project, create a Cloud Function that listens to new expense documents in `transactions`.
-2) The Function computes remaining budget context, calls the OpenAI API, and writes an `advice` field back or sends it via FCM.
-3) Flutter UI displays the returned advice to the user.
-
-Minimal pseudo‑implementation (Node.js):
-```js
-// functions/index.js (outline)
-exports.onExpenseCreate = functions.firestore
-  .document('transactions/{id}')
-  .onCreate(async (snap, ctx) => {
-    const txn = snap.data();
-    // Compute remaining budget and context for the user...
-    // Call OpenAI (use Functions config for API key):
-    // const openaiKey = functions.config().openai.key;
-    // const advice = await fetchOpenAiAdvice({...});
-    // await snap.ref.update({ advice, adviceGeneratedAt: new Date() });
-  });
+```dart
+static const FirebaseOptions web = FirebaseOptions(
+  apiKey: 'votre-api-key',
+  appId: 'votre-app-id',
+  messagingSenderId: 'votre-sender-id',
+  projectId: 'votre-project-id',
+  authDomain: 'votre-project.firebaseapp.com',
+  storageBucket: 'votre-project.appspot.com',
+);
 ```
 
-Configure secret:
+### 4. Configuration OpenAI (Optionnel)
+Pour activer les conseils IA avancés :
+
+1. Créez un compte sur [OpenAI](https://openai.com/)
+2. Générez une clé API
+3. Remplacez `your-openai-api-key-here` dans `lib/services/ai_service.dart`
+
+```dart
+static const String _apiKey = 'sk-votre-vraie-cle-api';
 ```
-firebase functions:config:set openai.key="YOUR_OPENAI_API_KEY"
-firebase deploy --only functions
+
+### 5. Lancer l'Application
+
+#### Mode Développement
+```bash
+flutter run
 ```
 
-In Flutter, read the `advice` on the transaction document or listen to a dedicated collection/message and show it in the UI. Provide a toggle in settings to disable this feature.
+#### Build de Production
+```bash
+# Android
+flutter build apk --release
 
----
+# iOS
+flutter build ios --release
 
-## Build & Deployment
-
-### Web (Firebase Hosting)
+# Web
+flutter build web --release
 ```
+
+## 📊 Structure du Projet
+
+```
+lib/
+├── main.dart                 # Point d'entrée de l'application
+├── firebase_options.dart     # Configuration Firebase
+├── models/                   # Modèles de données
+│   ├── transaction_model.dart
+│   └── user_model.dart
+├── screens/                  # Écrans de l'application
+│   ├── auth/                # Authentification
+│   ├── home/                # Dashboard principal
+│   ├── transactions/        # Gestion des transactions
+│   └── settings/            # Paramètres
+├── services/                # Services métier
+│   ├── auth_service.dart    # Authentification Firebase
+│   ├── transaction_service.dart # Gestion des transactions
+│   ├── ai_service.dart      # Service IA
+│   ├── notification_service.dart # Notifications
+│   └── connectivity_service.dart # Connectivité
+├── widgets/                 # Composants réutilisables
+│   ├── balance_card.dart
+│   ├── budget_planning_widget.dart
+│   ├── spending_insights_widget.dart
+│   └── ...
+└── utils/                   # Utilitaires
+    └── theme.dart           # Thème de l'application
+```
+
+## 🔧 Configuration Avancée
+
+### Variables d'Environnement
+Créez un fichier `.env` à la racine du projet :
+
+```env
+FIREBASE_API_KEY=votre-api-key
+FIREBASE_PROJECT_ID=votre-project-id
+OPENAI_API_KEY=votre-openai-key
+```
+
+### Règles Firestore
+Configurez les règles de sécurité Firestore :
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /transactions/{transactionId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+    }
+  }
+}
+```
+
+## 🧪 Tests
+
+```bash
+# Tests unitaires
+flutter test
+
+# Tests d'intégration
+flutter test integration_test/
+```
+
+## 📈 Déploiement
+
+### Firebase Hosting (Web)
+```bash
 flutter build web
-firebase init hosting
 firebase deploy --only hosting
 ```
 
-### Android
+### Google Play Store (Android)
+```bash
+flutter build appbundle --release
+# Téléchargez le fichier .aab et uploadez-le sur Google Play Console
 ```
-flutter build apk --release
+
+### App Store (iOS)
+```bash
+flutter build ios --release
+# Ouvrez Xcode et archivez l'application
 ```
+
+## 🤝 Contribution
+
+1. Fork le projet
+2. Créez une branche feature (`git checkout -b feature/AmazingFeature`)
+3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
+
+## 📝 Licence
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+## 🆘 Support
+
+Pour toute question ou problème :
+- Ouvrez une issue sur GitHub
+- Contactez l'équipe de développement
+- Consultez la documentation Firebase
+
+## 🎯 Roadmap
+
+### Version 1.1
+- [ ] Intégration complète GPT API
+- [ ] Fonctionnalités sociales
+- [ ] Commandes vocales
+- [ ] Paiements QR Code
+
+### Version 1.2
+- [ ] Gamification
+- [ ] Objectifs financiers
+- [ ] Rapports avancés
+- [ ] Export de données
+
+### Version 2.0
+- [ ] IA prédictive
+- [ ] Intégration bancaire
+- [ ] Multi-devises
+- [ ] API publique
 
 ---
 
-## Contributing
-- Use clear commit messages.
-- Run static analysis before pushing:
-```
-flutter analyze
-```
-- Format code:
-```
-dart format .
-```
-
----
-
-## License
-MIT (or your chosen license)
+**Développé avec ❤️ pour la communauté ivoirienne**
 
 

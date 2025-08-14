@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'user_model.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 3)
 class UserModel extends HiveObject {
   @HiveField(0)
   final String uid;
@@ -26,10 +26,28 @@ class UserModel extends HiveObject {
     required this.uid,
     required this.email,
     required this.name,
-    this.monthlyBudget = 0.0,
+    required this.monthlyBudget,
     required this.createdAt,
     this.aiAdviceEnabled = true,
   });
+
+  UserModel copyWith({
+    String? uid,
+    String? email,
+    String? name,
+    double? monthlyBudget,
+    DateTime? createdAt,
+    bool? aiAdviceEnabled,
+  }) {
+    return UserModel(
+      uid: uid ?? this.uid,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      monthlyBudget: monthlyBudget ?? this.monthlyBudget,
+      createdAt: createdAt ?? this.createdAt,
+      aiAdviceEnabled: aiAdviceEnabled ?? this.aiAdviceEnabled,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -53,21 +71,30 @@ class UserModel extends HiveObject {
     );
   }
 
-  UserModel copyWith({
-    String? uid,
-    String? email,
-    String? name,
-    double? monthlyBudget,
-    DateTime? createdAt,
-    bool? aiAdviceEnabled,
-  }) {
-    return UserModel(
-      uid: uid ?? this.uid,
-      email: email ?? this.email,
-      name: name ?? this.name,
-      monthlyBudget: monthlyBudget ?? this.monthlyBudget,
-      createdAt: createdAt ?? this.createdAt,
-      aiAdviceEnabled: aiAdviceEnabled ?? this.aiAdviceEnabled,
-    );
+  @override
+  String toString() {
+    return 'UserModel(uid: $uid, email: $email, name: $name, monthlyBudget: $monthlyBudget, createdAt: $createdAt, aiAdviceEnabled: $aiAdviceEnabled)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is UserModel &&
+        other.uid == uid &&
+        other.email == email &&
+        other.name == name &&
+        other.monthlyBudget == monthlyBudget &&
+        other.createdAt == createdAt &&
+        other.aiAdviceEnabled == aiAdviceEnabled;
+  }
+
+  @override
+  int get hashCode {
+    return uid.hashCode ^
+        email.hashCode ^
+        name.hashCode ^
+        monthlyBudget.hashCode ^
+        createdAt.hashCode ^
+        aiAdviceEnabled.hashCode;
   }
 }

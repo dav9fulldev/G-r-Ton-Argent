@@ -22,7 +22,7 @@ class AppTheme {
     final base = ThemeData.dark(useMaterial3: true);
     return base.copyWith(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF3E8E7E),
+        seedColor: const Color(0xFF1E3A8A), // Bleu royal plus attrayant
         brightness: Brightness.dark,
       ),
       textTheme: GoogleFonts.poppinsTextTheme(base.textTheme),

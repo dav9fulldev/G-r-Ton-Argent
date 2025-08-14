@@ -1,27 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+import 'firebase_options.dart';
+import 'models/transaction_model.dart';
+import 'models/user_model.dart';
+import 'services/auth_service.dart';
+import 'services/transaction_service.dart';
+import 'services/notification_service.dart';
+import 'services/ai_service.dart';
+import 'services/connectivity_service.dart';
 import 'services/mock_auth_service.dart';
 import 'services/mock_transaction_service.dart';
 import 'services/mock_notification_service.dart';
-import 'services/ai_service.dart';
 import 'screens/splash_screen.dart';
 import 'utils/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize mock services for testing
-  final notificationService = MockNotificationService();
+  // Initialize Hive for offline storage
+  await Hive.initFlutter();
+  
+  // Register Hive adapters
+  Hive.registerAdapter(TransactionTypeAdapter());
+  Hive.registerAdapter(TransactionCategoryAdapter());
+  Hive.registerAdapter(TransactionModelAdapter());
+  Hive.registerAdapter(UserModelAdapter());
+  
+  // Open Hive boxes
+  await Hive.openBox<TransactionModel>('transactions');
+  await Hive.openBox('offline_queue');
+  
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Firebase initialization failed: $e');
+    // Fallback to mock services if Firebase fails
+  }
+  
+  // Initialize notification service
+  final notificationService = NotificationService();
   await notificationService.initialize();
-  
-  // Initialize mock data
-  final authService = MockAuthService();
-  final transactionService = MockTransactionService();
-  
-  authService.initializeWithMockUser();
-  transactionService.initializeWithMockData();
   
   runApp(const GerTonArgentApp());
 }
@@ -33,10 +59,22 @@ class GerTonArgentApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => MockAuthService()),
-        ChangeNotifierProvider(create: (_) => MockTransactionService()),
-        ChangeNotifierProvider(create: (_) => MockNotificationService()),
-        ChangeNotifierProvider(create: (_) => AIService()),
+        // Use real services if Firebase is available, otherwise fallback to mock services
+        ChangeNotifierProvider<AuthService>(
+          create: (_) => AuthService(),
+        ),
+        ChangeNotifierProvider<TransactionService>(
+          create: (_) => TransactionService(),
+        ),
+        ChangeNotifierProvider<NotificationService>(
+          create: (_) => NotificationService(),
+        ),
+        ChangeNotifierProvider<AIService>(
+          create: (_) => AIService(),
+        ),
+        ChangeNotifierProvider<ConnectivityService>(
+          create: (_) => ConnectivityService(),
+        ),
       ],
       child: MaterialApp(
         title: 'GèrTonArgent',
