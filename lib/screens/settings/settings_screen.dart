@@ -45,12 +45,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _updateBudget() async {
     final amount = double.tryParse(_budgetController.text);
     if (amount == null || amount < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez entrer un montant valide'),
-          backgroundColor: Colors.red,
-        ),
-      );
+             ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+           content: Text('invalid_amount'.tr()),
+           backgroundColor: Colors.red,
+         ),
+       );
       return;
     }
 
@@ -64,8 +64,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Budget mis à jour avec succès'),
+          SnackBar(
+            content: Text('budget_updated'.tr()),
             backgroundColor: Colors.green,
           ),
         );
@@ -74,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: ${e.toString()}'),
+            content: Text('${'error'.tr()}: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -100,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(enabled ? 'Conseils IA activés' : 'Conseils IA désactivés'),
+            content: Text(enabled ? 'ai_advice_enabled'.tr() : 'ai_advice_disabled'.tr()),
             backgroundColor: Colors.green,
           ),
         );
@@ -109,7 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: ${e.toString()}'),
+            content: Text('${'error'.tr()}: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -130,12 +130,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (photoUrl != null) {
           await authService.updateProfilePhoto(photoUrl);
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Photo de profil mise à jour'),
-                backgroundColor: Colors.green,
-              ),
-            );
+                    ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('profile_photo_updated'.tr()),
+            backgroundColor: Colors.green,
+          ),
+        );
           }
         }
       },
@@ -156,8 +156,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Langue mise à jour'),
+          SnackBar(
+            content: Text('language_updated'.tr()),
             backgroundColor: Colors.green,
           ),
         );
@@ -166,7 +166,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: ${e.toString()}'),
+            content: Text('${'error'.tr()}: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -178,16 +178,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Déconnexion'),
-        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+        title: Text('sign_out'.tr()),
+        content: Text('sign_out_confirmation'.tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annuler'),
+            child: Text('cancel'.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Déconnexion'),
+            child: Text('sign_out'.tr()),
           ),
         ],
       ),
@@ -212,12 +212,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erreur de déconnexion: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
+                   ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(
+             content: Text('${'error'.tr()}: ${e.toString()}'),
+             backgroundColor: Colors.red,
+           ),
+         );
         }
       }
     }
@@ -227,10 +227,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        title: const Text('Paramètres'),
-        elevation: 0,
-      ),
+             appBar: AppBar(
+         title: Text('settings'.tr()),
+         elevation: 0,
+       ),
       body: Consumer<AuthService>(
         builder: (context, authService, child) {
           if (authService.currentUser == null) {
@@ -249,12 +249,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Profil',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                                                 Text(
+                           'profile'.tr(),
+                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                             fontWeight: FontWeight.bold,
+                           ),
+                         ),
                         const SizedBox(height: 16),
                         Row(
                           children: [
@@ -321,14 +321,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  TextButton.icon(
-                                    onPressed: _updateProfilePhoto,
-                                    icon: const Icon(Icons.edit, size: 16),
-                                    label: const Text('Modifier la photo'),
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    ),
-                                  ),
+                                                                     TextButton.icon(
+                                     onPressed: _updateProfilePhoto,
+                                     icon: const Icon(Icons.edit, size: 16),
+                                     label: Text('edit_profile_photo'.tr()),
+                                     style: TextButton.styleFrom(
+                                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                     ),
+                                   ),
                                 ],
                               ),
                             ),
@@ -348,12 +348,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Budget mensuel',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                                                 Text(
+                           'monthly_budget'.tr(),
+                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                             fontWeight: FontWeight.bold,
+                           ),
+                         ),
                         const SizedBox(height: 16),
                         Row(
                           children: [
@@ -361,10 +361,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               child: TextFormField(
                                 controller: _budgetController,
                                 keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                  labelText: 'Montant (FCFA)',
-                                  prefixIcon: Icon(Icons.attach_money),
-                                ),
+                                                                 decoration: InputDecoration(
+                                   labelText: 'amount'.tr(),
+                                   prefixIcon: const Icon(Icons.attach_money),
+                                 ),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -376,7 +376,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       width: 20,
                                       child: CircularProgressIndicator(strokeWidth: 2),
                                     )
-                                  : const Text('Mettre à jour'),
+                                                                     : Text('update'.tr()),
                             ),
                           ],
                         ),
@@ -394,26 +394,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Conseils IA',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                                                 Text(
+                           'ai_advice'.tr(),
+                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                             fontWeight: FontWeight.bold,
+                           ),
+                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          'Recevoir des conseils intelligents avant chaque dépense',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                          ),
-                        ),
+                                                 Text(
+                           'ai_advice_description'.tr(),
+                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                           ),
+                         ),
                         const SizedBox(height: 16),
-                        SwitchListTile(
-                          title: const Text('Activer les conseils IA'),
-                          subtitle: const Text('Conseils personnalisés avant les dépenses'),
-                          value: _aiAdviceEnabled,
-                          onChanged: _updateAiAdvice,
-                        ),
+                                                 SwitchListTile(
+                           title: Text('enable_ai_advice'.tr()),
+                           subtitle: Text('ai_advice_subtitle'.tr()),
+                           value: _aiAdviceEnabled,
+                           onChanged: _updateAiAdvice,
+                         ),
                       ],
                     ),
                   ),
@@ -428,19 +428,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Langue',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                                                 Text(
+                           'language'.tr(),
+                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                             fontWeight: FontWeight.bold,
+                           ),
+                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          'Choisissez la langue de l\'application',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                          ),
-                        ),
+                                                 Text(
+                           'choose_language'.tr(),
+                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                           ),
+                         ),
                         const SizedBox(height: 16),
                         Consumer<LocalizationService>(
                           builder: (context, localizationService, child) {
@@ -480,28 +480,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'À propos',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                                                 Text(
+                           'about'.tr(),
+                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                             fontWeight: FontWeight.bold,
+                           ),
+                         ),
                         const SizedBox(height: 16),
-                        ListTile(
-                          leading: const Icon(Icons.info_outline),
-                          title: const Text('Version'),
-                          subtitle: const Text('1.0.0'),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.description),
-                          title: const Text('Licence'),
-                          subtitle: const Text('MIT'),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.code),
-                          title: const Text('Développé par'),
-                          subtitle: const Text('Équipe GèrTonArgent'),
-                        ),
+                                                 ListTile(
+                           leading: const Icon(Icons.info_outline),
+                           title: Text('version'.tr()),
+                           subtitle: const Text('1.0.0'),
+                         ),
+                         ListTile(
+                           leading: const Icon(Icons.description),
+                           title: Text('license'.tr()),
+                           subtitle: const Text('MIT'),
+                         ),
+                         ListTile(
+                           leading: const Icon(Icons.code),
+                           title: Text('developed_by'.tr()),
+                           subtitle: Text('team_name'.tr()),
+                         ),
                       ],
                     ),
                   ),
@@ -518,7 +518,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Se déconnecter'),
+                                         child: Text('sign_out'.tr()),
                   ),
                 ),
               ],

@@ -98,6 +98,10 @@
   "search": "Search",
   "filter": "Filter",
   "sort": "Sort",
+  "ai_advice": "AI Advice",
+  "ai_advice_description": "Receive intelligent advice before each expense",
+  "enable_ai_advice": "Enable AI Advice",
+  "ai_advice_subtitle": "Personalized advice before expenses"
   "all": "All",
   "today": "Today",
   "yesterday": "Yesterday",

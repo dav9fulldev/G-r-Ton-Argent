@@ -19,7 +19,7 @@ dependencies:
   firebase_auth: ^5.1.0
   cloud_firestore: ^5.4.4
   firebase_messaging: ^15.1.2
-  firebase_ai: ^0.1.0
+  # firebase_ai: ^0.1.0  # Version obsolète, nous utiliserons une approche HTTP directe
 
   # Local storage
   hive: ^2.2.3

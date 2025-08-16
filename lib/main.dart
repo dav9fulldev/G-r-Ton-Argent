@@ -137,14 +137,7 @@ void main() async {
     // Tu peux ajouter ici une navigation vers une page spécifique
   });
 
-  runApp(
-    EasyLocalization(
-      supportedLocales: LocalizationService.supportedLocales,
-      path: 'assets/translations',
-      fallbackLocale: const Locale('fr', 'FR'),
-      child: const GerTonArgentApp(),
-    ),
-  );
+  runApp(const GerTonArgentApp());
 }
 
 class GerTonArgentApp extends StatelessWidget {

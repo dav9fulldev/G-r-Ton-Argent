@@ -1,10 +1,16 @@
 import 'package:flutter/foundation.dart';
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../models/transaction_model.dart';
-import '../firebase_ai_config.dart';
+import '../config/api_keys.dart';
 
 class GeminiService extends ChangeNotifier {
-  final FirebaseAI _firebaseAI = FirebaseAI.instance;
+  // Configuration pour l'API Gemini
+  static const String _baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  
+  // Clé API récupérée depuis le fichier de configuration sécurisé
+  static String get _apiKey => ApiKeys.geminiApiKey;
+  
   bool _isLoading = false;
   String? _error;
 
@@ -23,7 +29,7 @@ class GeminiService extends ChangeNotifier {
       // Construire le prompt en français
       final prompt = _buildPrompt(budget, depenses, nouvelleDepense);
       
-      // Appeler Gemini via Firebase AI Logic
+      // Appeler Gemini via HTTP
       final response = await _callGemini(prompt);
       
       // Parser la réponse en liste de conseils
@@ -67,22 +73,51 @@ Format de réponse souhaité :
 ''';
   }
 
-  /// Appelle Gemini via Firebase AI Logic
+  /// Appelle Gemini via HTTP
   Future<String> _callGemini(String prompt) async {
     try {
-      // Utiliser Firebase AI Logic avec le modèle Gemini
-      final response = await _firebaseAI.generateContent(
-        model: FirebaseAIConfig.geminiModel,
-        content: [
-          Content.text(prompt),
-        ],
-        generationConfig: FirebaseAIConfig.financialAdviceConfig,
+      // Vérifier si la clé API est configurée
+      if (!ApiKeys.isGeminiConfigured) {
+        throw Exception('Clé API Gemini non configurée. Utilisation des conseils par défaut.');
+      }
+
+      final response = await http.post(
+        Uri.parse('$_baseUrl?key=$_apiKey'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'contents': [
+            {
+              'parts': [
+                {
+                  'text': prompt,
+                },
+              ],
+            },
+          ],
+          'generationConfig': {
+            'temperature': 0.8,
+            'topK': 50,
+            'topP': 0.9,
+            'maxOutputTokens': 400,
+          },
+        }),
       );
 
-      if (response.text != null) {
-        return response.text!;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final candidates = data['candidates'] as List;
+        if (candidates.isNotEmpty) {
+          final content = candidates[0]['content'];
+          final parts = content['parts'] as List;
+          if (parts.isNotEmpty) {
+            return parts[0]['text'] as String;
+          }
+        }
+        throw Exception('Réponse invalide de Gemini');
       } else {
-        throw Exception('Réponse vide de Gemini');
+        throw Exception('Erreur API: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
       throw Exception('Erreur lors de l\'appel à Gemini: $e');

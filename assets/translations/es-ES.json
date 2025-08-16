@@ -98,6 +98,10 @@
   "search": "Buscar",
   "filter": "Filtrar",
   "sort": "Ordenar",
+  "ai_advice": "Consejos IA",
+  "ai_advice_description": "Recibir consejos inteligentes antes de cada gasto",
+  "enable_ai_advice": "Activar consejos IA",
+  "ai_advice_subtitle": "Consejos personalizados antes de gastos"
   "all": "Todos",
   "today": "Hoy",
   "yesterday": "Ayer",

@@ -53,3 +53,13 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 *.log
+
+# API Keys and sensitive configuration
+.env
+.env.local
+.env.production
+lib/config/api_keys.dart
+lib/config/secrets.dart
+*.key
+*.pem
+secrets.json
