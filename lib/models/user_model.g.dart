@@ -23,13 +23,15 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       monthlyBudget: fields[3] as double,
       createdAt: fields[4] as DateTime,
       aiAdviceEnabled: fields[5] as bool,
+      profilePhotoUrl: fields[6] as String?,
+      language: fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -41,7 +43,11 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(4)
       ..write(obj.createdAt)
       ..writeByte(5)
-      ..write(obj.aiAdviceEnabled);
+      ..write(obj.aiAdviceEnabled)
+      ..writeByte(6)
+      ..write(obj.profilePhotoUrl)
+      ..writeByte(7)
+      ..write(obj.language);
   }
 
   @override

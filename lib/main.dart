@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'firebase_options.dart';
 import 'models/transaction_model.dart';
@@ -12,8 +13,10 @@ import 'models/user_model.dart';
 import 'services/auth_service.dart';
 import 'services/transaction_service.dart';
 import 'services/notification_service.dart';
-import 'services/ai_service.dart';
+import 'services/gemini_service.dart';
 import 'services/connectivity_service.dart';
+import 'services/profile_service.dart';
+import 'services/localization_service.dart';
 import 'screens/splash_screen.dart';
 import 'utils/theme.dart';
 
@@ -28,6 +31,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Easy Localization
+  await EasyLocalization.ensureInitialized();
   
   // Initialize Hive for offline storage
   await Hive.initFlutter();
@@ -131,7 +137,14 @@ void main() async {
     // Tu peux ajouter ici une navigation vers une page spécifique
   });
 
-  runApp(const GerTonArgentApp());
+  runApp(
+    EasyLocalization(
+      supportedLocales: LocalizationService.supportedLocales,
+      path: 'assets/translations',
+      fallbackLocale: const Locale('fr', 'FR'),
+      child: const GerTonArgentApp(),
+    ),
+  );
 }
 
 class GerTonArgentApp extends StatelessWidget {
@@ -150,20 +163,34 @@ class GerTonArgentApp extends StatelessWidget {
         ChangeNotifierProvider<NotificationService>(
           create: (_) => NotificationService(),
         ),
-        ChangeNotifierProvider<AIService>(
-          create: (_) => AIService(),
+        ChangeNotifierProvider<GeminiService>(
+          create: (_) => GeminiService(),
         ),
         ChangeNotifierProvider<ConnectivityService>(
           create: (_) => ConnectivityService(),
         ),
+        ChangeNotifierProvider<ProfileService>(
+          create: (_) => ProfileService(),
+        ),
+        ChangeNotifierProvider<LocalizationService>(
+          create: (_) => LocalizationService(),
+        ),
       ],
-      child: MaterialApp(
-        title: 'GèrTonArgent',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        home: const SplashScreen(),
+      child: EasyLocalization(
+        supportedLocales: LocalizationService.supportedLocales,
+        path: 'assets/translations',
+        fallbackLocale: const Locale('fr', 'FR'),
+        child: MaterialApp(
+          title: 'GèrTonArgent',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeMode.system,
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+          home: const SplashScreen(),
+        ),
       ),
     );
   }

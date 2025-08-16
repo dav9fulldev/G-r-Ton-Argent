@@ -30,15 +30,15 @@ class ExpenseChart extends StatelessWidget {
       return Container(
         height: 200,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.95),
+          color: const Color(0xFFF8FAFC), // Fond plus doux
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.white.withOpacity(0.2),
+            color: const Color(0xFFE2E8F0),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -51,13 +51,13 @@ class ExpenseChart extends StatelessWidget {
               Icon(
                 Icons.pie_chart_outline,
                 size: 48,
-                color: Colors.white70,
+                color: Color(0xFF64748B),
               ),
               SizedBox(height: 16),
               Text(
                 'Aucune donnée disponible',
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: Color(0xFF475569),
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
@@ -66,7 +66,7 @@ class ExpenseChart extends StatelessWidget {
               Text(
                 'Ajoutez des transactions pour voir\nla répartition de vos dépenses',
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: Color(0xFF64748B),
                   fontSize: 14,
                 ),
                 textAlign: TextAlign.center,
@@ -80,15 +80,15 @@ class ExpenseChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.95),
+          color: const Color(0xFFF8FAFC), // Fond plus doux
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.white.withOpacity(0.2),
+            color: const Color(0xFFE2E8F0),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -160,13 +160,16 @@ class ExpenseChart extends StatelessWidget {
           )
         ),
         const SizedBox(width: 6),
-        Text(
-          _categoryName(category), 
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          )
+        Flexible(
+          child: Text(
+            _categoryName(category), 
+            style: const TextStyle(
+              color: Color(0xFF475569),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );

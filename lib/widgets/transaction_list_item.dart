@@ -20,6 +20,10 @@ class TransactionListItem extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: ListTile(
         onTap: onTap,
         leading: Container(
@@ -41,7 +45,9 @@ class TransactionListItem extends StatelessWidget {
               : _getCategoryName(transaction.category),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
+            color: const Color(0xFF1E293B),
           ),
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,13 +55,13 @@ class TransactionListItem extends StatelessWidget {
             Text(
               _getCategoryName(transaction.category),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: const Color(0xFF64748B),
               ),
             ),
             Text(
               DateFormat('dd MMM yyyy, HH:mm').format(transaction.date),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                color: const Color(0xFF94A3B8),
               ),
             ),
           ],

@@ -52,9 +52,15 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget>
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/backgrounds/image_fond.png'),
-            fit: BoxFit.cover,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1E3A8A), // Bleu royal foncé
+              Color(0xFF3B82F6), // Bleu moyen
+              Color(0xFF60A5FA), // Bleu clair
+            ],
+            stops: [0.0, 0.5, 1.0],
           ),
         ),
         child: Stack(
@@ -67,9 +73,9 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withOpacity(0.3),
-                      Colors.black.withOpacity(0.1),
-                      Colors.black.withOpacity(0.3),
+                      Colors.black.withOpacity(0.2),
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.2),
                     ],
                   ),
                 ),

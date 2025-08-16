@@ -42,7 +42,7 @@ GèrTonArgent est une application multiplateforme (Flutter) fonctionnant sur And
 - **Base de données**: Firestore + Hive (hors ligne)
 - **Graphiques**: fl_chart
 - **Notifications**: Firebase Cloud Messaging (FCM)
-- **IA**: OpenAI GPT API (optionnel/bêta)
+- **IA**: Firebase AI Logic avec Google Gemini (conseils financiers intelligents)
 - **Gestion d'état**: Provider Pattern
 
 ## 🧱 Architecture Technique
@@ -111,18 +111,19 @@ static const FirebaseOptions web = FirebaseOptions(
 );
 ```
 
-### 4. Configuration OpenAI (Optionnel)
-Pour activer les conseils IA avancés :
+### 4. Configuration Firebase AI Logic avec Gemini
+Pour activer les conseils IA intelligents :
 
-1. Créez un compte sur [OpenAI](https://openai.com/)
-2. Générez une clé API
-3. Remplacez `your-openai-api-key-here` dans `lib/services/ai_service.dart`
+1. **Activez Firebase AI Logic** dans votre projet Firebase
+2. **Configurez Gemini** avec votre clé API
+3. **Suivez le guide détaillé** dans `FIREBASE_AI_SETUP.md`
 
-```dart
-static const String _apiKey = 'sk-votre-vraie-cle-api';
+```bash
+# Voir la configuration complète
+cat FIREBASE_AI_SETUP.md
 ```
 
-> Astuce: L'IA « conseils avant dépense » peut être déclenchée côté serveur via Cloud Function (voir section IA ci-dessous). Assurez-vous d'ajouter la clé API de manière sécurisée (variables d'environnement côté Functions) si vous activez cette fonctionnalité.
+> **Important** : Cette intégration utilise Firebase AI Logic comme proxy sécurisé vers Gemini, évitant d'exposer la clé API dans l'application mobile.
 
 ### 5. Lancer l'Application
 
@@ -161,7 +162,7 @@ lib/
 │   ├── transactions/                # Gestion des transactions
 │   └── splash_screen.dart           # Écran de démarrage
 ├── services/                         # Services métier
-│   ├── ai_service.dart              # Service IA (optionnel)
+│   ├── gemini_service.dart          # Service IA avec Firebase AI Logic
 │   ├── auth_service.dart            # Authentification Firebase
 │   ├── connectivity_service.dart    # Connectivité
 │   ├── notification_service.dart    # Notifications (FCM)

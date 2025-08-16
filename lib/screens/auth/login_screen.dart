@@ -272,8 +272,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 20),
                             
                             // Remember Me & Forgot Password
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
@@ -305,20 +305,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ],
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => const ForgotPasswordScreen(),
+                                const SizedBox(height: 8),
+                                Center(
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => const ForgotPasswordScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Mot de passe oublié?',
+                                      style: TextStyle(
+                                        color: Color(0xFF3B82F6),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Mot de passe oublié?',
-                                    style: TextStyle(
-                                      color: Color(0xFF3B82F6),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),

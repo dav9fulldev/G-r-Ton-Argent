@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../services/transaction_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/notification_service.dart';
-import '../../services/ai_service.dart';
+import '../../services/gemini_service.dart';
 import '../../models/transaction_model.dart';
 
 class AddTransactionScreen extends StatefulWidget {
@@ -40,24 +40,34 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     final auth = context.read<AuthService>();
     final tx = context.read<TransactionService>();
-    final ai = context.read<AIService>();
+    final gemini = context.read<GeminiService>();
     
     if (auth.currentUser == null) return;
+
+    // Vérifier si les conseils IA sont activés
+    if (!auth.currentUser!.aiAdviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Les conseils IA sont désactivés dans les paramètres'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isLoadingAdvice = true);
     
     try {
-      final advice = await ai.getSpendingAdvice(
-        expenseAmount: amount,
-        currentBalance: tx.currentMonthBalance,
-        monthlyBudget: auth.currentUser!.monthlyBudget,
-        category: _category,
-        recentTransactions: tx.currentMonthTransactions,
-      );
+      // Récupérer les données nécessaires depuis Firestore
+      final budget = auth.currentUser!.monthlyBudget;
+      final depenses = tx.totalExpenses; // Dépenses actuelles du mois
+      
+      // Appeler la fonction centrale getConseilsIA
+      final conseils = await gemini.getConseilsIA(budget, depenses, amount);
       
       if (mounted) {
         setState(() {
-          _aiAdvice = advice;
+          _aiAdvice = conseils.join('\n\n'); // Joindre les conseils avec des sauts de ligne
           _showAIAdvice = true;
           _isLoadingAdvice = false;
         });

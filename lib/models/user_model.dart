@@ -22,6 +22,12 @@ class UserModel extends HiveObject {
   @HiveField(5)
   final bool aiAdviceEnabled;
 
+  @HiveField(6)
+  final String? profilePhotoUrl;
+
+  @HiveField(7)
+  final String language;
+
   UserModel({
     required this.uid,
     required this.email,
@@ -29,6 +35,8 @@ class UserModel extends HiveObject {
     required this.monthlyBudget,
     required this.createdAt,
     this.aiAdviceEnabled = true,
+    this.profilePhotoUrl,
+    this.language = 'fr',
   });
 
   UserModel copyWith({
@@ -38,6 +46,8 @@ class UserModel extends HiveObject {
     double? monthlyBudget,
     DateTime? createdAt,
     bool? aiAdviceEnabled,
+    String? profilePhotoUrl,
+    String? language,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -46,6 +56,8 @@ class UserModel extends HiveObject {
       monthlyBudget: monthlyBudget ?? this.monthlyBudget,
       createdAt: createdAt ?? this.createdAt,
       aiAdviceEnabled: aiAdviceEnabled ?? this.aiAdviceEnabled,
+      profilePhotoUrl: profilePhotoUrl ?? this.profilePhotoUrl,
+      language: language ?? this.language,
     );
   }
 
@@ -57,6 +69,8 @@ class UserModel extends HiveObject {
       'monthlyBudget': monthlyBudget,
       'createdAt': createdAt.toIso8601String(),
       'aiAdviceEnabled': aiAdviceEnabled,
+      'profilePhotoUrl': profilePhotoUrl,
+      'language': language,
     };
   }
 
@@ -68,6 +82,8 @@ class UserModel extends HiveObject {
       monthlyBudget: (map['monthlyBudget'] ?? 0.0).toDouble(),
       createdAt: DateTime.parse(map['createdAt']),
       aiAdviceEnabled: map['aiAdviceEnabled'] ?? true,
+      profilePhotoUrl: map['profilePhotoUrl'],
+      language: map['language'] ?? 'fr',
     );
   }
 
@@ -85,7 +101,9 @@ class UserModel extends HiveObject {
         other.name == name &&
         other.monthlyBudget == monthlyBudget &&
         other.createdAt == createdAt &&
-        other.aiAdviceEnabled == aiAdviceEnabled;
+        other.aiAdviceEnabled == aiAdviceEnabled &&
+        other.profilePhotoUrl == profilePhotoUrl &&
+        other.language == language;
   }
 
   @override
@@ -95,6 +113,8 @@ class UserModel extends HiveObject {
         name.hashCode ^
         monthlyBudget.hashCode ^
         createdAt.hashCode ^
-        aiAdviceEnabled.hashCode;
+        aiAdviceEnabled.hashCode ^
+        profilePhotoUrl.hashCode ^
+        language.hashCode;
   }
 }

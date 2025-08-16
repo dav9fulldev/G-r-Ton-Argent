@@ -24,33 +24,43 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: const Color(0xFFF8FAFC), // Fond plus doux
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: const Color(0xFFE2E8F0),
               width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Analyses de Dépenses',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
+                      color: const Color(0xFF1E293B),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  _PeriodSelector(
-                    selectedPeriod: _selectedPeriod,
-                    onPeriodChanged: (period) {
-                      setState(() {
-                        _selectedPeriod = period;
-                      });
-                    },
+                  const SizedBox(height: 12),
+                  Center(
+                    child: _PeriodSelector(
+                      selectedPeriod: _selectedPeriod,
+                      onPeriodChanged: (period) {
+                        setState(() {
+                          _selectedPeriod = period;
+                        });
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -110,7 +120,7 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
                 Text(
                   'Catégories les Plus Dépensées',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
+                    color: const Color(0xFF1E293B),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -129,7 +139,7 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
                 Text(
                   'Recommandations',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
+                    color: const Color(0xFF1E293B),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -317,18 +327,26 @@ class _PeriodSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: const Color(0xFF3B82F6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF3B82F6)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: DropdownButton<String>(
         value: selectedPeriod,
         onChanged: (value) => onPeriodChanged(value!),
-        dropdownColor: const Color(0xFF1E3A8A),
-        style: const TextStyle(color: Colors.white),
+        dropdownColor: const Color(0xFF3B82F6),
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         underline: const SizedBox(),
+        icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
         items: ['Ce mois', 'Mois dernier', '3 derniers mois'].map((period) {
           return DropdownMenuItem(
             value: period,
@@ -360,9 +378,16 @@ class _InsightCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,7 +400,8 @@ class _InsightCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withOpacity(0.8),
+                    color: const Color(0xFF475569),
+                    fontWeight: FontWeight.w600,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -386,14 +412,14 @@ class _InsightCard extends StatelessWidget {
           Text(
             NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(value),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white,
+              color: const Color(0xFF1E293B),
               fontWeight: FontWeight.bold,
             ),
           ),
           Text(
             subtitle,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.white.withOpacity(0.7),
+              color: const Color(0xFF64748B),
             ),
           ),
         ],
@@ -419,9 +445,16 @@ class _CategoryInsightCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -446,14 +479,14 @@ class _CategoryInsightCard extends StatelessWidget {
                 Text(
                   _getCategoryName(category),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white,
+                    color: const Color(0xFF1E293B),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
                   '${percentage.toStringAsFixed(1)}% du total',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withOpacity(0.7),
+                    color: const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -462,7 +495,7 @@ class _CategoryInsightCard extends StatelessWidget {
           Text(
             NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(totalSpent),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white,
+              color: const Color(0xFF1E293B),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -564,15 +597,22 @@ class _RecommendationCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: const Color(0xFFEFF6FF),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF3B82F6)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Icon(
             Icons.lightbulb,
-            color: Colors.blue[300],
+            color: const Color(0xFF3B82F6),
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -580,7 +620,7 @@ class _RecommendationCard extends StatelessWidget {
             child: Text(
               recommendation,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.white,
+                color: const Color(0xFF1E293B),
               ),
             ),
           ),

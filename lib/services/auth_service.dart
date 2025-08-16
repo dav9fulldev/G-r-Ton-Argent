@@ -123,6 +123,34 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  Future<void> updateProfilePhoto(String photoUrl) async {
+    if (_currentUser == null) return;
+    
+    try {
+      _currentUser = _currentUser!.copyWith(profilePhotoUrl: photoUrl);
+      await _firestore.collection('users').doc(_currentUser!.uid).update({
+        'profilePhotoUrl': photoUrl,
+      });
+      notifyListeners();
+    } catch (e) {
+      _setError('Erreur lors de la mise à jour de la photo de profil');
+    }
+  }
+
+  Future<void> updateLanguage(String language) async {
+    if (_currentUser == null) return;
+    
+    try {
+      _currentUser = _currentUser!.copyWith(language: language);
+      await _firestore.collection('users').doc(_currentUser!.uid).update({
+        'language': language,
+      });
+      notifyListeners();
+    } catch (e) {
+      _setError('Erreur lors de la mise à jour de la langue');
+    }
+  }
+
   Future<void> resetPassword(String email) async {
     _setLoading(true);
     _clearError();

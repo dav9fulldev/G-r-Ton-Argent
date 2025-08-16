@@ -63,14 +63,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
+                color: const Color(0xFF374151), // Même couleur que le pied de page
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withOpacity(0.2),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -84,19 +84,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Text(
                       'GèrTonArgent',
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: const Color(0xFF1E3A8A),
+                        color: Colors.white, // Texte blanc pour contraste
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.notifications, color: Color(0xFF3B82F6)),
+                    icon: const Icon(Icons.notifications, color: Colors.white),
                     onPressed: () {
                       // TODO: Ouvrir les notifications
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.settings, color: Color(0xFF3B82F6)),
+                    icon: const Icon(Icons.settings, color: Colors.white),
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -174,12 +174,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: const Color(0xFFF8FAFC), // Fond plus doux
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
+                                color: const Color(0xFFE2E8F0),
                                 width: 1,
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,7 +194,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Text(
                                   'Actions rapides',
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: Colors.white,
+                                    color: const Color(0xFF1E293B),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -206,8 +213,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         icon: const Icon(Icons.add),
                                         label: const Text('Ajouter'),
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.white,
-                                          foregroundColor: const Color(0xFF1E3A8A),
+                                          backgroundColor: const Color(0xFF3B82F6),
+                                          foregroundColor: Colors.white,
                                           padding: const EdgeInsets.symmetric(vertical: 12),
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(12),
@@ -228,7 +235,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         icon: const Icon(Icons.list),
                                         label: const Text('Voir tout'),
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.white.withOpacity(0.2),
+                                          backgroundColor: const Color(0xFF64748B),
                                           foregroundColor: Colors.white,
                                           padding: const EdgeInsets.symmetric(vertical: 12),
                                           shape: RoundedRectangleBorder(
@@ -256,28 +263,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: const Color(0xFFF8FAFC), // Fond plus doux
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
+                                color: const Color(0xFFE2E8F0),
                                 width: 1,
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Transactions récentes',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        color: Colors.white,
+                                        color: const Color(0xFF1E293B),
                                         fontWeight: FontWeight.bold,
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {
+                      const SizedBox(height: 8),
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (_) => const TransactionListScreen(),
@@ -287,10 +303,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       child: Text(
                                         'Voir tout',
                                         style: TextStyle(
-                                          color: Colors.white.withOpacity(0.8),
+                                          color: const Color(0xFF3B82F6),
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
+                        ),
                       ),
                     ],
                   ),
@@ -376,39 +393,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const AddTransactionScreen(),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF3B82F6),
+              Color(0xFF1E3A8A),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF3B82F6).withOpacity(0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
             ),
-          );
-        },
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E3A8A),
-        child: const Icon(Icons.add),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const AddTransactionScreen(),
+              ),
+            );
+          },
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          child: const Icon(Icons.add, size: 28),
+        ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        backgroundColor: Colors.white.withOpacity(0.1),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white.withOpacity(0.6),
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Tableau de bord',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Transactions',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF374151),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          backgroundColor: Colors.transparent,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: const Color(0xFF9CA3AF),
+          elevation: 0,
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Tableau de bord',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.list),
+              label: 'Transactions',
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -97,44 +97,88 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
         final isOverBudget = remainingBudget < 0;
 
         return Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: const Color(0xFFE2E8F0),
               width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Planification du Budget',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _isEditing = !_isEditing;
-                        if (!_isEditing) {
-                          _loadCurrentBudget();
-                        }
-                      });
-                    },
-                    icon: Icon(
-                      _isEditing ? Icons.close : Icons.edit,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+                             Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   Row(
+                     children: [
+                       Container(
+                         padding: const EdgeInsets.all(8),
+                         decoration: BoxDecoration(
+                           color: const Color(0xFF3B82F6).withOpacity(0.1),
+                           borderRadius: BorderRadius.circular(8),
+                         ),
+                         child: const Icon(
+                           Icons.account_balance_wallet,
+                           color: Color(0xFF3B82F6),
+                           size: 20,
+                         ),
+                       ),
+                       const SizedBox(width: 12),
+                       Expanded(
+                         child: Text(
+                           'Planification du Budget',
+                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                             color: const Color(0xFF1E293B),
+                             fontWeight: FontWeight.bold,
+                           ),
+                         ),
+                       ),
+                     ],
+                   ),
+                   const SizedBox(height: 12),
+                   Align(
+                     alignment: Alignment.centerRight,
+                     child: Container(
+                       decoration: BoxDecoration(
+                         color: const Color(0xFF3B82F6),
+                         borderRadius: BorderRadius.circular(8),
+                         boxShadow: [
+                           BoxShadow(
+                             color: const Color(0xFF3B82F6).withOpacity(0.3),
+                             blurRadius: 8,
+                             offset: const Offset(0, 2),
+                           ),
+                         ],
+                       ),
+                       child: IconButton(
+                         onPressed: () {
+                           setState(() {
+                             _isEditing = !_isEditing;
+                             if (!_isEditing) {
+                               _loadCurrentBudget();
+                             }
+                           });
+                         },
+                         icon: Icon(
+                           _isEditing ? Icons.close : Icons.edit,
+                           color: Colors.white,
+                           size: 20,
+                         ),
+                       ),
+                     ),
+                   ),
+                 ],
+               ),
               const SizedBox(height: 16),
 
               if (_isEditing) ...[
@@ -144,23 +188,25 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                       child: TextField(
                         controller: _budgetController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: 'Budget mensuel (FCFA)',
-                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
-                          ),
-                        ),
+                                                 style: const TextStyle(color: Color(0xFF1E293B)),
+                         decoration: InputDecoration(
+                           hintText: 'Budget mensuel (FCFA)',
+                           hintStyle: const TextStyle(color: Color(0xFF64748B)),
+                           filled: true,
+                           fillColor: const Color(0xFFF1F5F9),
+                           border: OutlineInputBorder(
+                             borderRadius: BorderRadius.circular(12),
+                             borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                           ),
+                           enabledBorder: OutlineInputBorder(
+                             borderRadius: BorderRadius.circular(12),
+                             borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                           ),
+                           focusedBorder: OutlineInputBorder(
+                             borderRadius: BorderRadius.circular(12),
+                             borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+                           ),
+                         ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -173,106 +219,175 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : ElevatedButton(
-                            onPressed: _updateBudget,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: const Color(0xFF1E3A8A),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text('Sauvegarder'),
-                          ),
+                                                 : Container(
+                             decoration: BoxDecoration(
+                               gradient: const LinearGradient(
+                                 colors: [
+                                   Color(0xFF3B82F6),
+                                   Color(0xFF1E3A8A),
+                                 ],
+                               ),
+                               borderRadius: BorderRadius.circular(12),
+                               boxShadow: [
+                                 BoxShadow(
+                                   color: const Color(0xFF3B82F6).withOpacity(0.3),
+                                   blurRadius: 8,
+                                   offset: const Offset(0, 2),
+                                 ),
+                               ],
+                             ),
+                             child: ElevatedButton(
+                               onPressed: _updateBudget,
+                               style: ElevatedButton.styleFrom(
+                                 backgroundColor: Colors.transparent,
+                                 foregroundColor: Colors.white,
+                                 elevation: 0,
+                                 shape: RoundedRectangleBorder(
+                                   borderRadius: BorderRadius.circular(12),
+                                 ),
+                               ),
+                               child: const Text('Sauvegarder'),
+                             ),
+                           ),
                   ],
                 ),
               ] else ...[
                 // Budget Overview
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    SizedBox(
-                      width: 120,
-                      child: _BudgetInfoCard(
-                        title: 'Budget Mensuel',
-                        amount: monthlyBudget,
-                        color: Colors.blue,
-                        icon: Icons.account_balance_wallet,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 120,
-                      child: _BudgetInfoCard(
-                        title: 'Dépensé',
-                        amount: currentExpenses,
-                        color: isOverBudget ? Colors.red : Colors.orange,
-                        icon: Icons.shopping_cart,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 120,
-                      child: _BudgetInfoCard(
-                        title: 'Restant',
-                        amount: remainingBudget,
-                        color: remainingBudget >= 0 ? Colors.green : Colors.red,
-                        icon: Icons.savings,
-                      ),
-                    ),
-                  ],
-                ),
+                                 Container(
+                   padding: const EdgeInsets.all(16),
+                   decoration: BoxDecoration(
+                     color: const Color(0xFFF1F5F9),
+                     borderRadius: BorderRadius.circular(16),
+                     border: Border.all(color: const Color(0xFFE2E8F0)),
+                   ),
+                   child: Column(
+                     children: [
+                       Row(
+                         children: [
+                           Expanded(
+                             child: _BudgetInfoCard(
+                               title: 'Budget Mensuel',
+                               amount: monthlyBudget,
+                               color: const Color(0xFF3B82F6),
+                               icon: Icons.account_balance_wallet,
+                             ),
+                           ),
+                           const SizedBox(width: 12),
+                           Expanded(
+                             child: _BudgetInfoCard(
+                               title: 'Dépensé',
+                               amount: currentExpenses,
+                               color: isOverBudget ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
+                               icon: Icons.shopping_cart,
+                             ),
+                           ),
+                         ],
+                       ),
+                       const SizedBox(height: 12),
+                       _BudgetInfoCard(
+                         title: 'Restant',
+                         amount: remainingBudget,
+                         color: remainingBudget >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                         icon: Icons.savings,
+                       ),
+                     ],
+                   ),
+                 ),
                 const SizedBox(height: 20),
 
                 // Progress Bar
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Progression du Budget',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                        Text(
-                          '${budgetPercentage.toStringAsFixed(1)}%',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withOpacity(0.9),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                                         Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Row(
+                           children: [
+                             Icon(
+                               Icons.trending_up,
+                               color: const Color(0xFF3B82F6),
+                               size: 16,
+                             ),
+                             const SizedBox(width: 6),
+                             Expanded(
+                               child: Text(
+                                 'Progression du Budget',
+                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                   color: const Color(0xFF1E293B),
+                                   fontWeight: FontWeight.w600,
+                                 ),
+                               ),
+                             ),
+                           ],
+                         ),
+                         const SizedBox(height: 8),
+                         Center(
+                           child: Container(
+                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                             decoration: BoxDecoration(
+                               color: const Color(0xFF3B82F6).withOpacity(0.1),
+                               borderRadius: BorderRadius.circular(12),
+                               border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3)),
+                             ),
+                             child: Text(
+                               '${budgetPercentage.toStringAsFixed(1)}%',
+                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                 color: const Color(0xFF3B82F6),
+                                 fontWeight: FontWeight.bold,
+                               ),
+                             ),
+                           ),
+                         ),
+                       ],
+                     ),
                     const SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: budgetPercentage / 100,
-                      backgroundColor: Colors.white.withOpacity(0.2),
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        isOverBudget ? Colors.red : Colors.green,
-                      ),
-                      minHeight: 8,
-                    ),
+                                         Container(
+                       height: 12,
+                       decoration: BoxDecoration(
+                         color: const Color(0xFFE2E8F0),
+                         borderRadius: BorderRadius.circular(6),
+                       ),
+                       child: ClipRRect(
+                         borderRadius: BorderRadius.circular(6),
+                         child: LinearProgressIndicator(
+                           value: budgetPercentage / 100,
+                           backgroundColor: Colors.transparent,
+                           valueColor: AlwaysStoppedAnimation<Color>(
+                             isOverBudget ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                           ),
+                           minHeight: 12,
+                         ),
+                       ),
+                     ),
                     const SizedBox(height: 8),
                     if (isOverBudget)
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.warning,
-                            color: Colors.red[300],
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Budget dépassé de ${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(remainingBudget.abs())}',
-                            style: TextStyle(
-                              color: Colors.red[300],
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFFECACA)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.warning,
+                              color: const Color(0xFFDC2626),
+                              size: 16,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Text(
+                              'Budget dépassé de ${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(remainingBudget.abs())}',
+                              style: const TextStyle(
+                                color: Color(0xFFDC2626),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                   ],
                 ),
@@ -301,14 +416,21 @@ class _BudgetInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withOpacity(0.2),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,24 +444,25 @@ class _BudgetInfoCard extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Expanded(
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withOpacity(0.8),
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                                 child: Text(
+                   title,
+                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                     color: const Color(0xFF64748B),
+                     fontWeight: FontWeight.w500,
+                   ),
+                   overflow: TextOverflow.ellipsis,
+                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-            NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(amount),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+                     Text(
+             NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(amount),
+             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+               color: const Color(0xFF1E293B),
+               fontWeight: FontWeight.bold,
+             ),
+           ),
         ],
       ),
     );

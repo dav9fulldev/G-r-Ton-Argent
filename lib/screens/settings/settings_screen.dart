@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../services/auth_service.dart';
 import '../../services/notification_service.dart';
+import '../../services/profile_service.dart';
+import '../../services/localization_service.dart';
 import '../auth/login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -16,6 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _budgetController = TextEditingController();
   bool _aiAdviceEnabled = true;
   bool _isLoading = false;
+  String _selectedLanguage = 'fr';
 
   @override
   void initState() {
@@ -34,6 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (authService.currentUser != null) {
       _budgetController.text = authService.currentUser!.monthlyBudget.toString();
       _aiAdviceEnabled = authService.currentUser!.aiAdviceEnabled;
+      _selectedLanguage = authService.currentUser!.language;
     }
   }
 
@@ -96,6 +101,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(enabled ? 'Conseils IA activés' : 'Conseils IA désactivés'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _updateProfilePhoto() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final profileService = Provider.of<ProfileService>(context, listen: false);
+    
+    if (authService.currentUser == null) return;
+
+    await profileService.showImageSourceDialog(
+      context,
+      authService.currentUser!.uid,
+      (String? photoUrl) async {
+        if (photoUrl != null) {
+          await authService.updateProfilePhoto(photoUrl);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Photo de profil mise à jour'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      },
+    );
+  }
+
+  Future<void> _updateLanguage(String languageCode) async {
+    setState(() {
+      _selectedLanguage = languageCode;
+    });
+
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final localizationService = Provider.of<LocalizationService>(context, listen: false);
+      
+      await authService.updateLanguage(languageCode);
+      await localizationService.changeLanguage(context, languageCode);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Langue mise à jour'),
             backgroundColor: Colors.green,
           ),
         );
@@ -194,19 +256,83 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            child: Text(
-                              authService.currentUser!.name[0].toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: _updateProfilePhoto,
+                              child: Stack(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 40,
+                                    backgroundColor: Theme.of(context).colorScheme.primary,
+                                    backgroundImage: authService.currentUser!.profilePhotoUrl != null
+                                        ? NetworkImage(authService.currentUser!.profilePhotoUrl!)
+                                        : null,
+                                    child: authService.currentUser!.profilePhotoUrl == null
+                                        ? Text(
+                                            authService.currentUser!.name[0].toUpperCase(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 24,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                          title: Text(authService.currentUser!.name),
-                          subtitle: Text(authService.currentUser!.email),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    authService.currentUser!.name,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    authService.currentUser!.email,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextButton.icon(
+                                    onPressed: _updateProfilePhoto,
+                                    icon: const Icon(Icons.edit, size: 16),
+                                    label: const Text('Modifier la photo'),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -287,6 +413,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           subtitle: const Text('Conseils personnalisés avant les dépenses'),
                           value: _aiAdviceEnabled,
                           onChanged: _updateAiAdvice,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Language Settings
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Langue',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Choisissez la langue de l\'application',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Consumer<LocalizationService>(
+                          builder: (context, localizationService, child) {
+                            final languages = localizationService.getAvailableLanguages();
+                            return Column(
+                              children: languages.map((language) {
+                                final isSelected = language['code'] == _selectedLanguage;
+                                return ListTile(
+                                  leading: Text(
+                                    language['flag']!,
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
+                                  title: Text(language['name']!),
+                                  trailing: isSelected
+                                      ? Icon(
+                                          Icons.check_circle,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        )
+                                      : null,
+                                  onTap: () => _updateLanguage(language['code']!),
+                                );
+                              }).toList(),
+                            );
+                          },
                         ),
                       ],
                     ),
