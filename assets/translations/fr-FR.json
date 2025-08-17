@@ -1,7 +1,7 @@
 {
   "app_name": "GèrTonArgent",
-  "dashboard": "Tableau de bord",
-  "transactions": "Transactions",
+  "dashboard_title": "Tableau de bord",
+  "transactions_title": "Transactions",
   "settings": "Paramètres",
   "profile": "Profil",
   "language": "Langue",
@@ -101,7 +101,7 @@
   "ai_advice": "Conseils IA",
   "ai_advice_description": "Recevoir des conseils intelligents avant chaque dépense",
   "enable_ai_advice": "Activer les conseils IA",
-  "ai_advice_subtitle": "Conseils personnalisés avant les dépenses"
+  "ai_advice_subtitle": "Conseils personnalisés avant les dépenses",
   "all": "Tous",
   "today": "Aujourd'hui",
   "yesterday": "Hier",
@@ -147,5 +147,29 @@
     "transaction_reminder": "Rappel de transaction",
     "weekly_report": "Rapport hebdomadaire",
     "monthly_report": "Rapport mensuel"
+  },
+  "splash": {
+    "tagline": "Gérez vos finances en toute simplicité"
+  },
+  "dashboard": {
+    "welcome": "Bonjour, {name}",
+    "subtitle": "Voici un aperçu de vos finances"
+  },
+  "financial_tips": {
+    "food_expenses": "Dépenses Alimentaires",
+    "food_description": "Vous dépensez beaucoup en nourriture. Essayez de cuisiner plus à la maison pour économiser.",
+    "savings_recommended": "Épargne Recommandée",
+    "savings_description": "Pensez à épargner au moins 10% de vos revenus pour vos objectifs futurs.",
+    "high_expenses": "Dépenses Moyennes",
+    "high_expenses_description": "Vos dépenses moyennes sont élevées. Analysez vos habitudes de consommation.",
+    "ai_tip": "Conseil IA {number}"
+  },
+  "dashboard": {
+    "no_transactions": "Aucune transaction",
+    "start_adding": "Commencez par ajouter\ndes transactions"
+  },
+  "auth": {
+    "send_reset_link": "Envoyer le lien",
+    "back_to_login": "Retour à la connexion"
   }
 }

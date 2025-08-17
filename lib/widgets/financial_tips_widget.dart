@@ -110,13 +110,13 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      'Conseils Financiers',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                                         child: Text(
+                       'Conseils Financiers',
+                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                         color: Colors.white,
+                         fontWeight: FontWeight.bold,
+                       ),
+                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.all(8),

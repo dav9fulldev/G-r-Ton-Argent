@@ -256,13 +256,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                             ),
                                           )
-                                        : const Text(
-                                            'Envoyer le lien',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
+                                                                                 : const Text(
+                                             'Envoyer le lien',
+                                             style: TextStyle(
+                                               fontSize: 16,
+                                               fontWeight: FontWeight.bold,
+                                             ),
+                                           ),
                                   ),
                                 );
                               },
@@ -275,14 +275,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: const Text(
-                                'Retour à la connexion',
-                                style: TextStyle(
-                                  color: Color(0xFF3B82F6),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                                                             child: const Text(
+                                 'Retour à la connexion',
+                                 style: TextStyle(
+                                   color: Color(0xFF3B82F6),
+                                   fontSize: 14,
+                                   fontWeight: FontWeight.w600,
+                                 ),
+                               ),
                             ),
                           ],
                         ),

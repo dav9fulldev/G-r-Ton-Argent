@@ -128,7 +128,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   // Welcome Message
                   Text(
-                    'Bonjour, ${authService.currentUser!.name}',
+                    'Bonjour, ${authService.currentUser!.name}', // TODO: Add welcome message to translations
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -145,7 +145,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 8),
                   
                   Text(
-                    'Voici un aperçu de vos finances',
+                    'Voici un aperçu de vos finances', // TODO: Add subtitle to translations
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Colors.white,
                       fontSize: 16,
@@ -283,13 +283,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Transactions récentes',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        color: const Color(0xFF1E293B),
-                                        fontWeight: FontWeight.bold,
+                                              Text(
+                          'Transactions récentes',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: const Color(0xFF1E293B),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 8),
                       Center(
                         child: TextButton(
@@ -300,10 +300,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ),
                                         );
                                       },
-                                      child: Text(
+                                      child: const Text(
                                         'Voir tout',
                                         style: TextStyle(
-                                          color: const Color(0xFF3B82F6),
+                                          color: Color(0xFF3B82F6),
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -313,18 +313,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 16),
                                 if (transactionService.currentMonthTransactions.isEmpty)
-                                  const Center(
+                                  Center(
                                     child: Padding(
-                                      padding: EdgeInsets.all(24.0),
+                                      padding: const EdgeInsets.all(24.0),
                                       child: Column(
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.receipt_long_outlined,
                                             size: 48,
                                             color: Colors.white70,
                                           ),
-                                          SizedBox(height: 16),
-                                          Text(
+                                          const SizedBox(height: 16),
+                                          const Text(
                                             'Aucune transaction',
                                             style: TextStyle(
                                               color: Colors.white70,
@@ -332,8 +332,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
-                                          SizedBox(height: 8),
-                                          Text(
+                                          const SizedBox(height: 8),
+                                          const Text(
                                             'Commencez par ajouter\ndes transactions',
                                             style: TextStyle(
                                               color: Colors.white54,
@@ -447,15 +447,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           unselectedItemColor: const Color(0xFF9CA3AF),
           elevation: 0,
           type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard),
-              label: 'Tableau de bord',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list),
-              label: 'Transactions',
-            ),
+                      items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.dashboard),
+                label: 'Tableau de bord',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.list),
+                label: 'Transactions',
+              ),
           ],
         ),
       ),

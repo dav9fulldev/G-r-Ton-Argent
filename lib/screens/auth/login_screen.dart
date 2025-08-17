@@ -295,14 +295,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                     ),
-                                    const Text(
-                                      'Se souvenir de moi',
-                                      style: TextStyle(
-                                        color: Color(0xFF6B7280),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
+                                                                         const Text(
+                                       'Se souvenir de moi',
+                                       style: TextStyle(
+                                         color: Color(0xFF6B7280),
+                                         fontSize: 14,
+                                         fontWeight: FontWeight.w500,
+                                       ),
+                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
@@ -315,14 +315,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                       );
                                     },
-                                    child: const Text(
-                                      'Mot de passe oublié?',
-                                      style: TextStyle(
-                                        color: Color(0xFF3B82F6),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                                                                         child: const Text(
+                                       'Mot de passe oublié?',
+                                       style: TextStyle(
+                                         color: Color(0xFF3B82F6),
+                                         fontSize: 14,
+                                         fontWeight: FontWeight.w600,
+                                       ),
+                                     ),
                                   ),
                                 ),
                               ],
@@ -370,13 +370,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                             ),
                                           )
-                                        : const Text(
-                                            'Se connecter',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
+                                                                                 : const Text(
+                                             'Se connecter',
+                                             style: TextStyle(
+                                               fontSize: 16,
+                                               fontWeight: FontWeight.bold,
+                                             ),
+                                           ),
                                   ),
                                 );
                               },
@@ -419,14 +419,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text(
-                                  'Pas encore de compte? ',
-                                  style: TextStyle(
-                                    color: Color(0xFF6B7280),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                                                                 const Text(
+                                   'Pas encore de compte? ',
+                                   style: TextStyle(
+                                     color: Color(0xFF6B7280),
+                                     fontSize: 14,
+                                     fontWeight: FontWeight.w500,
+                                   ),
+                                 ),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.of(context).pushReplacement(
@@ -435,14 +435,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     );
                                   },
-                                  child: const Text(
-                                    'S\'inscrire',
-                                    style: TextStyle(
-                                      color: Color(0xFF3B82F6),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                                                     child: const Text(
+                                     'S\'inscrire',
+                                     style: TextStyle(
+                                       color: Color(0xFF3B82F6),
+                                       fontSize: 14,
+                                       fontWeight: FontWeight.bold,
+                                     ),
+                                   ),
                                 ),
                               ],
                             ),

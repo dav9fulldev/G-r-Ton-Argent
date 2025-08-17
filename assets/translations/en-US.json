@@ -1,7 +1,7 @@
 {
   "app_name": "GèrTonArgent",
-  "dashboard": "Dashboard",
-  "transactions": "Transactions",
+  "dashboard_title": "Dashboard",
+  "transactions_title": "Transactions",
   "settings": "Settings",
   "profile": "Profile",
   "language": "Language",
@@ -101,7 +101,7 @@
   "ai_advice": "AI Advice",
   "ai_advice_description": "Receive intelligent advice before each expense",
   "enable_ai_advice": "Enable AI Advice",
-  "ai_advice_subtitle": "Personalized advice before expenses"
+  "ai_advice_subtitle": "Personalized advice before expenses",
   "all": "All",
   "today": "Today",
   "yesterday": "Yesterday",
@@ -147,5 +147,29 @@
     "transaction_reminder": "Transaction Reminder",
     "weekly_report": "Weekly Report",
     "monthly_report": "Monthly Report"
+  },
+  "splash": {
+    "tagline": "Manage your finances with ease"
+  },
+  "dashboard": {
+    "welcome": "Hello, {name}",
+    "subtitle": "Here's an overview of your finances"
+  },
+  "financial_tips": {
+    "food_expenses": "Food Expenses",
+    "food_description": "You spend a lot on food. Try cooking more at home to save money.",
+    "savings_recommended": "Recommended Savings",
+    "savings_description": "Consider saving at least 10% of your income for your future goals.",
+    "high_expenses": "High Expenses",
+    "high_expenses_description": "Your average expenses are high. Analyze your consumption habits.",
+    "ai_tip": "AI Tip {number}"
+  },
+  "dashboard": {
+    "no_transactions": "No transactions",
+    "start_adding": "Start by adding\ntransactions"
+  },
+  "auth": {
+    "send_reset_link": "Send reset link",
+    "back_to_login": "Back to login"
   }
 }

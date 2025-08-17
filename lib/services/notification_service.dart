@@ -13,29 +13,35 @@ class NotificationService extends ChangeNotifier {
     if (_isInitialized) return;
 
     try {
-      // Request permission for push notifications
-      await requestPermission();
+      // Skip Firebase Messaging initialization on web
+      if (!kIsWeb) {
+        // Request permission for push notifications
+        await requestPermission();
 
-      // Initialize local notifications
-      await _initializeLocalNotifications();
+        // Initialize local notifications
+        await _initializeLocalNotifications();
 
-      // Create notification channels
-      await _createNotificationChannels();
+        // Create notification channels
+        await _createNotificationChannels();
 
-      // Handle background messages
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+        // Handle background messages
+        FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-      // Handle foreground messages
-      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+        // Handle foreground messages
+        FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
-      // Handle notification taps
-      FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+        // Handle notification taps
+        FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+      }
 
       _isInitialized = true;
       notifyListeners();
       print('NotificationService initialized successfully');
     } catch (e) {
       print('Error initializing NotificationService: $e');
+      // Mark as initialized even if there's an error to prevent blocking the app
+      _isInitialized = true;
+      notifyListeners();
     }
   }
 

@@ -120,7 +120,7 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget>
                               ),
                             ),
                             child: Text(
-                              'GèrTonArgent',
+                                                             'GèrTonArgent',
                               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -137,7 +137,7 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget>
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Gérez vos finances en toute simplicité',
+                                                         'Gérez vos finances en toute simplicité',
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: Colors.white.withOpacity(0.9),
                               fontSize: 18,

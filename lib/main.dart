@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -30,114 +32,73 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Easy Localization
-  await EasyLocalization.ensureInitialized();
-  
-  // Initialize Hive for offline storage
-  await Hive.initFlutter();
-  
-  // Register Hive adapters
-  Hive.registerAdapter(TransactionTypeAdapter());
-  Hive.registerAdapter(TransactionCategoryAdapter());
-  Hive.registerAdapter(TransactionModelAdapter());
-  Hive.registerAdapter(UserModelAdapter());
-  
-  // Open Hive boxes
-  await Hive.openBox<TransactionModel>('transactions');
-  await Hive.openBox('offline_queue');
-
-  // 🔹 Écoute notifications en arrière-plan
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  
-  // Initialize Firebase
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    WidgetsFlutterBinding.ensureInitialized();
     
-    // Request notification permissions
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
+    // Initialize Easy Localization
+    await EasyLocalization.ensureInitialized();
     
-    print('User granted permission: ${settings.authorizationStatus}');
+    // Initialize Hive for offline storage
+    await Hive.initFlutter();
     
-    // Get FCM token
-    String? token = await messaging.getToken();
-    print('FCM Token: $token');
+    // Register Hive adapters
+    Hive.registerAdapter(TransactionTypeAdapter());
+    Hive.registerAdapter(TransactionCategoryAdapter());
+    Hive.registerAdapter(TransactionModelAdapter());
+    Hive.registerAdapter(UserModelAdapter());
     
-    // Initialize local notifications
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    // Open Hive boxes
+    await Hive.openBox<TransactionModel>('transactions');
+    await Hive.openBox('offline_queue');
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
-
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-    
-    // Create notification channel
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'default_channel',
-      'Default Notifications',
-      description: 'Used for important notifications',
-      importance: Importance.max,
-    );
-    
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-    
-    print('Firebase initialized successfully');
-  } catch (e) {
-    print('Firebase initialization failed: $e');
-    // Fallback to mock services if Firebase fails
-  }
-  
-  // Initialize notification service
-  final notificationService = NotificationService();
-  await notificationService.initialize();
-
-  // 🔹 Notification FCM en premier plan
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
-
-    if (notification != null && android != null) {
-      flutterLocalNotificationsPlugin.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            'default_channel', // Même ID que dans AndroidManifest
-            'Default Notifications',
-            channelDescription: 'Used for important notifications',
-            importance: Importance.max,
-            priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
-          ),
-        ),
+    // Initialize Firebase only if not on web or if web initialization succeeds
+    bool firebaseInitialized = false;
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
       );
+      firebaseInitialized = true;
+      print('✅ Firebase initialized successfully');
+    } catch (e) {
+      print('⚠️ Firebase initialization failed: $e');
+      // Continue without Firebase for web development
     }
-  });
+    
+    // Initialize notification service only if Firebase is available
+    if (firebaseInitialized) {
+      try {
+        final notificationService = NotificationService();
+        await notificationService.initialize();
+      } catch (e) {
+        print('⚠️ Notification service initialization failed: $e');
+      }
+    }
 
-  // 🔹 Gérer le clic sur une notification
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print("📲 Notification cliquée : ${message.data}");
-    // Tu peux ajouter ici une navigation vers une page spécifique
-  });
+    // 🔹 Écoute notifications en arrière-plan (only if Firebase is initialized)
+    if (firebaseInitialized) {
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    }
 
-  runApp(const GerTonArgentApp());
+    runApp(
+      EasyLocalization(
+        supportedLocales: LocalizationService.supportedLocales,
+        path: 'assets/translations',
+        fallbackLocale: const Locale('fr', 'FR'),
+        child: const GerTonArgentApp(),
+      ),
+    );
+  } catch (e) {
+    print('🔥 Critical error during app initialization: $e');
+    // Run app even if there are initialization errors
+    runApp(
+      EasyLocalization(
+        supportedLocales: LocalizationService.supportedLocales,
+        path: 'assets/translations',
+        fallbackLocale: const Locale('fr', 'FR'),
+        child: const GerTonArgentApp(),
+      ),
+    );
+  }
 }
 
 class GerTonArgentApp extends StatelessWidget {
@@ -147,43 +108,29 @@ class GerTonArgentApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthService>(
-          create: (_) => AuthService(),
-        ),
-        ChangeNotifierProvider<TransactionService>(
-          create: (_) => TransactionService(),
-        ),
-        ChangeNotifierProvider<NotificationService>(
-          create: (_) => NotificationService(),
-        ),
-        ChangeNotifierProvider<GeminiService>(
-          create: (_) => GeminiService(),
-        ),
-        ChangeNotifierProvider<ConnectivityService>(
-          create: (_) => ConnectivityService(),
-        ),
-        ChangeNotifierProvider<ProfileService>(
-          create: (_) => ProfileService(),
-        ),
-        ChangeNotifierProvider<LocalizationService>(
-          create: (_) => LocalizationService(),
-        ),
+        ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
+        ChangeNotifierProvider<TransactionService>(create: (_) => TransactionService()),
+        ChangeNotifierProvider<NotificationService>(create: (_) => NotificationService()),
+        ChangeNotifierProvider<GeminiService>(create: (_) => GeminiService()),
+        ChangeNotifierProvider<ConnectivityService>(create: (_) => ConnectivityService()),
+        ChangeNotifierProvider<ProfileService>(create: (_) => ProfileService()),
+        ChangeNotifierProvider<LocalizationService>(create: (_) => LocalizationService()),
       ],
-      child: EasyLocalization(
-        supportedLocales: LocalizationService.supportedLocales,
-        path: 'assets/translations',
-        fallbackLocale: const Locale('fr', 'FR'),
-        child: MaterialApp(
-          title: 'GèrTonArgent',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.system,
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          home: const SplashScreen(),
-        ),
+      child: MaterialApp(
+        title: 'GèrTonArgent',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          ...context.localizationDelegates,
+        ],
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+        home: const SplashScreen(),
       ),
     );
   }
