@@ -164,8 +164,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   // Balance Card
                   BalanceCard(
-                            balance: transactionService.currentMonthBalance,
-                            monthlyBudget: 100000.0, // You might want to get this from user settings
+                    balance: transactionService.getCurrentMonthBalance(authService.currentUser?.monthlyBudget ?? 0),
+                    monthlyBudget: authService.currentUser?.monthlyBudget ?? 0,
                   ),
 
                   const SizedBox(height: 24),

@@ -105,10 +105,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
       // Show budget alerts for expenses
       if (isExpense) {
-        final newBalance = tx.currentMonthBalance - amount;
+        final budgetInitial = auth.currentUser!.monthlyBudget;
+        final currentBalance = tx.getCurrentMonthBalance(budgetInitial);
+        final newBalance = currentBalance - amount;
         await notification.showBudgetOverrunAlert(
           currentBalance: newBalance,
-          monthlyBudget: auth.currentUser!.monthlyBudget,
+          monthlyBudget: budgetInitial,
           expenseAmount: amount,
         );
       }

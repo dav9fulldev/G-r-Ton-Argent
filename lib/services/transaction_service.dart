@@ -29,7 +29,50 @@ class TransactionService extends ChangeNotifier {
     }).toList();
   }
 
-  // Calculate current month balance
+  // Calculate current month balance (corrected formula)
+  // solde = budgetInitial + totalRevenus - totalDepenses
+  double getCurrentMonthBalance(double budgetInitial) {
+    double income = 0;
+    double expenses = 0;
+    
+    for (final transaction in currentMonthTransactions) {
+      if (transaction.type == TransactionType.income) {
+        income += transaction.amount;
+      } else {
+        expenses += transaction.amount;
+      }
+    }
+    
+    return budgetInitial + income - expenses;
+  }
+
+  // Calculate remaining budget (corrected formula)
+  // restant = budgetInitial - totalDepenses + totalRevenus
+  double getRemainingBudget(double budgetInitial) {
+    double income = 0;
+    double expenses = 0;
+    
+    for (final transaction in currentMonthTransactions) {
+      if (transaction.type == TransactionType.income) {
+        income += transaction.amount;
+      } else {
+        expenses += transaction.amount;
+      }
+    }
+    
+    return budgetInitial - expenses + income;
+  }
+
+  // Calculate budget progression percentage
+  // progression = (restant / budgetInitial) * 100
+  double getBudgetProgressionPercentage(double budgetInitial) {
+    if (budgetInitial <= 0) return 0;
+    final restant = getRemainingBudget(budgetInitial);
+    return (restant / budgetInitial) * 100;
+  }
+
+  // Legacy method for backward compatibility (deprecated)
+  @deprecated
   double get currentMonthBalance {
     double income = 0;
     double expenses = 0;

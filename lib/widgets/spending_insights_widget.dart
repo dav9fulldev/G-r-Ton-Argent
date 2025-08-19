@@ -106,9 +106,10 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
                     child: _InsightCard(
                       title: 'Jours Restants',
                       value: insights.daysLeftInMonth.toDouble(),
-                      subtitle: 'dans le mois',
+                      subtitle: 'jours restants',
                       color: Colors.orange,
                       icon: Icons.calendar_today,
+                      isCurrency: false,
                     ),
                   ),
                 ],
@@ -287,7 +288,9 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
   int _getDaysLeftInMonth() {
     final now = DateTime.now();
     final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-    return lastDayOfMonth.difference(now).inDays;
+    final totalDaysInMonth = lastDayOfMonth.day;
+    final currentDay = now.day;
+    return totalDaysInMonth - currentDay;
   }
 }
 
@@ -364,6 +367,7 @@ class _InsightCard extends StatelessWidget {
   final String subtitle;
   final Color color;
   final IconData icon;
+  final bool isCurrency;
 
   const _InsightCard({
     required this.title,
@@ -371,6 +375,7 @@ class _InsightCard extends StatelessWidget {
     required this.subtitle,
     required this.color,
     required this.icon,
+    this.isCurrency = true,
   });
 
   @override
@@ -410,7 +415,9 @@ class _InsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(value),
+            isCurrency 
+                ? NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(value)
+                : value.toInt().toString(),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: const Color(0xFF1E293B),
               fontWeight: FontWeight.bold,

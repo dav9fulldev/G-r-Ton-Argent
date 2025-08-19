@@ -1,3 +1,6 @@
+// Configuration optimisée pour Flutter 3.24+ avec Kotlin 2.1.0
+// Utilisation de Kotlin 2.1.0 pour une meilleure compatibilité
+
 pluginManagement {
     val flutterSdkPath = run {
         val properties = java.util.Properties()

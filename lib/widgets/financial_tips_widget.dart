@@ -39,9 +39,11 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
     setState(() => _isLoadingTips = true);
 
     try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final budgetInitial = authService.currentUser?.monthlyBudget ?? 0;
       final tips = await geminiService.getFinancialTips(
-        currentBalance: transactionService.currentMonthBalance,
-        monthlyBudget: authService.currentUser?.monthlyBudget ?? 0,
+        currentBalance: transactionService.getCurrentMonthBalance(budgetInitial),
+        monthlyBudget: budgetInitial,
         transactions: transactionService.currentMonthTransactions,
       );
 

@@ -90,11 +90,17 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
         final user = authService.currentUser;
         if (user == null) return const SizedBox.shrink();
 
-        final monthlyBudget = user.monthlyBudget;
-        final currentExpenses = transactionService.totalExpenses;
-        final remainingBudget = monthlyBudget - currentExpenses;
-        final budgetPercentage = monthlyBudget > 0 ? (currentExpenses / monthlyBudget) * 100 : 0;
-        final isOverBudget = remainingBudget < 0;
+        final budgetInitial = user.monthlyBudget;
+        final totalRevenus = transactionService.totalIncome;
+        final totalDepenses = transactionService.totalExpenses;
+        
+        // Calcul correct du solde et du restant selon la formule demandée
+        final solde = budgetInitial + totalRevenus - totalDepenses;
+        final restant = budgetInitial - totalDepenses + totalRevenus;
+        
+        // Calcul du pourcentage de progression
+        final progression = budgetInitial > 0 ? (restant / budgetInitial) * 100 : 0;
+        final isOverBudget = restant < 0;
 
         return Container(
           padding: const EdgeInsets.all(20),
@@ -266,8 +272,8 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                          children: [
                            Expanded(
                              child: _BudgetInfoCard(
-                               title: 'Budget Mensuel',
-                               amount: monthlyBudget,
+                               title: 'Budget Initial',
+                               amount: budgetInitial,
                                color: const Color(0xFF3B82F6),
                                icon: Icons.account_balance_wallet,
                              ),
@@ -275,9 +281,31 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                            const SizedBox(width: 12),
                            Expanded(
                              child: _BudgetInfoCard(
-                               title: 'Dépensé',
-                               amount: currentExpenses,
-                               color: isOverBudget ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
+                               title: 'Solde Actuel',
+                               amount: solde,
+                               color: solde >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                               icon: Icons.account_balance,
+                             ),
+                           ),
+                         ],
+                       ),
+                       const SizedBox(height: 12),
+                       Row(
+                         children: [
+                           Expanded(
+                             child: _BudgetInfoCard(
+                               title: 'Revenus',
+                               amount: totalRevenus,
+                               color: const Color(0xFF10B981),
+                               icon: Icons.trending_up,
+                             ),
+                           ),
+                           const SizedBox(width: 12),
+                           Expanded(
+                             child: _BudgetInfoCard(
+                               title: 'Dépenses',
+                               amount: totalDepenses,
+                               color: const Color(0xFFEF4444),
                                icon: Icons.shopping_cart,
                              ),
                            ),
@@ -286,8 +314,8 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                        const SizedBox(height: 12),
                        _BudgetInfoCard(
                          title: 'Restant',
-                         amount: remainingBudget,
-                         color: remainingBudget >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                         amount: restant,
+                         color: restant >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
                          icon: Icons.savings,
                        ),
                      ],
@@ -331,7 +359,7 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                                border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3)),
                              ),
                              child: Text(
-                               '${budgetPercentage.toStringAsFixed(1)}%',
+                               restant < 0 ? 'Solde négatif' : '${progression.toStringAsFixed(1)}%',
                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                  color: const Color(0xFF3B82F6),
                                  fontWeight: FontWeight.bold,
@@ -351,17 +379,17 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                        child: ClipRRect(
                          borderRadius: BorderRadius.circular(6),
                          child: LinearProgressIndicator(
-                           value: budgetPercentage / 100,
+                           value: restant < 0 ? 1.0 : (progression / 100).clamp(0.0, 1.0),
                            backgroundColor: Colors.transparent,
                            valueColor: AlwaysStoppedAnimation<Color>(
-                             isOverBudget ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                             restant < 0 ? const Color(0xFFEF4444) : const Color(0xFF10B981),
                            ),
                            minHeight: 12,
                          ),
                        ),
                      ),
                     const SizedBox(height: 8),
-                    if (isOverBudget)
+                    if (restant < 0)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
@@ -379,7 +407,7 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Budget dépassé de ${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(remainingBudget.abs())}',
+                              'Solde négatif de ${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(restant.abs())}',
                               style: const TextStyle(
                                 color: Color(0xFFDC2626),
                                 fontSize: 12,

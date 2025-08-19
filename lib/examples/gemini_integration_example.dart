@@ -278,7 +278,7 @@ class ExampleUsageInWidget extends StatelessWidget {
 
         return FutureBuilder<List<String>>(
           future: geminiService.getFinancialTips(
-            currentBalance: transactionService.currentMonthBalance,
+            currentBalance: transactionService.getCurrentMonthBalance(authService.currentUser?.monthlyBudget ?? 0),
             monthlyBudget: authService.currentUser?.monthlyBudget ?? 0,
             transactions: transactionService.currentMonthTransactions,
           ),
