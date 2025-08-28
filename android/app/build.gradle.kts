@@ -38,11 +38,30 @@ android {
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Optimisations pour éviter les problèmes de mémoire
+        multiDexEnabled = true
     }
 
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        debug {
+            isDebuggable = true
+        }
+    }
+    
+    // Optimisations de build
+    buildFeatures {
+        buildConfig = true
+    }
+    
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 }
@@ -54,4 +73,7 @@ flutter {
 dependencies {
     // 🔹 Ajout pour corriger flutter_local_notifications
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    
+    // Support pour MultiDex
+    implementation("androidx.multidex:multidex:2.0.1")
 }
