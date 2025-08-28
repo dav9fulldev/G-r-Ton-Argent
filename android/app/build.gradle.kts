@@ -34,8 +34,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.ger_ton_argent"
-        minSdk = maxOf(flutter.minSdkVersion, 23)
-        targetSdk = 36
+        minSdk = maxOf(flutter.minSdkVersion, 24) // Android 7.0+ pour une meilleure compatibilité
+        targetSdk = 36 // Android 14
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         
@@ -47,10 +47,12 @@ android {
         release {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isShrinkResources = false
         }
         debug {
             isDebuggable = true
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
     

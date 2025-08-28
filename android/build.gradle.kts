@@ -16,18 +16,6 @@ subprojects {
 
 subprojects {
     project.evaluationDependsOn(":app")
-    
-    // Configuration commune pour tous les sous-projets
-    afterEvaluate {
-        if (project.hasProperty("android")) {
-            android {
-                compileOptions {
-                    sourceCompatibility = JavaVersion.VERSION_1_8
-                    targetCompatibility = JavaVersion.VERSION_1_8
-                }
-            }
-        }
-    }
 }
 
 tasks.register<Delete>("clean") {

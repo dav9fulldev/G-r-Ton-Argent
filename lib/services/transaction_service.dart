@@ -71,22 +71,7 @@ class TransactionService extends ChangeNotifier {
     return (restant / budgetInitial) * 100;
   }
 
-  // Legacy method for backward compatibility (deprecated)
-  @deprecated
-  double get currentMonthBalance {
-    double income = 0;
-    double expenses = 0;
-    
-    for (final transaction in currentMonthTransactions) {
-      if (transaction.type == TransactionType.income) {
-        income += transaction.amount;
-      } else {
-        expenses += transaction.amount;
-      }
-    }
-    
-    return income - expenses;
-  }
+  // Removed deprecated method - use getCurrentMonthBalance() instead
 
   // Get expenses by category for current month
   Map<TransactionCategory, double> get expensesByCategory {

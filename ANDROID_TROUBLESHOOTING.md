@@ -48,12 +48,29 @@ ping maven.google.com
 - Nettoyage du cache Kotlin
 - Mise à jour des plugins Kotlin
 
+### 5. API obsolètes détectées et corrigées
+**Symptôme**: Utilisation d'API dépréciées dans le code
+
+**API corrigées**:
+- ✅ `Priority.high` → `AndroidNotificationImportance.high`
+- ✅ `Importance.high` → `AndroidNotificationImportance.high`
+- ✅ Méthode `@deprecated currentMonthBalance` supprimée
+- ✅ `minSdk` mis à jour vers 24 (Android 7.0+)
+
+**Vérification**:
+```bash
+# Exécuter le script de vérification
+dart check_deprecated_apis.dart
+```
+
 ## Configuration optimisée
 
 ### Fichiers modifiés:
 1. `android/gradle.properties` - Optimisations mémoire et performance
 2. `android/build.gradle.kts` - Configuration des repositories
 3. `android/app/build.gradle.kts` - Configuration de l'application
+4. `lib/services/notification_service.dart` - API de notifications modernisées
+5. `lib/services/transaction_service.dart` - Méthodes dépréciées supprimées
 
 ### Variables d'environnement requises:
 ```bash
@@ -68,6 +85,12 @@ JAVA_HOME=C:\Program Files\Java\jdk-17
 ```bash
 # Exécuter le script de diagnostic
 fix_android_issues.bat
+```
+
+### Script de vérification des API obsolètes:
+```bash
+# Vérifier les API obsolètes
+dart check_deprecated_apis.dart
 ```
 
 ### Commandes manuelles:
@@ -97,6 +120,7 @@ flutter doctor --android-licenses
 2. Mettre à jour Flutter: `flutter upgrade`
 3. Mettre à jour les dépendances: `flutter pub upgrade`
 4. Vérifier les licences Android: `flutter doctor --android-licenses`
+5. Vérifier les API obsolètes: `dart check_deprecated_apis.dart`
 
 ## Support
 
@@ -105,3 +129,4 @@ En cas de problème persistant:
 2. Vérifier la configuration dans les fichiers gradle
 3. Redémarrer l'IDE et le terminal
 4. Réinstaller les plugins Android Studio si nécessaire
+5. Exécuter le script de vérification des API obsolètes
