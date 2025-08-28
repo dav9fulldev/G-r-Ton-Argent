@@ -104,7 +104,7 @@ class NotificationService extends ChangeNotifier {
       'budget_alerts',
       'Budget Alerts',
       channelDescription: 'Notifications for budget overruns and financial alerts',
-      importance: AndroidNotificationImportance.high,
+      importance: Importance.high,
       showWhen: true,
     );
 
@@ -146,7 +146,7 @@ class NotificationService extends ChangeNotifier {
       'ai_advice',
       'AI Advice',
       channelDescription: 'AI-powered spending advice',
-      importance: AndroidNotificationImportance.high,
+      importance: Importance.high,
       showWhen: true,
     );
 
@@ -186,7 +186,7 @@ class NotificationService extends ChangeNotifier {
       'budget_alerts',
       'Budget Alerts',
       description: 'Notifications for budget overruns and financial alerts',
-      importance: AndroidNotificationImportance.high,
+      importance: Importance.high,
     );
 
     // Create AI advice channel
@@ -194,7 +194,7 @@ class NotificationService extends ChangeNotifier {
       'ai_advice',
       'AI Advice',
       description: 'AI-powered spending advice',
-      importance: AndroidNotificationImportance.high,
+      importance: Importance.high,
     );
 
     // Create default channel
@@ -202,7 +202,7 @@ class NotificationService extends ChangeNotifier {
       'default_channel',
       'Default Notifications',
       description: 'Used for important notifications',
-      importance: AndroidNotificationImportance.max,
+      importance: Importance.max,
     );
 
     await _localNotifications

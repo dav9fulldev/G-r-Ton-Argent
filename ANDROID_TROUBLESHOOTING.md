@@ -52,8 +52,9 @@ ping maven.google.com
 **Symptôme**: Utilisation d'API dépréciées dans le code
 
 **API corrigées**:
-- ✅ `Priority.high` → `AndroidNotificationImportance.high`
-- ✅ `Importance.high` → `AndroidNotificationImportance.high`
+- ✅ `Priority.high` → `Importance.high`
+- ✅ `AndroidNotificationImportance.high` → `Importance.high`
+- ✅ `AndroidNotificationImportance.max` → `Importance.max`
 - ✅ Méthode `@deprecated currentMonthBalance` supprimée
 - ✅ `minSdk` mis à jour vers 24 (Android 7.0+)
 
