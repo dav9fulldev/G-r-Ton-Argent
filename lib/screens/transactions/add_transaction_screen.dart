@@ -214,10 +214,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       category: _category,
                       description: _descriptionController.text,
                       onClose: () {
-                        setState(() {
-                          _showAIAdvice = false;
-                        });
-                      },
+                                  setState(() {
+                                    _showAIAdvice = false;
+                                  });
+                                },
                     ),
                   ),
                 ],
