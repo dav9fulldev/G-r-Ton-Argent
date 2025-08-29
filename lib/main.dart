@@ -35,7 +35,7 @@ void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     
-    // Initialize Easy Localization
+    // Initialize Easy Localization with explicit locale list
     await EasyLocalization.ensureInitialized();
     
     // Initialize Hive for offline storage
@@ -79,22 +79,35 @@ void main() async {
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     }
 
+    // Explicitly define supported locales to avoid loading es-ES.json
+    const supportedLocales = [
+      Locale('fr', 'FR'), // Français
+      Locale('en', 'US'), // Anglais
+    ];
+
     runApp(
       EasyLocalization(
-        supportedLocales: LocalizationService.supportedLocales,
+        supportedLocales: supportedLocales,
         path: 'assets/translations',
         fallbackLocale: const Locale('fr', 'FR'),
+        useOnlyLangCode: false,
         child: const GerTonArgentApp(),
       ),
     );
   } catch (e) {
     print('🔥 Critical error during app initialization: $e');
     // Run app even if there are initialization errors
+    const supportedLocales = [
+      Locale('fr', 'FR'), // Français
+      Locale('en', 'US'), // Anglais
+    ];
+    
     runApp(
       EasyLocalization(
-        supportedLocales: LocalizationService.supportedLocales,
+        supportedLocales: supportedLocales,
         path: 'assets/translations',
         fallbackLocale: const Locale('fr', 'FR'),
+        useOnlyLangCode: false,
         child: const GerTonArgentApp(),
       ),
     );

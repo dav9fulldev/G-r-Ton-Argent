@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/transaction_model.dart';
+import '../utils/category_utils.dart';
 
 class ExpenseChart extends StatelessWidget {
   final Map<TransactionCategory, double> expensesByCategory;
@@ -16,7 +17,7 @@ class ExpenseChart extends StatelessWidget {
       sections.add(PieChartSectionData(
         value: value,
         title: '${percentage.toStringAsFixed(0)}%',
-        color: _getCategoryColor(category),
+        color: Color(CategoryUtils.getCategoryColor(category)),
         radius: 60,
         titleStyle: const TextStyle(
           color: Colors.white,
@@ -111,41 +112,16 @@ class ExpenseChart extends StatelessWidget {
           Wrap(
             spacing: 12,
             runSpacing: 8,
-            children: expensesByCategory.keys.map((c) {
-              return _legendItem(context, c, _getCategoryColor(c));
-            }).toList(),
+                         children: expensesByCategory.keys.map((c) {
+               return _legendItem(context, c, Color(CategoryUtils.getCategoryColor(c)));
+             }).toList(),
           )
         ],
       ),
     );
   }
 
-  Color _getCategoryColor(TransactionCategory category) {
-    switch (category) {
-      case TransactionCategory.food:
-        return Colors.orange;
-      case TransactionCategory.transport:
-        return Colors.blue;
-      case TransactionCategory.entertainment:
-        return Colors.purple;
-      case TransactionCategory.shopping:
-        return Colors.pink;
-      case TransactionCategory.health:
-        return Colors.red;
-      case TransactionCategory.education:
-        return Colors.indigo;
-      case TransactionCategory.utilities:
-        return Colors.teal;
-      case TransactionCategory.salary:
-        return Colors.green;
-      case TransactionCategory.freelance:
-        return Colors.amber;
-      case TransactionCategory.investment:
-        return Colors.cyan;
-      case TransactionCategory.other:
-        return Colors.grey;
-    }
-  }
+
 
   Widget _legendItem(BuildContext context, TransactionCategory category, Color color) {
     return Row(
@@ -162,7 +138,7 @@ class ExpenseChart extends StatelessWidget {
         const SizedBox(width: 6),
         Flexible(
           child: Text(
-            _categoryName(category), 
+            CategoryUtils.getCategoryName(category), 
             style: const TextStyle(
               color: Color(0xFF475569),
               fontSize: 12,
@@ -175,31 +151,6 @@ class ExpenseChart extends StatelessWidget {
     );
   }
 
-  String _categoryName(TransactionCategory category) {
-    switch (category) {
-      case TransactionCategory.food:
-        return 'Nourriture';
-      case TransactionCategory.transport:
-        return 'Transport';
-      case TransactionCategory.entertainment:
-        return 'Divertissement';
-      case TransactionCategory.shopping:
-        return 'Shopping';
-      case TransactionCategory.health:
-        return 'Santé';
-      case TransactionCategory.education:
-        return 'Éducation';
-      case TransactionCategory.utilities:
-        return 'Services';
-      case TransactionCategory.salary:
-        return 'Salaire';
-      case TransactionCategory.freelance:
-        return 'Freelance';
-      case TransactionCategory.investment:
-        return 'Investissement';
-      case TransactionCategory.other:
-        return 'Autre';
-    }
-  }
+
 }
 

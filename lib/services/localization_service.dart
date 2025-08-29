@@ -5,19 +5,16 @@ class LocalizationService extends ChangeNotifier {
   static const List<Locale> supportedLocales = [
     Locale('fr', 'FR'), // Français
     Locale('en', 'US'), // Anglais
-    Locale('es', 'ES'), // Espagnol
   ];
 
   static const Map<String, String> languageNames = {
     'fr': 'Français',
     'en': 'English',
-    'es': 'Español',
   };
 
   static const Map<String, String> languageFlags = {
     'fr': '🇫🇷',
     'en': '🇺🇸',
-    'es': '🇪🇸',
   };
 
   String getCurrentLanguage(BuildContext context) {

@@ -20,7 +20,7 @@ flutter run
 4. **Testez les changements de langue** :
    - Sélectionnez **Français** → Vérifiez que les textes sont en français
    - Sélectionnez **English** → Vérifiez que les textes passent en anglais
-   - Sélectionnez **Español** → Vérifiez que les textes passent en espagnol
+   - Sélectionnez **English** → Vérifiez que les textes passent en anglais
 
 ### 3. Textes à Vérifier (MAINTENANT TRADUITS)
 
@@ -59,7 +59,7 @@ flutter run
 - ✅ Correction de `main.dart` (suppression de la duplication)
 - ✅ Ajout de `LocalizationService` dans les providers
 - ✅ **Remplacement de TOUS les textes en dur** par `.tr()` dans `settings_screen.dart`
-- ✅ **Ajout des nouvelles clés de traduction** dans `fr-FR.json`, `en-US.json`, `es-ES.json`
+- ✅ **Ajout des nouvelles clés de traduction** dans `fr-FR.json`, `en-US.json`
 
 ### Nouvelles Clés Ajoutées
 ```json
@@ -78,7 +78,7 @@ flutter run
 assets/translations/
 ├── fr-FR.json    # Français (148 lignes)
 ├── en-US.json    # Anglais (148 lignes)
-└── es-ES.json    # Espagnol (148 lignes)
+
 ```
 
 ### Exemple de Clés Corrigées
@@ -133,7 +133,7 @@ assets/translations/
 
 ### 1. Ajouter une Nouvelle Clé
 
-Dans tous les fichiers de traduction (`fr-FR.json`, `en-US.json`, `es-ES.json`) :
+Dans tous les fichiers de traduction (`fr-FR.json`, `en-US.json`) :
 
 ```json
 {

@@ -7,6 +7,7 @@ import '../../models/transaction_model.dart';
 import 'transaction_details_screen.dart';
 import 'add_transaction_screen.dart';
 import '../../widgets/transaction_list_item.dart';
+import '../../utils/category_utils.dart';
 
 class TransactionListScreen extends StatefulWidget {
   const TransactionListScreen({super.key});
@@ -57,7 +58,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       final searchTerm = _searchController.text.toLowerCase();
       transactions = transactions.where((transaction) {
         return transaction.description.toLowerCase().contains(searchTerm) ||
-               transaction.category.name.toLowerCase().contains(searchTerm) ||
+               CategoryUtils.getCategoryName(transaction.category).toLowerCase().contains(searchTerm) ||
                transaction.amount.toString().contains(searchTerm);
       }).toList();
     }
@@ -150,7 +151,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                             ),
                           if (_filterCategory != null)
                             Chip(
-                              label: Text(_filterCategory!.name),
+                              label: Text(CategoryUtils.getCategoryName(_filterCategory!)),
                               onDeleted: () => setState(() => _filterCategory = null),
                             ),
                           if (_startDate != null)
@@ -293,7 +294,13 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                   const DropdownMenuItem(value: null, child: Text('Toutes')),
                   ...TransactionCategory.values.map((category) => DropdownMenuItem(
                     value: category,
-                    child: Text(category.name),
+                    child: Row(
+                      children: [
+                        Text(CategoryUtils.getCategoryIcon(category)),
+                        const SizedBox(width: 8),
+                        Text(CategoryUtils.getCategoryName(category)),
+                      ],
+                    ),
                   )),
                 ],
                 onChanged: (value) => setState(() => _filterCategory = value),

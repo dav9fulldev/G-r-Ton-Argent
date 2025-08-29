@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/transaction_model.dart';
+import '../utils/category_utils.dart';
 
 class AIService extends ChangeNotifier {
   // Replace with your actual OpenAI API key
@@ -114,11 +115,11 @@ class AIService extends ChangeNotifier {
     required TransactionCategory category,
     required List<TransactionModel> recentTransactions,
   }) {
-    final categoryName = _getCategoryName(category);
+    final categoryName = CategoryUtils.getCategoryName(category);
     final recentExpenses = recentTransactions
         .where((t) => t.type == TransactionType.expense)
         .take(5)
-        .map((t) => '${_getCategoryName(t.category)}: ${t.amount} FCFA')
+        .map((t) => '${CategoryUtils.getCategoryName(t.category)}: ${t.amount} FCFA')
         .join(', ');
 
     return '''
@@ -253,7 +254,7 @@ Donne un conseil court (2-3 phrases) en français, adapté au contexte ivoirien.
     final categoryBreakdown = <String, double>{};
     
     for (final expense in expenses) {
-      final categoryName = _getCategoryName(expense.category);
+      final categoryName = CategoryUtils.getCategoryName(expense.category);
       categoryBreakdown[categoryName] = (categoryBreakdown[categoryName] ?? 0) + expense.amount;
     }
 
@@ -357,32 +358,7 @@ Donne 3 conseils courts et pratiques en français, adaptés au contexte ivoirien
     return totalExpenses / now.day;
   }
 
-  String _getCategoryName(TransactionCategory category) {
-    switch (category) {
-      case TransactionCategory.food:
-        return 'Nourriture';
-      case TransactionCategory.transport:
-        return 'Transport';
-      case TransactionCategory.entertainment:
-        return 'Loisirs';
-      case TransactionCategory.shopping:
-        return 'Shopping';
-      case TransactionCategory.health:
-        return 'Santé';
-      case TransactionCategory.education:
-        return 'Éducation';
-      case TransactionCategory.utilities:
-        return 'Factures';
-      case TransactionCategory.salary:
-        return 'Salaire';
-      case TransactionCategory.freelance:
-        return 'Freelance';
-      case TransactionCategory.investment:
-        return 'Investissement';
-      case TransactionCategory.other:
-        return 'Autre';
-    }
-  }
+
 
   void _setLoading(bool loading) {
     _isLoading = loading;

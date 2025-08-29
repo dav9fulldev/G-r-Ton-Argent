@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../services/transaction_service.dart';
 import '../models/transaction_model.dart';
+import '../utils/category_utils.dart';
 
 class SpendingInsightsWidget extends StatefulWidget {
   const SpendingInsightsWidget({super.key});
@@ -189,7 +190,9 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
     // Find largest expense
     final largestExpense = expenses.isNotEmpty ? expenses.map((e) => e.amount).reduce((a, b) => a > b ? a : b) : 0.0;
     final largestExpenseTransaction = expenses.where((e) => e.amount == largestExpense).firstOrNull;
-    final largestExpenseCategory = largestExpenseTransaction?.category.name ?? '';
+            final largestExpenseCategory = largestExpenseTransaction != null 
+            ? CategoryUtils.getCategoryName(largestExpenseTransaction!.category) 
+            : '';
 
     // Calculate category totals and percentages
     final categoryTotals = <TransactionCategory, double>{};
@@ -469,13 +472,15 @@ class _CategoryInsightCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _getCategoryColor(category).withOpacity(0.2),
+              color: Color(CategoryUtils.getCategoryColor(category)).withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              _getCategoryIcon(category),
-              color: _getCategoryColor(category),
-              size: 20,
+            child: Text(
+              CategoryUtils.getCategoryIcon(category),
+              style: TextStyle(
+                fontSize: 20,
+                color: Color(CategoryUtils.getCategoryColor(category)),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -484,7 +489,7 @@ class _CategoryInsightCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _getCategoryName(category),
+                  CategoryUtils.getCategoryName(category),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: const Color(0xFF1E293B),
                     fontWeight: FontWeight.w500,
@@ -511,86 +516,7 @@ class _CategoryInsightCard extends StatelessWidget {
     );
   }
 
-  Color _getCategoryColor(TransactionCategory category) {
-    switch (category) {
-      case TransactionCategory.food:
-        return Colors.orange;
-      case TransactionCategory.transport:
-        return Colors.blue;
-      case TransactionCategory.entertainment:
-        return Colors.purple;
-      case TransactionCategory.shopping:
-        return Colors.pink;
-      case TransactionCategory.health:
-        return Colors.red;
-      case TransactionCategory.education:
-        return Colors.indigo;
-      case TransactionCategory.utilities:
-        return Colors.teal;
-      case TransactionCategory.salary:
-        return Colors.green;
-      case TransactionCategory.freelance:
-        return Colors.amber;
-      case TransactionCategory.investment:
-        return Colors.cyan;
-      case TransactionCategory.other:
-        return Colors.grey;
-    }
-  }
 
-  IconData _getCategoryIcon(TransactionCategory category) {
-    switch (category) {
-      case TransactionCategory.food:
-        return Icons.restaurant;
-      case TransactionCategory.transport:
-        return Icons.directions_car;
-      case TransactionCategory.entertainment:
-        return Icons.movie;
-      case TransactionCategory.shopping:
-        return Icons.shopping_bag;
-      case TransactionCategory.health:
-        return Icons.medical_services;
-      case TransactionCategory.education:
-        return Icons.school;
-      case TransactionCategory.utilities:
-        return Icons.electric_bolt;
-      case TransactionCategory.salary:
-        return Icons.work;
-      case TransactionCategory.freelance:
-        return Icons.computer;
-      case TransactionCategory.investment:
-        return Icons.trending_up;
-      case TransactionCategory.other:
-        return Icons.more_horiz;
-    }
-  }
-
-  String _getCategoryName(TransactionCategory category) {
-    switch (category) {
-      case TransactionCategory.food:
-        return 'Nourriture';
-      case TransactionCategory.transport:
-        return 'Transport';
-      case TransactionCategory.entertainment:
-        return 'Loisirs';
-      case TransactionCategory.shopping:
-        return 'Shopping';
-      case TransactionCategory.health:
-        return 'Santé';
-      case TransactionCategory.education:
-        return 'Éducation';
-      case TransactionCategory.utilities:
-        return 'Factures';
-      case TransactionCategory.salary:
-        return 'Salaire';
-      case TransactionCategory.freelance:
-        return 'Freelance';
-      case TransactionCategory.investment:
-        return 'Investissement';
-      case TransactionCategory.other:
-        return 'Autre';
-    }
-  }
 }
 
 class _RecommendationCard extends StatelessWidget {

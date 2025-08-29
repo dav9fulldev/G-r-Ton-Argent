@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/transaction_model.dart';
+import '../../utils/category_utils.dart';
 
 class TransactionDetailsScreen extends StatelessWidget {
   final TransactionModel transaction;
@@ -21,7 +22,7 @@ class TransactionDetailsScreen extends StatelessWidget {
             ListTile(
               leading: Icon(isIncome ? Icons.trending_up : Icons.trending_down,
                   color: isIncome ? Colors.green : Colors.red),
-              title: Text(transaction.description.isEmpty ? _categoryName(transaction.category) : transaction.description),
+              title: Text(transaction.description.isEmpty ? CategoryUtils.getCategoryName(transaction.category) : transaction.description),
               subtitle: Text(DateFormat('dd MMM yyyy, HH:mm').format(transaction.date)),
               trailing: Text(
                 '$amountPrefix${NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA').format(transaction.amount)}',
@@ -29,7 +30,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Text('Catégorie: ${_categoryName(transaction.category)}'),
+            Text('Catégorie: ${CategoryUtils.getCategoryName(transaction.category)}'),
             const SizedBox(height: 8),
             Text('Créée le: ${DateFormat('dd MMM yyyy, HH:mm').format(transaction.createdAt)}'),
           ],
@@ -38,31 +39,6 @@ class TransactionDetailsScreen extends StatelessWidget {
     );
   }
 
-  String _categoryName(TransactionCategory category) {
-    switch (category) {
-      case TransactionCategory.food:
-        return 'Nourriture';
-      case TransactionCategory.transport:
-        return 'Transport';
-      case TransactionCategory.entertainment:
-        return 'Divertissement';
-      case TransactionCategory.shopping:
-        return 'Shopping';
-      case TransactionCategory.health:
-        return 'Santé';
-      case TransactionCategory.education:
-        return 'Éducation';
-      case TransactionCategory.utilities:
-        return 'Services';
-      case TransactionCategory.salary:
-        return 'Salaire';
-      case TransactionCategory.freelance:
-        return 'Freelance';
-      case TransactionCategory.investment:
-        return 'Investissement';
-      case TransactionCategory.other:
-        return 'Autre';
-    }
-  }
+
 }
 
