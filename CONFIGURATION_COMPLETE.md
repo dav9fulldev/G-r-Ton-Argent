@@ -3,7 +3,6 @@
 ## 🔑 Clé API Configurée
 
 Votre clé API Gemini a été configurée avec succès :
-- **Clé** : `AIzaSyDSi9hzAndIPYi3S2MaxO40RT6odd6bBHw`
 - **Fichier** : `lib/config/api_keys.dart`
 - **Statut** : ✅ Configurée et sécurisée
 
