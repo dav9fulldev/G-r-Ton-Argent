@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -16,6 +14,7 @@ import 'services/auth_service.dart';
 import 'services/transaction_service.dart';
 import 'services/notification_service.dart';
 import 'services/gemini_service.dart';
+
 import 'services/connectivity_service.dart';
 import 'services/profile_service.dart';
 import 'services/localization_service.dart';
@@ -125,6 +124,7 @@ class GerTonArgentApp extends StatelessWidget {
         ChangeNotifierProvider<TransactionService>(create: (_) => TransactionService()),
         ChangeNotifierProvider<NotificationService>(create: (_) => NotificationService()),
         ChangeNotifierProvider<GeminiService>(create: (_) => GeminiService()),
+
         ChangeNotifierProvider<ConnectivityService>(create: (_) => ConnectivityService()),
         ChangeNotifierProvider<ProfileService>(create: (_) => ProfileService()),
         ChangeNotifierProvider<LocalizationService>(create: (_) => LocalizationService()),

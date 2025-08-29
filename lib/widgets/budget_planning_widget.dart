@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../services/auth_service.dart';
 import '../services/transaction_service.dart';
-import '../models/transaction_model.dart';
 
 class BudgetPlanningWidget extends StatefulWidget {
   const BudgetPlanningWidget({super.key});

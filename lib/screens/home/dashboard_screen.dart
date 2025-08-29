@@ -11,6 +11,7 @@ import '../../widgets/transaction_list_item.dart';
 import '../../widgets/financial_tips_widget.dart';
 import '../../widgets/budget_planning_widget.dart';
 import '../../widgets/spending_insights_widget.dart';
+
 import '../../widgets/app_logo.dart';
 import '../../services/auth_service.dart';
 import '../../services/transaction_service.dart';
@@ -92,7 +93,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   IconButton(
                     icon: const Icon(Icons.notifications, color: Colors.white),
                     onPressed: () {
-                      // TODO: Ouvrir les notifications
+                      // Afficher les notifications ou les paramètres de notifications
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('🔔 Notifications - Fonctionnalité en cours de développement'),
+                          backgroundColor: Colors.blue,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
                     },
                   ),
                   IconButton(
@@ -382,7 +390,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   // Financial Tips
                   const FinancialTipsWidget(),
 
-                          const SizedBox(height: 24),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

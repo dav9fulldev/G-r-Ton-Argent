@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/transaction_service.dart';
 import '../services/auth_service.dart';
-import '../services/gemini_service.dart';
+
 import '../models/transaction_model.dart';
 
 class FinancialTipsWidget extends StatefulWidget {
@@ -25,7 +25,6 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
   Future<void> _loadAITips() async {
     final authService = Provider.of<AuthService>(context, listen: false);
     final transactionService = Provider.of<TransactionService>(context, listen: false);
-    final geminiService = Provider.of<GeminiService>(context, listen: false);
 
     // Vérifier si les conseils IA sont activés
     if (authService.currentUser?.aiAdviceEnabled != true) {
@@ -39,20 +38,12 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
     setState(() => _isLoadingTips = true);
 
     try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final budgetInitial = authService.currentUser?.monthlyBudget ?? 0;
-      final tips = await geminiService.getFinancialTips(
-        currentBalance: transactionService.getCurrentMonthBalance(budgetInitial),
-        monthlyBudget: budgetInitial,
-        transactions: transactionService.currentMonthTransactions,
-      );
-
-      if (mounted) {
-        setState(() {
-          _aiTips = tips;
-          _isLoadingTips = false;
-        });
-      }
+      // Pour l'instant, on utilise les conseils locaux
+      // L'intégration IA sera ajoutée plus tard
+      setState(() {
+        _aiTips = [];
+        _isLoadingTips = false;
+      });
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -112,13 +103,13 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                                         child: Text(
-                       'Conseils Financiers',
-                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                         color: Colors.white,
-                         fontWeight: FontWeight.bold,
-                       ),
-                     ),
+                    child: Text(
+                      'Conseils Financiers',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                   Container(
                     padding: const EdgeInsets.all(8),
@@ -165,8 +156,8 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
     if (totalExpenses > 100000) { // Exemple de seuil
       tips.add(FinancialTip(
         icon: Icons.warning,
-        title: 'Budget Dépassé',
-        description: 'Votre budget est dépassé. Considérez réduire vos dépenses non essentielles ce mois-ci.',
+        title: 'Alerte Budget',
+        description: '🚨 Votre budget est dépassé. Considérez réduire vos dépenses non essentielles ce mois-ci.',
         color: const Color(0xFFEF4444),
         priority: 1,
       ));
@@ -181,7 +172,7 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
       tips.add(FinancialTip(
         icon: Icons.restaurant,
         title: 'Dépenses Alimentaires',
-        description: 'Vous dépensez beaucoup en nourriture. Essayez de cuisiner plus à la maison pour économiser.',
+        description: '🍽️ Vous dépensez beaucoup en nourriture. Essayez de cuisiner plus à la maison pour économiser.',
         color: const Color(0xFFF59E0B),
         priority: 2,
       ));
@@ -190,8 +181,8 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
     // Tip 3: Épargne recommandée
     tips.add(FinancialTip(
       icon: Icons.savings,
-      title: 'Épargne Recommandée',
-      description: 'Pensez à épargner au moins 10% de vos revenus pour vos objectifs futurs.',
+      title: 'Conseil Épargne',
+      description: '💡 Pensez à épargner au moins 10% de vos revenus pour vos objectifs futurs.',
       color: const Color(0xFF10B981),
       priority: 3,
     ));
@@ -200,10 +191,25 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
     if (avgExpense > 50000) {
       tips.add(FinancialTip(
         icon: Icons.trending_up,
-        title: 'Dépenses Moyennes',
-        description: 'Vos dépenses moyennes sont élevées. Analysez vos habitudes de consommation.',
+        title: 'Analyse Dépenses',
+        description: '📊 Vos dépenses moyennes sont élevées. Analysez vos habitudes de consommation.',
         color: const Color(0xFF8B5CF6),
         priority: 4,
+      ));
+    }
+
+    // Tip 5: Transport optimisé
+    final transportExpenses = expenses
+        .where((e) => e.category == TransactionCategory.transport)
+        .fold(0.0, (sum, e) => sum + e.amount);
+    
+    if (transportExpenses > totalExpenses * 0.25) {
+      tips.add(FinancialTip(
+        icon: Icons.directions_bus,
+        title: 'Optimisation Transport',
+        description: '🚐 Considérez le transport en commun pour réduire vos dépenses de transport.',
+        color: const Color(0xFF06B6D4),
+        priority: 5,
       ));
     }
     
@@ -220,10 +226,11 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
       final tip = aiTips[i];
       final icon = _getIconForTip(tip);
       final color = _getColorForTip(tip);
+      final title = _getTitleForTip(tip, i + 1);
       
       tips.add(FinancialTip(
         icon: icon,
-        title: 'Conseil IA ${i + 1}',
+        title: title,
         description: tip,
         color: color,
         priority: i + 1,
@@ -231,6 +238,31 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
     }
     
     return tips;
+  }
+
+  /// Détermine le titre approprié selon le contenu du conseil
+  String _getTitleForTip(String tip, int index) {
+    final lowerTip = tip.toLowerCase();
+    
+    if (lowerTip.contains('budget') || lowerTip.contains('dépassé')) {
+      return 'Alerte Budget';
+    } else if (lowerTip.contains('nourriture') || lowerTip.contains('🍽️')) {
+      return 'Dépenses Alimentaires';
+    } else if (lowerTip.contains('épargner') || lowerTip.contains('💡')) {
+      return 'Conseil Épargne';
+    } else if (lowerTip.contains('excellent') || lowerTip.contains('✅')) {
+      return 'Excellent Gestion';
+    } else if (lowerTip.contains('attention') || lowerTip.contains('🚨')) {
+      return 'Attention Requise';
+    } else if (lowerTip.contains('transport') || lowerTip.contains('🚐')) {
+      return 'Optimisation Transport';
+    } else if (lowerTip.contains('santé') || lowerTip.contains('🏥')) {
+      return 'Conseil Santé';
+    } else if (lowerTip.contains('divertissement') || lowerTip.contains('🎮')) {
+      return 'Loisirs Économiques';
+    } else {
+      return 'Conseil Personnalisé';
+    }
   }
 
   /// Détermine l'icône appropriée selon le contenu du conseil
