@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 // Removed mock service imports; using real services below
 import '../transactions/add_transaction_screen.dart';
@@ -11,6 +12,7 @@ import '../../widgets/transaction_list_item.dart';
 import '../../widgets/financial_tips_widget.dart';
 import '../../widgets/budget_planning_widget.dart';
 import '../../widgets/spending_insights_widget.dart';
+import '../../widgets/debug_info_widget.dart';
 
 import '../../widgets/app_logo.dart';
 import '../../services/auth_service.dart';
@@ -40,6 +42,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       print('🔄 Loading data for user: ${authService.currentUser!.name}');
       // Force refresh from Firestore to ensure data consistency
       await transactionService.forceRefresh(authService.currentUser!.uid);
+      
+      // Debug data consistency
+      await transactionService.debugDataConsistency(authService.currentUser!.uid);
     }
   }
 
@@ -391,6 +396,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   // Financial Tips
                   const FinancialTipsWidget(),
+
+                  const SizedBox(height: 24),
+
+                  // Debug Info Widget (only in debug mode)
+                  if (kDebugMode) const DebugInfoWidget(),
 
                   const SizedBox(height: 24),
                 ],

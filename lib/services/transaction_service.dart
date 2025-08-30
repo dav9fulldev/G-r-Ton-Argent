@@ -140,6 +140,8 @@ class TransactionService extends ChangeNotifier {
 
   Future<void> _loadFromFirestore(String userId) async {
     try {
+      print('🔄 Loading transactions from Firestore for user: $userId');
+      
       final snapshot = await _firestore
           .collection('transactions')
           .where('userId', isEqualTo: userId)
@@ -150,16 +152,33 @@ class TransactionService extends ChangeNotifier {
           .map((doc) => TransactionModel.fromMap(doc.data()))
           .toList();
 
+      print('📊 Found ${firestoreTransactions.length} transactions in Firestore');
+
       // Use Firestore as source of truth (no merge with local data)
       _transactions = firestoreTransactions;
       _transactions.sort((a, b) => b.date.compareTo(a.date));
+
+      // Calculate totals for debugging
+      double totalIncome = 0;
+      double totalExpenses = 0;
+      for (final transaction in _transactions) {
+        if (transaction.type == TransactionType.income) {
+          totalIncome += transaction.amount;
+        } else {
+          totalExpenses += transaction.amount;
+        }
+      }
+      
+      print('💰 Total Income: ${totalIncome.toStringAsFixed(0)} FCFA');
+      print('💸 Total Expenses: ${totalExpenses.toStringAsFixed(0)} FCFA');
+      print('📈 Net: ${(totalIncome - totalExpenses).toStringAsFixed(0)} FCFA');
 
       // Save to local storage for offline access
       await _saveToLocal();
       
       print('✅ Loaded ${_transactions.length} transactions from Firestore for user $userId');
     } catch (e) {
-      print('Error loading from Firestore: $e');
+      print('❌ Error loading from Firestore: $e');
       _isOnline = false;
     }
   }
@@ -194,23 +213,40 @@ class TransactionService extends ChangeNotifier {
       createdAt: DateTime.now(),
     );
 
+    print('🔄 Adding transaction: ${transaction.id} - ${transaction.amount} FCFA - ${transaction.type} - ${transaction.category}');
+
     try {
       // Add to local list immediately for responsive UI
       _transactions.insert(0, transaction);
       await _saveToLocal();
       notifyListeners();
+      print('✅ Transaction added to local storage');
 
       // Add to Firestore if online
       if (_isOnline) {
+        print('🌐 Saving to Firestore...');
         await _firestore
             .collection('transactions')
             .doc(transaction.id)
             .set(transaction.toMap());
-        print('Transaction saved to Firestore: ${transaction.id}');
+        print('✅ Transaction saved to Firestore: ${transaction.id}');
+        
+        // Verify the transaction was saved
+        final savedDoc = await _firestore
+            .collection('transactions')
+            .doc(transaction.id)
+            .get();
+        
+        if (savedDoc.exists) {
+          print('✅ Transaction verified in Firestore');
+        } else {
+          print('❌ Transaction not found in Firestore after save!');
+          throw Exception('Transaction not saved to Firestore');
+        }
       } else {
         // Queue for later sync
         await _addToOfflineQueue(transaction);
-        print('Transaction queued for offline sync: ${transaction.id}');
+        print('📱 Transaction queued for offline sync: ${transaction.id}');
       }
     } catch (e) {
       // Remove from local list if Firestore fails
@@ -218,7 +254,7 @@ class TransactionService extends ChangeNotifier {
       await _saveToLocal();
       notifyListeners();
       _setError('Erreur lors de l\'ajout de la transaction: $e');
-      print('Error adding transaction: $e');
+      print('❌ Error adding transaction: $e');
       rethrow;
     }
   }
@@ -369,5 +405,32 @@ class TransactionService extends ChangeNotifier {
     print('🔄 Force refreshing transactions for user $userId');
     _isOnline = true;
     await loadTransactions(userId);
+  }
+
+  // Debug method to check data consistency
+  Future<void> debugDataConsistency(String userId) async {
+    print('🔍 Debugging data consistency for user: $userId');
+    
+    // Check local data
+    print('📱 Local transactions: ${_transactions.length}');
+    for (final transaction in _transactions.take(5)) {
+      print('  - ${transaction.id}: ${transaction.amount} FCFA (${transaction.type})');
+    }
+    
+    // Check Firestore data
+    try {
+      final snapshot = await _firestore
+          .collection('transactions')
+          .where('userId', isEqualTo: userId)
+          .get();
+      
+      print('🌐 Firestore transactions: ${snapshot.docs.length}');
+      for (final doc in snapshot.docs.take(5)) {
+        final data = doc.data();
+        print('  - ${doc.id}: ${data['amount']} FCFA (${data['type']})');
+      }
+    } catch (e) {
+      print('❌ Error checking Firestore: $e');
+    }
   }
 }

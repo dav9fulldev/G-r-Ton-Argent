@@ -1,13 +1,14 @@
-name: Flutter Test & Validation
+name: Flutter Deploy
 
 on:
   push:
-    branches: [ master, main, develop ]
+    branches: [ master, main ]
   pull_request:
     branches: [ master, main ]
+  workflow_dispatch:
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
     
     steps:
@@ -32,10 +33,12 @@ jobs:
     - name: Run Flutter tests
       run: flutter test
 
-    - name: Build for web (test)
+    - name: Build Flutter web app
       run: flutter build web --release
 
-  lint:
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     
     steps:
@@ -51,24 +54,16 @@ jobs:
     - name: Get Flutter dependencies
       run: flutter pub get
 
-    - name: Run linter
-      run: flutter analyze --fatal-infos
+    - name: Generate Hive adapters
+      run: flutter packages pub run build_runner build --delete-conflicting-outputs
 
-  format:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Build Flutter web app
+      run: flutter build web --release
 
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
+    - name: Deploy to Firebase Hosting
+      uses: FirebaseExtended/action-hosting-deploy@v0
       with:
-        flutter-version: '3.19.0'
-        channel: 'stable'
-
-    - name: Get Flutter dependencies
-      run: flutter pub get
-
-    - name: Check formatting
-      run: dart format --output=none --set-exit-if-changed .
+        repoToken: ${{ secrets.GITHUB_TOKEN }}
+        firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GTONARGENT_APP }}
+        channelId: live
+        projectId: gtonargent-app

@@ -48,10 +48,3 @@ jobs:
         firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GTONARGENT_APP }}
         channelId: ${{ github.event.inputs.environment }}
         projectId: gtonargent-app
-
-    - name: Deploy Firestore Rules
-      run: |
-        echo ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GTONARGENT_APP }} > /tmp/firebase-service-account.json
-        npx firebase-tools deploy --only firestore:rules --token $(npx firebase-tools login:ci --no-localhost --token ${{ secrets.FIREBASE_TOKEN }})
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-service-account.json
