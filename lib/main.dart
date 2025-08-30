@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -56,6 +57,17 @@ void main() async {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      
+      // Connect to Firebase emulators in debug mode
+      if (kDebugMode) {
+        try {
+          await FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+          print('✅ Connected to Firestore emulator on localhost:8080');
+        } catch (e) {
+          print('⚠️ Failed to connect to Firestore emulator: $e');
+        }
+      }
+      
       firebaseInitialized = true;
       print('✅ Firebase initialized successfully');
     } catch (e) {
