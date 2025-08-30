@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../models/user_model.dart';
+import '../models/transaction_model.dart';
 
 class AuthService extends ChangeNotifier {
   final fb_auth.FirebaseAuth _auth = fb_auth.FirebaseAuth.instance;
@@ -85,6 +87,9 @@ class AuthService extends ChangeNotifier {
   Future<void> signOut() async {
     _setLoading(true);
     try {
+      // Clear local data before signing out
+      await _clearLocalData();
+      
       await _auth.signOut();
       _currentUser = null;
       notifyListeners();
@@ -92,6 +97,22 @@ class AuthService extends ChangeNotifier {
       _setError('Erreur lors de la déconnexion');
     } finally {
       _setLoading(false);
+    }
+  }
+
+  Future<void> _clearLocalData() async {
+    try {
+      // Clear transactions from local storage
+      final transactionBox = Hive.box<TransactionModel>('transactions');
+      await transactionBox.clear();
+      
+      // Clear offline queue
+      final offlineQueueBox = Hive.box('offline_queue');
+      await offlineQueueBox.clear();
+      
+      print('✅ Local data cleared successfully');
+    } catch (e) {
+      print('⚠️ Error clearing local data: $e');
     }
   }
 
@@ -171,6 +192,7 @@ class AuthService extends ChangeNotifier {
       final doc = await _firestore.collection('users').doc(fbUser.uid).get();
       if (doc.exists) {
         _currentUser = UserModel.fromMap(doc.data()!);
+        print('✅ User loaded from Firestore: ${_currentUser!.name} (Budget: ${_currentUser!.monthlyBudget})');
       } else {
         final user = UserModel(
           uid: fbUser.uid,
@@ -182,10 +204,12 @@ class AuthService extends ChangeNotifier {
         );
         await _firestore.collection('users').doc(user.uid).set(user.toMap());
         _currentUser = user;
+        print('✅ New user created: ${_currentUser!.name}');
       }
       notifyListeners();
     } catch (e) {
       _setError('Erreur lors du chargement du profil utilisateur');
+      print('❌ Error loading user: $e');
     }
   }
 

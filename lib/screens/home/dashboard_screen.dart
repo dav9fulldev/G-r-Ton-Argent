@@ -37,7 +37,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final transactionService = Provider.of<TransactionService>(context, listen: false);
     
     if (authService.currentUser != null) {
-      await transactionService.loadTransactions(authService.currentUser!.uid);
+      print('🔄 Loading data for user: ${authService.currentUser!.name}');
+      // Force refresh from Firestore to ensure data consistency
+      await transactionService.forceRefresh(authService.currentUser!.uid);
     }
   }
 

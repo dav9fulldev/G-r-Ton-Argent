@@ -106,12 +106,15 @@ class TransactionService extends ChangeNotifier {
     _clearError();
 
     try {
-      // Load from local storage first
-      await _loadFromLocal(userId);
+      // Clear any existing transactions first
+      _transactions.clear();
       
-      // Then sync with Firestore if online
+      // Load from Firestore first (source of truth)
       if (_isOnline) {
         await _loadFromFirestore(userId);
+      } else {
+        // Only load from local if offline
+        await _loadFromLocal(userId);
       }
       
       _setLoading(false);
@@ -147,24 +150,14 @@ class TransactionService extends ChangeNotifier {
           .map((doc) => TransactionModel.fromMap(doc.data()))
           .toList();
 
-      // Merge with local data
-      final Map<String, TransactionModel> mergedTransactions = {};
-      
-      // Add local transactions
-      for (final transaction in _transactions) {
-        mergedTransactions[transaction.id] = transaction;
-      }
-      
-      // Add/update Firestore transactions
-      for (final transaction in firestoreTransactions) {
-        mergedTransactions[transaction.id] = transaction;
-      }
-
-      _transactions = mergedTransactions.values.toList();
+      // Use Firestore as source of truth (no merge with local data)
+      _transactions = firestoreTransactions;
       _transactions.sort((a, b) => b.date.compareTo(a.date));
 
-      // Save to local storage
+      // Save to local storage for offline access
       await _saveToLocal();
+      
+      print('✅ Loaded ${_transactions.length} transactions from Firestore for user $userId');
     } catch (e) {
       print('Error loading from Firestore: $e');
       _isOnline = false;
@@ -176,6 +169,7 @@ class TransactionService extends ChangeNotifier {
       final box = Hive.box<TransactionModel>('transactions');
       await box.clear();
       await box.addAll(_transactions);
+      print('✅ Saved ${_transactions.length} transactions to local storage');
     } catch (e) {
       print('Error saving to local storage: $e');
     }
@@ -368,5 +362,12 @@ class TransactionService extends ChangeNotifier {
     if (online) {
       syncOfflineQueue();
     }
+  }
+
+  // Force refresh from Firestore (useful after login)
+  Future<void> forceRefresh(String userId) async {
+    print('🔄 Force refreshing transactions for user $userId');
+    _isOnline = true;
+    await loadTransactions(userId);
   }
 }
