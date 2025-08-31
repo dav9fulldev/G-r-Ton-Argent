@@ -25,13 +25,29 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingObserver {
   int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // Reload data when app becomes active again
+      _loadData();
+    }
   }
 
   Future<void> _loadData() async {
@@ -39,12 +55,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final transactionService = Provider.of<TransactionService>(context, listen: false);
     
     if (authService.currentUser != null) {
-      print('🔄 Loading data for user: ${authService.currentUser!.name}');
-      // Force refresh from Firestore to ensure data consistency
-      await transactionService.forceRefresh(authService.currentUser!.uid);
-      
-      // Debug data consistency
-      await transactionService.debugDataConsistency(authService.currentUser!.uid);
+      print('🔄 Dashboard: Loading data for user: ${authService.currentUser!.name}');
+      try {
+        // Force refresh from Firestore to ensure data consistency
+        await transactionService.forceRefresh(authService.currentUser!.uid);
+        
+        // Debug data consistency
+        await transactionService.debugDataConsistency(authService.currentUser!.uid);
+        
+        print('✅ Dashboard: Data loaded successfully');
+      } catch (e) {
+        print('❌ Dashboard: Error loading data: $e');
+      }
+    } else {
+      print('⚠️ Dashboard: No user found, cannot load data');
     }
   }
 
@@ -69,7 +93,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             // AppBar personnalisé
             Container(
-              padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 16),
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.width > 600 ? 20 : 40, // Plus petit sur web
+                left: 16, 
+                right: 16, 
+                bottom: MediaQuery.of(context).size.width > 600 ? 8 : 12, // Plus petit sur web
+              ),
               decoration: BoxDecoration(
                 color: const Color(0xFF374151), // Même couleur que le pied de page
                 borderRadius: const BorderRadius.only(
@@ -86,19 +115,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               child: Row(
                 children: [
-                  const AppLogo(size: 40),
-                  const SizedBox(width: 12),
+                  AppLogo(
+                    size: MediaQuery.of(context).size.width > 600 ? 32 : 36, // Plus petit sur web
+                  ),
+                  SizedBox(width: MediaQuery.of(context).size.width > 600 ? 8 : 12),
                   Expanded(
                     child: Text(
                       'GèrTonArgent',
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Colors.white, // Texte blanc pour contraste
                         fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.width > 600 ? 18 : 20, // Plus petit sur web
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    icon: Icon(
+                      Icons.notifications, 
+                      color: Colors.white,
+                      size: MediaQuery.of(context).size.width > 600 ? 20 : 24, // Plus petit sur web
+                    ),
                     onPressed: () {
                       // Afficher les notifications ou les paramètres de notifications
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -111,7 +147,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.white),
+                    icon: Icon(
+                      Icons.settings, 
+                      color: Colors.white,
+                      size: MediaQuery.of(context).size.width > 600 ? 20 : 24, // Plus petit sur web
+                    ),
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -123,291 +163,298 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             // Contenu principal
             Expanded(
-              child: Consumer2<AuthService, TransactionService>(
-        builder: (context, authService, transactionService, child) {
-          if (authService.currentUser == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-                  // Handle different tabs
-                  if (_selectedIndex == 1) {
-                    return const TransactionListScreen();
-          }
-
-          return RefreshIndicator(
-            onRefresh: _loadData,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Welcome Message
-                  Text(
-                    'Bonjour, ${authService.currentUser!.name}', // TODO: Add welcome message to translations
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.5),
-                          offset: const Offset(1, 1),
-                          blurRadius: 3,
-                        ),
-                      ],
-                    ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width > 1200 ? 1200 : double.infinity,
                   ),
-                  
-                  const SizedBox(height: 8),
-                  
-                  Text(
-                    'Voici un aperçu de vos finances', // TODO: Add subtitle to translations
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      shadows: [
-                        Shadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  offset: const Offset(1, 1),
-                                  blurRadius: 2,
+                  child: Consumer2<AuthService, TransactionService>(
+                    builder: (context, authService, transactionService, child) {
+                      if (authService.currentUser == null) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      // Handle different tabs
+                      if (_selectedIndex == 1) {
+                        return const TransactionListScreen();
+                      }
+
+                      return RefreshIndicator(
+                        onRefresh: _loadData,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Welcome Message
+                              Text(
+                                'Bonjour, ${authService.currentUser!.name}', // TODO: Add welcome message to translations
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.5),
+                                      offset: const Offset(1, 1),
+                                      blurRadius: 3,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Balance Card
-                  BalanceCard(
-                    balance: transactionService.getCurrentMonthBalance(authService.currentUser?.monthlyBudget ?? 0),
-                    monthlyBudget: authService.currentUser?.monthlyBudget ?? 0,
-                  ),
-
-                  const SizedBox(height: 24),
-
-                          // Quick Actions
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF8FAFC), // Fond plus doux
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: const Color(0xFFE2E8F0),
-                                width: 1,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                              
+                              const SizedBox(height: 8),
+                              
+                              Text(
+                                'Voici un aperçu de vos finances', // TODO: Add subtitle to translations
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      offset: const Offset(1, 1),
+                                      blurRadius: 2,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Actions rapides',
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: const Color(0xFF1E293B),
-                                    fontWeight: FontWeight.bold,
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Balance Card
+                              BalanceCard(
+                                balance: transactionService.getCurrentMonthBalance(authService.currentUser?.monthlyBudget ?? 0),
+                                monthlyBudget: authService.currentUser?.monthlyBudget ?? 0,
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Quick Actions
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF8FAFC), // Fond plus doux
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(0xFFE2E8F0),
+                                    width: 1,
                                   ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (_) => const AddTransactionScreen(),
-                                            ),
-                                          );
-                                        },
-                                        icon: const Icon(Icons.add),
-                                        label: const Text('Ajouter'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF3B82F6),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                        ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Actions rapides',
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        color: const Color(0xFF1E293B),
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    const SizedBox(width: 12),
-                      Expanded(
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (_) => const TransactionListScreen(),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton.icon(
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => const AddTransactionScreen(),
+                                                ),
+                                              );
+                                            },
+                                            icon: const Icon(Icons.add),
+                                            label: const Text('Ajouter'),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFF3B82F6),
+                                              foregroundColor: Colors.white,
+                                              padding: const EdgeInsets.symmetric(vertical: 12),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
                                             ),
-                                          );
-                                        },
-                                        icon: const Icon(Icons.list),
-                                        label: const Text('Voir tout'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF64748B),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
                                           ),
                                         ),
-                        ),
-                      ),
-                    ],
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: ElevatedButton.icon(
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => const TransactionListScreen(),
+                                                ),
+                                              );
+                                            },
+                                            icon: const Icon(Icons.list),
+                                            label: const Text('Voir tout'),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFF64748B),
+                                              foregroundColor: Colors.white,
+                                              padding: const EdgeInsets.symmetric(vertical: 12),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Expense Chart
-                  ExpenseChart(
-                    expensesByCategory: transactionService.expensesByCategory,
-                  ),
-
-                    const SizedBox(height: 24),
-
-                  // Recent Transactions
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF8FAFC), // Fond plus doux
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: const Color(0xFFE2E8F0),
-                                width: 1,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+
+                              const SizedBox(height: 24),
+
+                              // Expense Chart
+                              ExpenseChart(
+                                expensesByCategory: transactionService.expensesByCategory,
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Recent Transactions
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF8FAFC), // Fond plus doux
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(0xFFE2E8F0),
+                                    width: 1,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                                              Text(
-                          'Transactions récentes',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: const Color(0xFF1E293B),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      const SizedBox(height: 8),
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => const TransactionListScreen(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Transactions récentes',
+                                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                            color: const Color(0xFF1E293B),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Center(
+                                          child: TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => const TransactionListScreen(),
+                                                ),
+                                              );
+                                            },
+                                            child: const Text(
+                                              'Voir tout',
+                                              style: TextStyle(
+                                                color: Color(0xFF3B82F6),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    if (transactionService.currentMonthTransactions.isEmpty)
+                                      Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(24.0),
+                                          child: Column(
+                                            children: [
+                                              const Icon(
+                                                Icons.receipt_long_outlined,
+                                                size: 48,
+                                                color: Colors.white70,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              const Text(
+                                                'Aucune transaction',
+                                                style: TextStyle(
+                                                  color: Colors.white70,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              const Text(
+                                                'Commencez par ajouter\ndes transactions',
+                                                style: TextStyle(
+                                                  color: Colors.white54,
+                                                  fontSize: 14,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      ...transactionService.currentMonthTransactions.take(3).map((transaction) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 8),
+                                          child: TransactionListItem(
+                                            transaction: transaction,
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => TransactionDetailsScreen(
+                                                    transaction: transaction,
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                           ),
                                         );
-                                      },
-                                      child: const Text(
-                                        'Voir tout',
-                                        style: TextStyle(
-                                          color: Color(0xFF3B82F6),
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                                if (transactionService.currentMonthTransactions.isEmpty)
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(24.0),
-                                      child: Column(
-                                        children: [
-                                          const Icon(
-                                            Icons.receipt_long_outlined,
-                                            size: 48,
-                                            color: Colors.white70,
-                                          ),
-                                          const SizedBox(height: 16),
-                                          const Text(
-                                            'Aucune transaction',
-                                            style: TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          const Text(
-                                            'Commencez par ajouter\ndes transactions',
-                                            style: TextStyle(
-                                              color: Colors.white54,
-                                              fontSize: 14,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  ...transactionService.currentMonthTransactions.take(3).map((transaction) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(bottom: 8),
-                                      child: TransactionListItem(
-                                transaction: transaction,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => TransactionDetailsScreen(
-                                        transaction: transaction,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                      ),
-                                    );
-                                  }),
-                              ],
-                            ),
+                                      }),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Budget Planning Widget
+                              const BudgetPlanningWidget(),
+
+                              const SizedBox(height: 24),
+
+                              // Spending Insights Widget
+                              const SpendingInsightsWidget(),
+
+                              const SizedBox(height: 24),
+
+                              // Financial Tips
+                              const FinancialTipsWidget(),
+
+                              const SizedBox(height: 24),
+
+                              // Debug Info Widget (only in debug mode) - REMOVED FOR PRODUCTION
+                              // if (kDebugMode) const DebugInfoWidget(),
+
+                              const SizedBox(height: 24),
+                            ],
                           ),
-
-                                            const SizedBox(height: 24),
-
-                  // Budget Planning Widget
-                  const BudgetPlanningWidget(),
-
-                  const SizedBox(height: 24),
-
-                  // Spending Insights Widget
-                  const SpendingInsightsWidget(),
-
-                  const SizedBox(height: 24),
-
-                  // Financial Tips
-                  const FinancialTipsWidget(),
-
-                  const SizedBox(height: 24),
-
-                  // Debug Info Widget (only in debug mode)
-                  if (kDebugMode) const DebugInfoWidget(),
-
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
-          );
-        },
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ],
@@ -467,15 +514,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           unselectedItemColor: const Color(0xFF9CA3AF),
           elevation: 0,
           type: BottomNavigationBarType.fixed,
-                      items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard),
-                label: 'Tableau de bord',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.list),
-                label: 'Transactions',
-              ),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Tableau de bord',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.list),
+              label: 'Transactions',
+            ),
           ],
         ),
       ),

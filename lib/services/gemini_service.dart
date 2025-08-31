@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import '../models/transaction_model.dart';
+import '../models/user_model.dart'; // Added import for UserModel
 
 class GeminiService extends ChangeNotifier {
   static const String _baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
@@ -15,26 +16,25 @@ class GeminiService extends ChangeNotifier {
     required double totalExpenses,
     required double currentBalance,
     List<TransactionModel>? recentTransactions,
-    List<Map<String, dynamic>>? conversationHistory,
+    List<String>? conversationHistory,
   }) async {
     try {
-      final context = _buildContext(
-        userName: userName,
+      final user = UserModel(
+        uid: 'temp_uid',
+        name: userName, 
         monthlyBudget: monthlyBudget,
-        totalIncome: totalIncome,
-        totalExpenses: totalExpenses,
-        currentBalance: currentBalance,
-        recentTransactions: recentTransactions,
+        email: '',
+        createdAt: DateTime.now(),
+        aiAdviceEnabled: true,
       );
+      final context = _buildContext(user, recentTransactions ?? [], userMessage, conversationHistory ?? []);
 
       // Construire l'historique de conversation
       String conversationText = '';
       if (conversationHistory != null && conversationHistory.isNotEmpty) {
         conversationText = '\n\nHISTORIQUE DE LA CONVERSATION:\n';
         for (final message in conversationHistory) {
-          final role = message['isUser'] ? 'Utilisateur' : 'Assistant';
-          final text = message['text'];
-          conversationText += '$role: $text\n';
+          conversationText += 'Assistant: $message\n';
         }
       }
 
@@ -140,78 +140,65 @@ RÉPONSE:''';
     }
   }
 
-  String _buildContext({
-    required String userName,
-    required double monthlyBudget,
-    required double totalIncome,
-    required double totalExpenses,
-    required double currentBalance,
-    List<TransactionModel>? recentTransactions,
-  }) {
-    final recentTransactionsText = recentTransactions?.isNotEmpty == true
-        ? recentTransactions!.take(5).map((t) => 
-            '- ${_getCategoryName(t.category)}: ${t.amount.toStringAsFixed(0)} FCFA (${t.description})'
-          ).join('\n')
-        : 'Aucune transaction récente';
+  String _buildContext(UserModel user, List<TransactionModel> transactions, String userMessage, List<String> conversationHistory) {
+    final firstName = user.name.split(' ').last;
+    final totalExpenses = transactions.where((t) => t.type == TransactionType.expense).fold(0.0, (sum, t) => sum + t.amount);
+    final totalIncome = transactions.where((t) => t.type == TransactionType.income).fold(0.0, (sum, t) => sum + t.amount);
+    final balance = totalIncome - totalExpenses;
+    final budgetRemaining = user.monthlyBudget - totalExpenses;
+    final budgetPercentage = user.monthlyBudget > 0 ? (totalExpenses / user.monthlyBudget) * 100 : 0;
 
-    final budgetPercentage = (totalExpenses / monthlyBudget) * 100;
-    final remainingBudget = monthlyBudget - totalExpenses;
+    // Analyser le message utilisateur pour détecter l'intention
+    final userMessageLower = userMessage.toLowerCase();
+    final isEndingConversation = userMessageLower.contains('merci') || 
+                                userMessageLower.contains('ok') || 
+                                userMessageLower.contains('d\'accord') ||
+                                userMessageLower.contains('fin') ||
+                                userMessageLower.contains('terminé') ||
+                                userMessageLower.contains('fermer');
 
-    // Extraire le prénom (dernier mot du nom complet)
-    final nameParts = userName.split(' ');
-    final firstName = nameParts.length > 1 ? nameParts.last : userName;
+    // Construire l'historique de conversation
+    final conversationContext = conversationHistory.isNotEmpty 
+        ? '\nHISTORIQUE DE CONVERSATION:\n${conversationHistory.join('\n')}'
+        : '';
 
-    return '''Tu es l'assistant financier intelligent de l'application GèrTonArgent. Tu dois guider l'utilisateur dans ses décisions d'achat.
+    return '''
+Tu es l'assistant financier intelligent de l'application GèrTonArgent.
 
 INFORMATIONS UTILISATEUR:
 - Prénom: $firstName
-- Budget mensuel: ${monthlyBudget.toStringAsFixed(0)} FCFA
+- Budget mensuel: ${user.monthlyBudget} FCFA
 - Dépenses déjà effectuées: ${totalExpenses.toStringAsFixed(0)} FCFA (${budgetPercentage.toStringAsFixed(1)}% du budget)
-- Budget restant: ${remainingBudget.toStringAsFixed(0)} FCFA
-- Solde actuel: ${currentBalance.toStringAsFixed(0)} FCFA
+- Budget restant: ${budgetRemaining.toStringAsFixed(0)} FCFA
+- Solde actuel: ${balance.toStringAsFixed(0)} FCFA
 
 TRANSACTIONS RÉCENTES:
-$recentTransactionsText
+${transactions.take(3).map((t) => '- ${t.amount} FCFA pour ${_getCategoryName(t.category)} (${t.type.name})').join('\n')}
 
-TON RÔLE - GUIDE DÉCISIONNEL:
-1. ANALYSE IMMÉDIATE: Calculer et afficher le pourcentage de la nouvelle dépense sur le budget restant
-2. ÉVALUATION: Poser des questions stratégiques pour aider l'utilisateur à réfléchir
-3. GUIDANCE: Proposer des alternatives ou des conseils selon les réponses
-4. DÉCISION FINALE: Aider l'utilisateur à prendre une décision éclairée
+RÈGLES DE CONVERSATION STRICTES:
+1. Utilise SEULEMENT le prénom "$firstName" (jamais le nom complet)
+2. Ne répète JAMAIS les informations déjà données dans la conversation
+3. Va directement au sujet sans redire ce qui a déjà été dit
+4. Sois direct et concis (1-2 phrases maximum)
+5. Pose des questions ou donne des conseils concrets
+6. Évite les salutations répétitives
 
-QUESTIONS STRATÉGIQUES À POSER:
-- "Cette dépense est-elle vraiment nécessaire ou c'est un achat impulsif ?"
-- "Cette dépense peut-elle attendre ou c'est urgent ?"
-- "Avez-vous déjà dépensé beaucoup dans cette catégorie ce mois-ci ?"
+GESTION DE LA FIN DE CONVERSATION:
+- Si l'utilisateur dit "merci", "ok", "d'accord", "fin", "terminé" → Réponds simplement "Parfait ! N'hésitez pas si vous avez d'autres questions." et arrête la conversation
+- Si l'utilisateur dit "fermer" → Réponds "Au revoir !" et arrête la conversation
+- Ne pose JAMAIS de questions après que l'utilisateur ait exprimé sa satisfaction
 
 LOGIQUE DE CONVERSATION:
-- Si l'utilisateur dit "c'est impulsif" → Proposer directement des alternatives
-- Si l'utilisateur dit "c'est nécessaire" → Vérifier l'urgence et les alternatives
-- Si l'utilisateur demande des conseils → Donner des suggestions concrètes
-- Si l'utilisateur n'a pas de dépenses prévues → Proposer l'épargne et la planification
-- Si l'utilisateur fixe un objectif d'épargne → Proposer des stratégies pour l'atteindre
-- Si l'utilisateur dit "bye", "au revoir", "merci" → Proposer de fermer le chatbot
-- Ne pas demander "avez-vous des alternatives" car s'il en avait, il n'aurait pas besoin de conseil
+- Si l'utilisateur confirme que c'est nécessaire → Donne des conseils d'optimisation
+- Si l'utilisateur dit que c'est impulsif → Propose des alternatives
+- Si l'utilisateur demande des alternatives → Donne des suggestions concrètes
+- Si l'utilisateur exprime sa satisfaction → Termine la conversation poliment
 
-RÈGLES DE CONVERSATION:
-- Utilise SEULEMENT le prénom "$firstName" (jamais le nom complet)
-- Ne répète PAS les informations déjà données dans la conversation
-- Va directement au sujet sans redire ce qui a déjà été dit
-- Sois direct et concis (1-2 phrases maximum)
-- Donne des conseils concrets et des alternatives
-- Évite les salutations répétitives
-- Si l'utilisateur dit "impulsif" → Propose directement des alternatives
-- Si l'utilisateur demande des conseils → Donne des suggestions spécifiques
-- Si l'utilisateur dit "bye", "au revoir", "merci", "ok bye" → Propose de fermer le chatbot
-- Si l'utilisateur tape un nombre seul (ex: "10000") → Demande confirmation avec l'unité
+$conversationContext
 
-EXEMPLE DE DÉROULEMENT:
-1. Première réponse: "Cette dépense représente X% de votre budget restant. Cette dépense est-elle vraiment nécessaire ?"
-2. Réponses suivantes: Directement au sujet sans répéter les informations déjà données
+MESSAGE UTILISATEUR: $userMessage
 
-OBJECTIF: Éviter les dépenses inutiles en aidant l'utilisateur à prendre des décisions réfléchies.
-
-IMPORTANT: Si l'utilisateur a déjà répondu à une question, ne la répète pas. Va directement au conseil ou à la question suivante.''';
+RÉPONSE:''';
   }
 
    String _getCategoryName(TransactionCategory category) {

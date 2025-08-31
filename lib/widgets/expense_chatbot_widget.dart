@@ -49,30 +49,23 @@ class _ExpenseChatbotWidgetState extends State<ExpenseChatbotWidget> {
   }
 
   void _addWelcomeMessage() {
-    final categoryName = widget.category != null 
-        ? CategoryUtils.getCategoryName(widget.category!)
-        : 'cette dépense';
-    
-    // Calculer l'impact sur le budget
     final authService = Provider.of<AuthService>(context, listen: false);
     final transactionService = Provider.of<TransactionService>(context, listen: false);
     
-    final budget = authService.currentUser?.monthlyBudget ?? 0;
+    final user = authService.currentUser;
+    if (user == null) return;
+    
     final totalExpenses = transactionService.totalExpenses;
-    final remainingBudget = budget - totalExpenses;
-    final impactPercentage = (widget.amount / remainingBudget) * 100;
+    final budgetPercentage = user.monthlyBudget > 0 ? (totalExpenses / user.monthlyBudget) * 100 : 0;
+    final impactPercentage = user.monthlyBudget > 0 ? (widget.amount / user.monthlyBudget) * 100 : 0;
     
-    String welcomeMessage = 'Bonjour ! Je vais analyser votre dépense de ${widget.amount.toStringAsFixed(0)} FCFA pour $categoryName. ';
-    welcomeMessage += 'Cette dépense représente ${impactPercentage.toStringAsFixed(1)}% de votre budget restant (${remainingBudget.toStringAsFixed(0)} FCFA). ';
-    
-    // Ajouter des conseils selon le pourcentage
-    if (impactPercentage > 50) {
-      welcomeMessage += '⚠️ Attention : dépense importante ! Cette dépense est-elle vraiment nécessaire ou c\'est un achat impulsif ?';
-    } else if (impactPercentage > 30) {
-      welcomeMessage += '💡 Dépense modérée. Cette dépense est-elle vraiment nécessaire ou c\'est un achat impulsif ?';
-    } else {
-      welcomeMessage += '✅ Dépense raisonnable. Cette dépense est-elle vraiment nécessaire ou c\'est un achat impulsif ?';
-    }
+    final welcomeMessage = '''
+Bonjour ${user.name.split(' ').last} ! 
+
+Cette dépense de ${widget.amount.toStringAsFixed(0)} FCFA représente ${impactPercentage.toStringAsFixed(1)}% de votre budget restant.
+
+Cette dépense est-elle vraiment nécessaire ou c'est un achat impulsif ?
+''';
     
     _messages.add(ChatMessage(
       text: welcomeMessage,
@@ -94,81 +87,96 @@ class _ExpenseChatbotWidgetState extends State<ExpenseChatbotWidget> {
   }
 
   Future<void> _sendMessage() async {
-    if (_messageController.text.trim().isEmpty) return;
-
-    final userMessage = _messageController.text.trim();
-    _messageController.clear();
+    final message = _messageController.text.trim();
+    if (message.isEmpty) return;
 
     // Ajouter le message utilisateur
-    setState(() {
+    _messages.add(ChatMessage(
+      text: message,
+      isUser: true,
+      timestamp: DateTime.now(),
+    ));
+
+    _messageController.clear();
+    _scrollToBottom();
+
+    // Vérifier si l'utilisateur veut terminer la conversation
+    final messageLower = message.toLowerCase();
+    final isEndingConversation = messageLower.contains('merci') || 
+                                messageLower.contains('ok') || 
+                                messageLower.contains('d\'accord') ||
+                                messageLower.contains('fin') ||
+                                messageLower.contains('terminé') ||
+                                messageLower.contains('fermer') ||
+                                messageLower.contains('au revoir');
+
+    if (isEndingConversation) {
+      // Ajouter un message de fin et fermer le chatbot
       _messages.add(ChatMessage(
-        text: userMessage,
-        isUser: true,
+        text: 'Parfait ! N\'hésitez pas si vous avez d\'autres questions.',
+        isUser: false,
         timestamp: DateTime.now(),
       ));
+      
+      // Fermer le chatbot après 2 secondes
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      });
+      return;
+    }
+
+    // Afficher l'indicateur de frappe
+    setState(() {
       _isTyping = true;
     });
-
-    _scrollToBottom();
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       final transactionService = Provider.of<TransactionService>(context, listen: false);
-      
-      if (authService.currentUser == null) {
-        throw Exception('Utilisateur non connecté');
-      }
+      final geminiService = Provider.of<GeminiService>(context, listen: false);
 
-      final budget = authService.currentUser!.monthlyBudget;
-      final totalExpenses = transactionService.totalExpenses;
-      final currentBalance = budget - totalExpenses;
-      final recentTransactions = transactionService.currentMonthTransactions.take(5).toList();
+      final user = authService.currentUser;
+      if (user == null) return;
 
-      // Construire un message contextuel pour l'IA
-      final remainingBudget = budget - totalExpenses;
-      final impactPercentage = (widget.amount / remainingBudget) * 100;
-      
-      String contextualMessage = 'Dépense analysée: ${widget.amount.toStringAsFixed(0)} FCFA pour ${widget.category != null ? CategoryUtils.getCategoryName(widget.category!) : "cette catégorie"}. ';
-      contextualMessage += 'Impact: ${impactPercentage.toStringAsFixed(1)}% du budget restant. ';
-      contextualMessage += 'Réponse de l\'utilisateur: $userMessage';
-      
-             // Préparer l'historique de conversation
-       final conversationHistory = _messages.map((msg) => {
-         'isUser': msg.isUser,
-         'text': msg.text,
-       }).toList();
+      // Construire l'historique de conversation
+      final conversationHistory = _messages
+          .where((msg) => !msg.isUser)
+          .map((msg) => msg.text)
+          .toList();
 
-       final response = await Provider.of<GeminiService>(context, listen: false).sendMessage(
-         userMessage: contextualMessage,
-         userName: authService.currentUser!.name,
-         monthlyBudget: budget.toDouble(),
-         totalIncome: budget.toDouble(),
-         totalExpenses: totalExpenses.toDouble(),
-         currentBalance: currentBalance.toDouble(),
-         recentTransactions: recentTransactions,
-         conversationHistory: conversationHistory,
-       );
+      final response = await geminiService.sendMessage(
+        userMessage: message,
+        userName: user.name,
+        monthlyBudget: user.monthlyBudget,
+        totalIncome: transactionService.totalIncome,
+        totalExpenses: transactionService.totalExpenses,
+        currentBalance: transactionService.totalIncome - transactionService.totalExpenses,
+        recentTransactions: transactionService.transactions.take(5).toList(),
+        conversationHistory: conversationHistory,
+      );
 
       if (mounted) {
         setState(() {
+          _isTyping = false;
           _messages.add(ChatMessage(
             text: response,
             isUser: false,
             timestamp: DateTime.now(),
           ));
-          _isTyping = false;
         });
         _scrollToBottom();
       }
     } catch (e) {
       if (mounted) {
         setState(() {
+          _isTyping = false;
           _messages.add(ChatMessage(
-            text: 'Désolé, je ne peux pas répondre pour le moment. Veuillez réessayer.',
+            text: 'Désolé, une erreur s\'est produite. Veuillez réessayer.',
             isUser: false,
             timestamp: DateTime.now(),
           ));
-          _isTyping = false;
         });
         _scrollToBottom();
       }
@@ -194,7 +202,7 @@ class _ExpenseChatbotWidgetState extends State<ExpenseChatbotWidget> {
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(MediaQuery.of(context).size.width > 600 ? 12 : 16), // Plus petit sur web
             decoration: BoxDecoration(
               color: Colors.green.shade50,
               borderRadius: const BorderRadius.only(
@@ -205,7 +213,7 @@ class _ExpenseChatbotWidgetState extends State<ExpenseChatbotWidget> {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.width > 600 ? 6 : 8), // Plus petit sur web
                   decoration: BoxDecoration(
                     color: Colors.green.shade100,
                     borderRadius: BorderRadius.circular(8),
@@ -213,23 +221,28 @@ class _ExpenseChatbotWidgetState extends State<ExpenseChatbotWidget> {
                   child: Icon(
                     Icons.smart_toy,
                     color: Colors.green.shade700,
-                    size: 20,
+                    size: MediaQuery.of(context).size.width > 600 ? 16 : 20, // Plus petit sur web
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: MediaQuery.of(context).size.width > 600 ? 8 : 12), // Plus petit sur web
                 Expanded(
-                                     child: Text(
-                     'Assistant Financier',
-                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                       color: Colors.green.shade800,
-                       fontWeight: FontWeight.bold,
-                     ),
-                   ),
+                  child: Text(
+                    'Assistant Financier',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.green.shade800,
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.width > 600 ? 14 : 16, // Plus petit sur web
+                    ),
+                  ),
                 ),
                 if (widget.onClose != null)
                   IconButton(
                     onPressed: widget.onClose,
-                    icon: Icon(Icons.close, color: Colors.green.shade700),
+                    icon: Icon(
+                      Icons.close, 
+                      color: Colors.green.shade700,
+                      size: MediaQuery.of(context).size.width > 600 ? 18 : 20, // Plus petit sur web
+                    ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -250,14 +263,6 @@ class _ExpenseChatbotWidgetState extends State<ExpenseChatbotWidget> {
                  return Column(
                    children: [
                      _MessageBubble(message: _messages[index]),
-                                           // Boutons de réponse rapide pour le premier message seulement
-                      if (index == 0 && !_messages[index].isUser)
-                        _QuickResponseButtons(
-                          onResponse: (response) {
-                            _messageController.text = response;
-                            _sendMessage();
-                          },
-                        ),
                    ],
                  );
                },
@@ -397,51 +402,7 @@ class _MessageBubble extends StatelessWidget {
 
 
 
-class _QuickResponseButtons extends StatelessWidget {
-  final Function(String) onResponse;
 
-  const _QuickResponseButtons({required this.onResponse});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 8, bottom: 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () => onResponse('Oui c\'est nécessaire'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade100,
-                foregroundColor: Colors.green.shade700,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-              ),
-              child: const Text('Oui c\'est nécessaire', style: TextStyle(fontSize: 12)),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () => onResponse('Non c\'est impulsif'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange.shade100,
-                foregroundColor: Colors.orange.shade700,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-              ),
-              child: const Text('Non c\'est impulsif', style: TextStyle(fontSize: 12)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _TypingIndicator extends StatelessWidget {
   @override

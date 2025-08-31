@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/transaction_service.dart';
 import '../services/auth_service.dart';
+import '../services/transaction_service.dart';
 
 class DebugInfoWidget extends StatefulWidget {
   const DebugInfoWidget({super.key});
@@ -11,120 +11,151 @@ class DebugInfoWidget extends StatefulWidget {
 }
 
 class _DebugInfoWidgetState extends State<DebugInfoWidget> {
-  bool _showDebugInfo = false;
+  List<String> _debugLogs = [];
+  bool _showLogs = false;
+
+  void _addLog(String message) {
+    setState(() {
+      _debugLogs.add('${DateTime.now().toString().substring(11, 19)}: $message');
+      if (_debugLogs.length > 20) {
+        _debugLogs.removeAt(0);
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _addLog('DebugInfoWidget initialized');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthService, TransactionService>(
       builder: (context, authService, transactionService, child) {
-        if (authService.currentUser == null) return const SizedBox.shrink();
-
-        return Column(
-          children: [
-            // Debug toggle button
-            Container(
-              margin: const EdgeInsets.all(8),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _showDebugInfo = !_showDebugInfo;
-                  });
-                },
-                icon: Icon(_showDebugInfo ? Icons.visibility_off : Icons.visibility),
-                label: Text(_showDebugInfo ? 'Masquer Debug' : 'Afficher Debug'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ),
-
-            // Debug information
-            if (_showDebugInfo)
-              Container(
-                margin: const EdgeInsets.all(8),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        return Card(
+          margin: const EdgeInsets.all(8),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '🔍 Informations de Débogage',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    const Text(
+                      '🔧 Debug Info',
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    
-                    // User info
-                    Text('👤 Utilisateur: ${authService.currentUser!.name}'),
-                    Text('🆔 UID: ${authService.currentUser!.uid}'),
-                    Text('💰 Budget: ${authService.currentUser!.monthlyBudget.toStringAsFixed(0)} FCFA'),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Transaction info
-                    Text('📊 Transactions locales: ${transactionService.transactions.length}'),
-                    Text('📱 Mode hors ligne: ${!transactionService.isOnline ? "Oui" : "Non"}'),
-                    Text('💸 Total dépenses: ${transactionService.totalExpenses.toStringAsFixed(0)} FCFA'),
-                    Text('💰 Total revenus: ${transactionService.totalIncome.toStringAsFixed(0)} FCFA'),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Actions
                     Row(
                       children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              await transactionService.forceRefresh(authService.currentUser!.uid);
-                              await transactionService.debugDataConsistency(authService.currentUser!.uid);
-                              if (mounted) setState(() {});
-                            },
-                            child: const Text('🔄 Forcer Sync'),
-                          ),
+                        IconButton(
+                          icon: Icon(_showLogs ? Icons.visibility_off : Icons.visibility),
+                          onPressed: () {
+                            setState(() {
+                              _showLogs = !_showLogs;
+                            });
+                          },
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              await transactionService.debugDataConsistency(authService.currentUser!.uid);
-                            },
-                            child: const Text('🔍 Vérifier'),
-                          ),
+                        IconButton(
+                          icon: const Icon(Icons.refresh),
+                          onPressed: () {
+                            _addLog('Manual refresh triggered');
+                            setState(() {});
+                          },
                         ),
                       ],
                     ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Recent transactions
-                    if (transactionService.transactions.isNotEmpty) ...[
-                      Text(
-                        '📋 Transactions récentes:',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      ...transactionService.transactions.take(3).map((transaction) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 2),
-                          child: Text(
-                            '  • ${transaction.amount.toStringAsFixed(0)} FCFA - ${transaction.type.name} - ${transaction.category.name}',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        );
-                      }),
-                    ],
                   ],
                 ),
-              ),
-          ],
+                
+                const SizedBox(height: 8),
+                
+                // User Info
+                Text('👤 User: ${authService.currentUser?.name ?? 'Not logged in'}'),
+                Text('🆔 UID: ${authService.currentUser?.uid ?? 'N/A'}'),
+                Text('💰 Budget: ${authService.currentUser?.monthlyBudget ?? 0} FCFA'),
+                Text('🔐 Auth Status: ${authService.isAuthenticated ? 'Authenticated' : 'Not authenticated'}'),
+                
+                const SizedBox(height: 8),
+                
+                // Transaction Info
+                Text('📊 Local Transactions: ${transactionService.transactions.length}'),
+                Text('📡 Offline Mode: ${transactionService.isOffline ? 'Yes' : 'No'}'),
+                Text('💵 Total Income: ${transactionService.totalIncome} FCFA'),
+                Text('💸 Total Expenses: ${transactionService.totalExpenses} FCFA'),
+                
+                const SizedBox(height: 8),
+                
+                // Action Buttons
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _addLog('Force sync triggered');
+                        transactionService.forceRefresh(authService.currentUser?.uid ?? '');
+                      },
+                      child: const Text('Forcer Sync'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        _addLog('Data consistency check triggered');
+                        transactionService.debugDataConsistency(authService.currentUser?.uid ?? '');
+                      },
+                      child: const Text('Vérifier'),
+                    ),
+                  ],
+                ),
+                
+                // Debug Logs
+                if (_showLogs) ...[
+                  const SizedBox(height: 16),
+                  const Text(
+                    '📝 Debug Logs:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Container(
+                    height: 200,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListView.builder(
+                      itemCount: _debugLogs.length,
+                      itemBuilder: (context, index) {
+                        return Text(
+                          _debugLogs[index],
+                          style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+                
+                // Recent Transactions
+                const SizedBox(height: 16),
+                const Text(
+                  '🕒 Recent Transactions:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                ...transactionService.transactions.take(3).map((transaction) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Text(
+                      '${transaction.category.name}: ${transaction.amount} FCFA (${transaction.type.name})',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
         );
       },
     );

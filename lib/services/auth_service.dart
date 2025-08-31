@@ -12,6 +12,7 @@ class AuthService extends ChangeNotifier {
   UserModel? _currentUser;
   bool _isLoading = false;
   String? _error;
+  Function(String)? _onUserLoaded; // Callback pour recharger les transactions
 
   UserModel? get currentUser => _currentUser;
   bool get isAuthenticated => _currentUser != null;
@@ -20,6 +21,11 @@ class AuthService extends ChangeNotifier {
 
   AuthService() {
     _auth.authStateChanges().listen(_onAuthStateChanged);
+  }
+
+  // Méthode pour enregistrer le callback de rechargement des transactions
+  void setOnUserLoadedCallback(Function(String) callback) {
+    _onUserLoaded = callback;
   }
 
   void _onAuthStateChanged(fb_auth.User? fbUser) async {
@@ -211,6 +217,13 @@ class AuthService extends ChangeNotifier {
         _currentUser = user;
         print('✅ New user created: ${_currentUser!.name}');
       }
+      
+      // Déclencher le rechargement des transactions
+      if (_onUserLoaded != null) {
+        print('🔄 AuthService: Triggering transaction reload for user: ${_currentUser!.uid}');
+        _onUserLoaded!(_currentUser!.uid);
+      }
+      
       notifyListeners();
     } catch (e) {
       print('❌ Error loading user: $e');

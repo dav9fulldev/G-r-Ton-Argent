@@ -126,9 +126,22 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ajouter une transaction')),
+      appBar: AppBar(
+        title: Text(
+          'Ajouter une transaction',
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width > 600 ? 18 : 20, // Plus petit sur web
+          ),
+        ),
+        toolbarHeight: MediaQuery.of(context).size.width > 600 ? 48 : 56, // Plus petit sur web
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width > 600 ? 12 : 16), // Plus petit sur web
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width > 1200 ? 800 : double.infinity,
+            ),
         child: Form(
           key: _formKey,
           child: Column(
@@ -205,15 +218,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ),
                   ],
                 ),
-                if (_showAIAdvice) ...[
+                    if (_showAIAdvice) ...[
                   const SizedBox(height: 16),
-                  SizedBox(
-                    height: 400, // Hauteur fixe pour le chatbot
-                    child: ExpenseChatbotWidget(
-                      amount: double.tryParse(_amountController.text) ?? 0,
-                      category: _category,
-                      description: _descriptionController.text,
-                      onClose: () {
+                      SizedBox(
+                        height: 400, // Hauteur fixe pour le chatbot
+                        child: ExpenseChatbotWidget(
+                          amount: double.tryParse(_amountController.text) ?? 0,
+                          category: _category,
+                          description: _descriptionController.text,
+                          onClose: () {
                                   setState(() {
                                     _showAIAdvice = false;
                                   });
@@ -258,6 +271,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     : const Text('Enregistrer'),
               ),
             ],
+              ),
+            ),
           ),
         ),
       ),

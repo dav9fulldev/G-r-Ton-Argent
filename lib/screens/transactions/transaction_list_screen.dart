@@ -98,10 +98,19 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transactions'),
+        title: Text(
+          'Transactions',
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width > 600 ? 18 : 20,
+          ),
+        ),
+        toolbarHeight: MediaQuery.of(context).size.width > 600 ? 48 : 56,
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: Icon(
+              Icons.filter_list,
+              size: MediaQuery.of(context).size.width > 600 ? 20 : 24,
+            ),
             onPressed: _showFilterDialog,
           ),
         ],
@@ -109,113 +118,134 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       body: Column(
         children: [
           // Search bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Rechercher des transactions...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {});
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width > 1200 ? 1200 : double.infinity,
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(MediaQuery.of(context).size.width > 600 ? 12 : 16),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Rechercher des transactions...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {});
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (value) => setState(() {}),
                 ),
               ),
-              onChanged: (value) => setState(() {}),
             ),
           ),
 
           // Filter chips
           if (_filterType != null || _filterCategory != null || _startDate != null || _endDate != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          if (_filterType != null)
-                            Chip(
-                              label: Text(_filterType == TransactionType.income ? 'Revenus' : 'Dépenses'),
-                              onDeleted: () => setState(() => _filterType = null),
-                            ),
-                          if (_filterCategory != null)
-                            Chip(
-                              label: Text(CategoryUtils.getCategoryName(_filterCategory!)),
-                              onDeleted: () => setState(() => _filterCategory = null),
-                            ),
-                          if (_startDate != null)
-                            Chip(
-                              label: Text('À partir de ${DateFormat('dd/MM/yyyy').format(_startDate!)}'),
-                              onDeleted: () => setState(() => _startDate = null),
-                            ),
-                          if (_endDate != null)
-                            Chip(
-                              label: Text('Jusqu\'à ${DateFormat('dd/MM/yyyy').format(_endDate!)}'),
-                              onDeleted: () => setState(() => _endDate = null),
-                            ),
-                        ],
+            Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width > 1200 ? 1200 : double.infinity,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              if (_filterType != null)
+                                Chip(
+                                  label: Text(_filterType == TransactionType.income ? 'Revenus' : 'Dépenses'),
+                                  onDeleted: () => setState(() => _filterType = null),
+                                ),
+                              if (_filterCategory != null)
+                                Chip(
+                                  label: Text(CategoryUtils.getCategoryName(_filterCategory!)),
+                                  onDeleted: () => setState(() => _filterCategory = null),
+                                ),
+                              if (_startDate != null)
+                                Chip(
+                                  label: Text('À partir de ${DateFormat('dd/MM/yyyy').format(_startDate!)}'),
+                                  onDeleted: () => setState(() => _startDate = null),
+                                ),
+                              if (_endDate != null)
+                                Chip(
+                                  label: Text('Jusqu\'à ${DateFormat('dd/MM/yyyy').format(_endDate!)}'),
+                                  onDeleted: () => setState(() => _startDate = null),
+                                ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      TextButton(
+                        onPressed: _clearFilters,
+                        child: const Text('Effacer'),
+                      ),
+                    ],
                   ),
-                  TextButton(
-                    onPressed: _clearFilters,
-                    child: const Text('Effacer'),
-                  ),
-                ],
+                ),
               ),
             ),
 
           // Transaction list
           Expanded(
-            child: Consumer<TransactionService>(
-              builder: (context, transactionService, child) {
-                if (_isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width > 1200 ? 1200 : double.infinity,
+                ),
+                child: Consumer<TransactionService>(
+                  builder: (context, transactionService, child) {
+                    if (_isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                final transactions = _filteredTransactions;
+                    final transactions = _filteredTransactions;
 
-                if (transactions.isEmpty) {
-                  return _buildEmptyState();
-                }
+                    if (transactions.isEmpty) {
+                      return _buildEmptyState();
+                    }
 
-                return RefreshIndicator(
-                  onRefresh: _loadTransactions,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: transactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = transactions[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: TransactionListItem(
-                          transaction: transaction,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => TransactionDetailsScreen(
-                                  transaction: transaction,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
+                    return RefreshIndicator(
+                      onRefresh: _loadTransactions,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: transactions.length,
+                        itemBuilder: (context, index) {
+                          final transaction = transactions[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: TransactionListItem(
+                              transaction: transaction,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => TransactionDetailsScreen(
+                                      transaction: transaction,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         ],

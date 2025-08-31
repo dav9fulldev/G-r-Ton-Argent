@@ -60,14 +60,15 @@ void main() async {
       );
       
       // Connect to Firebase emulators in debug mode (WEB ONLY)
-      if (kDebugMode && identical(0, 0.0)) { // This checks if we're on web
-        try {
-          FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-          print('✅ Connected to Firestore emulator on localhost:8080');
-        } catch (e) {
-          print('⚠️ Failed to connect to Firestore emulator: $e');
-        }
-      }
+      // DISABLED for APK distribution - will use production Firebase
+      // if (kDebugMode && identical(0, 0.0)) { // This checks if we're on web
+      //   try {
+      //     FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      //     print('✅ Connected to Firestore emulator on localhost:8080');
+      //   } catch (e) {
+      //     print('⚠️ Failed to connect to Firestore emulator: $e');
+      //   }
+      // }
       
       firebaseInitialized = true;
       print('✅ Firebase initialized successfully');
@@ -142,21 +143,34 @@ class GerTonArgentApp extends StatelessWidget {
         ChangeNotifierProvider<ProfileService>(create: (_) => ProfileService()),
         ChangeNotifierProvider<LocalizationService>(create: (_) => LocalizationService()),
       ],
-      child: MaterialApp(
-        title: 'GèrTonArgent',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          ...context.localizationDelegates,
-        ],
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
-        home: const SplashScreen(),
+      child: Consumer<AuthService>(
+        builder: (context, authService, child) {
+          // Configurer le callback de rechargement des transactions
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final transactionService = Provider.of<TransactionService>(context, listen: false);
+            authService.setOnUserLoadedCallback((userId) {
+              print('🔄 Main: User loaded, reloading transactions for: $userId');
+              transactionService.forceRefresh(userId);
+            });
+          });
+          
+          return MaterialApp(
+            title: 'GèrTonArgent',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: ThemeMode.system,
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              ...context.localizationDelegates,
+            ],
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+            home: const SplashScreen(),
+          );
+        },
       ),
     );
   }

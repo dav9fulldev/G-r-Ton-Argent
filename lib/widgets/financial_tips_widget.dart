@@ -13,55 +13,11 @@ class FinancialTipsWidget extends StatefulWidget {
 }
 
 class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
-  List<String> _aiTips = [];
-  bool _isLoadingTips = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAITips();
-  }
-
-  Future<void> _loadAITips() async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final transactionService = Provider.of<TransactionService>(context, listen: false);
-
-    // Vérifier si les conseils IA sont activés
-    if (authService.currentUser?.aiAdviceEnabled != true) {
-      setState(() {
-        _aiTips = [];
-        _isLoadingTips = false;
-      });
-      return;
-    }
-
-    setState(() => _isLoadingTips = true);
-
-    try {
-      // Pour l'instant, on utilise les conseils locaux
-      // L'intégration IA sera ajoutée plus tard
-      setState(() {
-        _aiTips = [];
-        _isLoadingTips = false;
-      });
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _aiTips = [];
-          _isLoadingTips = false;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<TransactionService>(
       builder: (context, transactionService, child) {
-        // Utiliser les conseils IA si disponibles, sinon les conseils locaux
-        final tips = _aiTips.isNotEmpty 
-            ? _convertAITipsToFinancialTips(_aiTips)
-            : _generateTips(transactionService);
+        final tips = _generateTips(transactionService);
         
         return Container(
           padding: const EdgeInsets.all(20),
@@ -216,87 +172,6 @@ class _FinancialTipsWidgetState extends State<FinancialTipsWidget> {
     // Trier par priorité et limiter à 3 conseils
     tips.sort((a, b) => a.priority.compareTo(b.priority));
     return tips.take(3).toList();
-  }
-
-  /// Convertit les conseils IA en format FinancialTip
-  List<FinancialTip> _convertAITipsToFinancialTips(List<String> aiTips) {
-    final tips = <FinancialTip>[];
-    
-    for (int i = 0; i < aiTips.length && i < 3; i++) {
-      final tip = aiTips[i];
-      final icon = _getIconForTip(tip);
-      final color = _getColorForTip(tip);
-      final title = _getTitleForTip(tip, i + 1);
-      
-      tips.add(FinancialTip(
-        icon: icon,
-        title: title,
-        description: tip,
-        color: color,
-        priority: i + 1,
-      ));
-    }
-    
-    return tips;
-  }
-
-  /// Détermine le titre approprié selon le contenu du conseil
-  String _getTitleForTip(String tip, int index) {
-    final lowerTip = tip.toLowerCase();
-    
-    if (lowerTip.contains('budget') || lowerTip.contains('dépassé')) {
-      return 'Alerte Budget';
-    } else if (lowerTip.contains('nourriture') || lowerTip.contains('🍽️')) {
-      return 'Dépenses Alimentaires';
-    } else if (lowerTip.contains('épargner') || lowerTip.contains('💡')) {
-      return 'Conseil Épargne';
-    } else if (lowerTip.contains('excellent') || lowerTip.contains('✅')) {
-      return 'Excellent Gestion';
-    } else if (lowerTip.contains('attention') || lowerTip.contains('🚨')) {
-      return 'Attention Requise';
-    } else if (lowerTip.contains('transport') || lowerTip.contains('🚐')) {
-      return 'Optimisation Transport';
-    } else if (lowerTip.contains('santé') || lowerTip.contains('🏥')) {
-      return 'Conseil Santé';
-    } else if (lowerTip.contains('divertissement') || lowerTip.contains('🎮')) {
-      return 'Loisirs Économiques';
-    } else {
-      return 'Conseil Personnalisé';
-    }
-  }
-
-  /// Détermine l'icône appropriée selon le contenu du conseil
-  IconData _getIconForTip(String tip) {
-    final lowerTip = tip.toLowerCase();
-    
-    if (lowerTip.contains('budget') || lowerTip.contains('dépassé')) {
-      return Icons.warning;
-    } else if (lowerTip.contains('nourriture') || lowerTip.contains('🍽️')) {
-      return Icons.restaurant;
-    } else if (lowerTip.contains('épargner') || lowerTip.contains('💡')) {
-      return Icons.savings;
-    } else if (lowerTip.contains('excellent') || lowerTip.contains('✅')) {
-      return Icons.check_circle;
-    } else if (lowerTip.contains('attention') || lowerTip.contains('🚨')) {
-      return Icons.error;
-    } else {
-      return Icons.lightbulb;
-    }
-  }
-
-  /// Détermine la couleur appropriée selon le contenu du conseil
-  Color _getColorForTip(String tip) {
-    final lowerTip = tip.toLowerCase();
-    
-    if (lowerTip.contains('dépassé') || lowerTip.contains('attention') || lowerTip.contains('🚨')) {
-      return const Color(0xFFEF4444); // Rouge
-    } else if (lowerTip.contains('prudent') || lowerTip.contains('⚠️')) {
-      return const Color(0xFFF59E0B); // Orange
-    } else if (lowerTip.contains('excellent') || lowerTip.contains('✅')) {
-      return const Color(0xFF10B981); // Vert
-    } else {
-      return const Color(0xFF3B82F6); // Bleu
-    }
   }
 }
 

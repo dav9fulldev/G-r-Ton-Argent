@@ -16,6 +16,7 @@ class TransactionService extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isOnline => _isOnline;
+  bool get isOffline => !_isOnline; // Ajout de la propriété isOffline
 
   // Get transactions for current month
   List<TransactionModel> get currentMonthTransactions {
@@ -404,7 +405,21 @@ class TransactionService extends ChangeNotifier {
   Future<void> forceRefresh(String userId) async {
     print('🔄 Force refreshing transactions for user $userId');
     _isOnline = true;
-    await loadTransactions(userId);
+    
+    try {
+      // Clear local data first
+      _transactions.clear();
+      await _saveToLocal();
+      
+      // Force reload from Firestore
+      await _loadFromFirestore(userId);
+      
+      print('✅ Force refresh completed for user $userId');
+    } catch (e) {
+      print('❌ Error during force refresh: $e');
+      // Fallback to local data if Firestore fails
+      await _loadFromLocal(userId);
+    }
   }
 
   // Debug method to check data consistency

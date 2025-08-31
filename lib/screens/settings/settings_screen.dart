@@ -227,7 +227,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
              appBar: AppBar(
-         title: Text('settings'.tr()),
+        title: Text(
+          'settings'.tr(),
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width > 600 ? 18 : 20,
+          ),
+        ),
+        toolbarHeight: MediaQuery.of(context).size.width > 600 ? 48 : 56,
          elevation: 0,
        ),
       body: Consumer<AuthService>(
@@ -236,7 +242,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return SingleChildScrollView(
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width > 1200 ? 800 : double.infinity,
+              ),
+              child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -521,6 +532,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ],
+                ),
+              ),
             ),
           );
         },
