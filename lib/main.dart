@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -58,10 +59,10 @@ void main() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
       
-      // Connect to Firebase emulators in debug mode
-      if (kDebugMode) {
+      // Connect to Firebase emulators in debug mode (WEB ONLY)
+      if (kDebugMode && identical(0, 0.0)) { // This checks if we're on web
         try {
-          await FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+          FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
           print('✅ Connected to Firestore emulator on localhost:8080');
         } catch (e) {
           print('⚠️ Failed to connect to Firestore emulator: $e');

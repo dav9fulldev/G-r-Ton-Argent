@@ -188,12 +188,17 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> _loadOrCreateUser(fb_auth.User fbUser) async {
+    print('🔄 AuthService: Loading user for UID: ${fbUser.uid}');
     try {
+      print('📡 AuthService: Attempting to fetch user from Firestore...');
       final doc = await _firestore.collection('users').doc(fbUser.uid).get();
+      print('📄 AuthService: Firestore response received, exists: ${doc.exists}');
+      
       if (doc.exists) {
         _currentUser = UserModel.fromMap(doc.data()!);
         print('✅ User loaded from Firestore: ${_currentUser!.name} (Budget: ${_currentUser!.monthlyBudget})');
       } else {
+        print('🆕 AuthService: User not found, creating new user...');
         final user = UserModel(
           uid: fbUser.uid,
           email: fbUser.email ?? '',
@@ -208,8 +213,8 @@ class AuthService extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      _setError('Erreur lors du chargement du profil utilisateur');
       print('❌ Error loading user: $e');
+      _setError('Erreur lors du chargement du profil utilisateur');
     }
   }
 
