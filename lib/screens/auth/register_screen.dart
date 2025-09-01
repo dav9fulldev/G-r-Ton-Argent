@@ -48,17 +48,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authService = Provider.of<AuthService>(context, listen: false);
     
     try {
-      await authService.signUp(
+      final success = await authService.register(
+        name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        name: _nameController.text.trim(),
       );
 
-      if (mounted && authService.currentUser != null) {
+      if (mounted && success && authService.currentUser != null) {
         // Update budget if provided
         final budget = double.tryParse(_budgetController.text);
         if (budget != null && budget > 0) {
-          await authService.updateUserBudget(budget);
+          final updatedUser = authService.currentUser!.copyWith(monthlyBudget: budget);
+          await authService.updateUser(updatedUser);
         }
         
         Navigator.of(context).pushReplacement(

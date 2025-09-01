@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
     print('🚀 SplashScreen: Starting auth check...');
     
     try {
-      // Wait for Firebase to initialize and auth state to be determined
+      // Brief delay to allow services to initialize
       await Future.delayed(const Duration(seconds: 3));
       print('⏰ SplashScreen: After 3s delay');
       
@@ -56,11 +56,11 @@ class _SplashScreenState extends State<SplashScreen> {
             try {
               print('📊 SplashScreen: Loading user data for: ${authService.currentUser!.name}');
               
-              // Force refresh transactions from Firestore
-              await transactionService.forceRefresh(authService.currentUser!.uid);
+              // Force refresh transactions from REST API / local cache
+              await transactionService.forceRefresh();
               
               // Debug data consistency
-              await transactionService.debugDataConsistency(authService.currentUser!.uid);
+              await transactionService.debugDataConsistency();
               
               print('✅ SplashScreen: Data loaded successfully, navigating to Dashboard');
               

@@ -85,8 +85,7 @@ class _DebugInfoWidgetState extends State<DebugInfoWidget> {
                 // Transaction Info
                 Text('📊 Local Transactions: ${transactionService.transactions.length}'),
                 Text('📡 Offline Mode: ${transactionService.isOffline ? 'Yes' : 'No'}'),
-                Text('💵 Total Income: ${transactionService.totalIncome} FCFA'),
-                Text('💸 Total Expenses: ${transactionService.totalExpenses} FCFA'),
+                Text('💵 Solde actuel: ${transactionService.currentBalance} FCFA'),
                 
                 const SizedBox(height: 8),
                 
@@ -96,7 +95,7 @@ class _DebugInfoWidgetState extends State<DebugInfoWidget> {
                     ElevatedButton(
                       onPressed: () {
                         _addLog('Force sync triggered');
-                        transactionService.forceRefresh(authService.currentUser?.uid ?? '');
+                        transactionService.forceRefresh();
                       },
                       child: const Text('Forcer Sync'),
                     ),
@@ -104,7 +103,7 @@ class _DebugInfoWidgetState extends State<DebugInfoWidget> {
                     ElevatedButton(
                       onPressed: () {
                         _addLog('Data consistency check triggered');
-                        transactionService.debugDataConsistency(authService.currentUser?.uid ?? '');
+                        transactionService.debugDataConsistency();
                       },
                       child: const Text('Vérifier'),
                     ),

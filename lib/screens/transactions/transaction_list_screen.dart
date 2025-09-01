@@ -43,7 +43,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     final transactionService = Provider.of<TransactionService>(context, listen: false);
     
     if (authService.currentUser != null) {
-      await transactionService.loadTransactions(authService.currentUser!.uid);
+      await transactionService.loadTransactions();
     }
     
     setState(() => _isLoading = false);

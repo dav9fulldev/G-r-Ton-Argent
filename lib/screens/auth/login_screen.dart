@@ -33,12 +33,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final authService = Provider.of<AuthService>(context, listen: false);
     
     try {
-      await authService.signIn(
+      final success = await authService.login(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
       
-      if (mounted && authService.currentUser != null) {
+      if (mounted && success && authService.currentUser != null) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const DashboardScreen()),
         );

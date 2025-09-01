@@ -4,7 +4,7 @@ import '../services/gemini_service.dart';
 import '../services/auth_service.dart';
 import '../services/transaction_service.dart';
 import '../models/transaction_model.dart';
-import '../utils/category_utils.dart';
+// import '../utils/category_utils.dart';
 
 class ChatMessage {
   final String text;
@@ -55,7 +55,7 @@ class _ExpenseChatbotWidgetState extends State<ExpenseChatbotWidget> {
     final user = authService.currentUser;
     if (user == null) return;
     
-    final totalExpenses = transactionService.totalExpenses;
+    final totalExpenses = transactionService.currentMonthExpenses.fold(0.0, (s, t) => s + t.amount);
     final budgetPercentage = user.monthlyBudget > 0 ? (totalExpenses / user.monthlyBudget) * 100 : 0;
     final impactPercentage = user.monthlyBudget > 0 ? (widget.amount / user.monthlyBudget) * 100 : 0;
     
@@ -150,9 +150,9 @@ Cette dépense est-elle vraiment nécessaire ou c'est un achat impulsif ?
         userMessage: message,
         userName: user.name,
         monthlyBudget: user.monthlyBudget,
-        totalIncome: transactionService.totalIncome,
-        totalExpenses: transactionService.totalExpenses,
-        currentBalance: transactionService.totalIncome - transactionService.totalExpenses,
+        totalIncome: transactionService.currentMonthIncomes.fold(0.0, (s, t) => s + t.amount),
+        totalExpenses: transactionService.currentMonthExpenses.fold(0.0, (s, t) => s + t.amount),
+        currentBalance: transactionService.currentBalance,
         recentTransactions: transactionService.transactions.take(5).toList(),
         conversationHistory: conversationHistory,
       );

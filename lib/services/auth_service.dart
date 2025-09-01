@@ -1,236 +1,183 @@
 import 'package:flutter/foundation.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/user_model.dart';
-import '../models/transaction_model.dart';
+import 'api_service.dart';
 
 class AuthService extends ChangeNotifier {
-  final fb_auth.FirebaseAuth _auth = fb_auth.FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final AuthService _instance = AuthService._internal();
+  factory AuthService() => _instance;
+  AuthService._internal();
 
+  final ApiService _apiService = ApiService();
   UserModel? _currentUser;
   bool _isLoading = false;
   String? _error;
-  Function(String)? _onUserLoaded; // Callback pour recharger les transactions
 
+  // Getters
   UserModel? get currentUser => _currentUser;
-  bool get isAuthenticated => _currentUser != null;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  bool get isAuthenticated => _currentUser != null && _apiService.isAuthenticated;
 
-  AuthService() {
-    _auth.authStateChanges().listen(_onAuthStateChanged);
-  }
+  // Callback pour notifier quand l'utilisateur est chargé
+  Function()? _onUserLoaded;
 
-  // Méthode pour enregistrer le callback de rechargement des transactions
-  void setOnUserLoadedCallback(Function(String) callback) {
+  void setOnUserLoadedCallback(Function() callback) {
     _onUserLoaded = callback;
   }
 
-  void _onAuthStateChanged(fb_auth.User? fbUser) async {
-    if (fbUser != null) {
-      await _loadOrCreateUser(fbUser);
-    } else {
-      _currentUser = null;
-      notifyListeners();
-    }
-  }
-
-  Future<void> signIn({required String email, required String password}) async {
-    _setLoading(true);
-    _clearError();
-    
+  // Initialiser le service
+  Future<void> initialize() async {
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } on fb_auth.FirebaseAuthException catch (e) {
-      _setError(_getAuthErrorMessage(e.code));
+      await _apiService.initialize();
+      
+      // Vérifier si un token existe et charger l'utilisateur
+      if (_apiService.isAuthenticated) {
+        await _loadCurrentUser();
+      }
     } catch (e) {
-      _setError('Une erreur inattendue s\'est produite');
-    } finally {
-      _setLoading(false);
+      if (kDebugMode) {
+        print('❌ Error initializing AuthService: $e');
+      }
     }
   }
 
-  Future<void> signUp({
-    required String email, 
-    required String password, 
-    required String name
+  // Charger l'utilisateur actuel depuis l'API
+  Future<void> _loadCurrentUser() async {
+    try {
+      // Pour l'instant, on va utiliser les données locales
+      // TODO: Ajouter un endpoint /auth/me pour récupérer les infos utilisateur
+      final userBox = await Hive.openBox<UserModel>('users');
+      if (userBox.isNotEmpty) {
+        _currentUser = userBox.values.first;
+        notifyListeners();
+        _onUserLoaded?.call();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error loading current user: $e');
+      }
+    }
+  }
+
+  // Inscription
+  Future<bool> register({
+    required String name,
+    required String email,
+    required String password,
   }) async {
     _setLoading(true);
     _clearError();
-    
+
     try {
-      final credential = await _auth.createUserWithEmailAndPassword(
+      final user = await _apiService.register(
+        name: name,
         email: email,
         password: password,
       );
 
-      final user = UserModel(
-        uid: credential.user!.uid,
-        email: email,
-        name: name,
-        monthlyBudget: 0,
-        createdAt: DateTime.now(),
-        aiAdviceEnabled: true,
-      );
-
-      await _firestore.collection('users').doc(user.uid).set(user.toMap());
       _currentUser = user;
+      
+      // Sauvegarder en local
+      await _saveUserLocally(user);
+      
       notifyListeners();
-    } on fb_auth.FirebaseAuthException catch (e) {
-      _setError(_getAuthErrorMessage(e.code));
+      _onUserLoaded?.call();
+      
+      return true;
     } catch (e) {
-      _setError('Une erreur inattendue s\'est produite');
+      _setError(e.toString());
+      return false;
     } finally {
       _setLoading(false);
     }
   }
 
-  Future<void> signOut() async {
+  // Connexion
+  Future<bool> login({
+    required String email,
+    required String password,
+  }) async {
     _setLoading(true);
+    _clearError();
+
     try {
-      // Clear local data before signing out
+      final user = await _apiService.login(
+        email: email,
+        password: password,
+      );
+
+      _currentUser = user;
+      
+      // Sauvegarder en local
+      await _saveUserLocally(user);
+      
+      notifyListeners();
+      _onUserLoaded?.call();
+      
+      return true;
+    } catch (e) {
+      _setError(e.toString());
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Déconnexion
+  Future<void> signOut() async {
+    try {
+      await _apiService.logout();
       await _clearLocalData();
       
-      await _auth.signOut();
       _currentUser = null;
       notifyListeners();
     } catch (e) {
-      _setError('Erreur lors de la déconnexion');
-    } finally {
-      _setLoading(false);
+      if (kDebugMode) {
+        print('❌ Error during sign out: $e');
+      }
     }
   }
 
+  // Sauvegarder l'utilisateur en local
+  Future<void> _saveUserLocally(UserModel user) async {
+    try {
+      final userBox = await Hive.openBox<UserModel>('users');
+      await userBox.clear();
+      await userBox.add(user);
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error saving user locally: $e');
+      }
+    }
+  }
+
+  // Effacer les données locales
   Future<void> _clearLocalData() async {
     try {
-      // Clear transactions from local storage
-      final transactionBox = Hive.box<TransactionModel>('transactions');
+      final userBox = await Hive.openBox<UserModel>('users');
+      await userBox.clear();
+      
+      final transactionBox = await Hive.openBox('transactions');
       await transactionBox.clear();
       
-      // Clear offline queue
-      final offlineQueueBox = Hive.box('offline_queue');
-      await offlineQueueBox.clear();
-      
-      print('✅ Local data cleared successfully');
+      final budgetBox = await Hive.openBox('budgets');
+      await budgetBox.clear();
     } catch (e) {
-      print('⚠️ Error clearing local data: $e');
-    }
-  }
-
-  Future<void> updateUserBudget(double amount) async {
-    if (_currentUser == null) return;
-    
-    try {
-      _currentUser = _currentUser!.copyWith(monthlyBudget: amount);
-      await _firestore.collection('users').doc(_currentUser!.uid).update({
-        'monthlyBudget': amount,
-      });
-      notifyListeners();
-    } catch (e) {
-      _setError('Erreur lors de la mise à jour du budget');
-    }
-  }
-
-  Future<void> updateAiAdviceSetting(bool enabled) async {
-    if (_currentUser == null) return;
-    
-    try {
-      _currentUser = _currentUser!.copyWith(aiAdviceEnabled: enabled);
-      await _firestore.collection('users').doc(_currentUser!.uid).update({
-        'aiAdviceEnabled': enabled,
-      });
-      notifyListeners();
-    } catch (e) {
-      _setError('Erreur lors de la mise à jour des paramètres IA');
-    }
-  }
-
-  Future<void> updateProfilePhoto(String photoUrl) async {
-    if (_currentUser == null) return;
-    
-    try {
-      _currentUser = _currentUser!.copyWith(profilePhotoUrl: photoUrl);
-      await _firestore.collection('users').doc(_currentUser!.uid).update({
-        'profilePhotoUrl': photoUrl,
-      });
-      notifyListeners();
-    } catch (e) {
-      _setError('Erreur lors de la mise à jour de la photo de profil');
-    }
-  }
-
-  Future<void> updateLanguage(String language) async {
-    if (_currentUser == null) return;
-    
-    try {
-      _currentUser = _currentUser!.copyWith(language: language);
-      await _firestore.collection('users').doc(_currentUser!.uid).update({
-        'language': language,
-      });
-      notifyListeners();
-    } catch (e) {
-      _setError('Erreur lors de la mise à jour de la langue');
-    }
-  }
-
-  Future<void> resetPassword(String email) async {
-    _setLoading(true);
-    _clearError();
-    
-    try {
-      await _auth.sendPasswordResetEmail(email: email);
-    } on fb_auth.FirebaseAuthException catch (e) {
-      _setError(_getAuthErrorMessage(e.code));
-    } catch (e) {
-      _setError('Une erreur inattendue s\'est produite');
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<void> _loadOrCreateUser(fb_auth.User fbUser) async {
-    print('🔄 AuthService: Loading user for UID: ${fbUser.uid}');
-    try {
-      print('📡 AuthService: Attempting to fetch user from Firestore...');
-      final doc = await _firestore.collection('users').doc(fbUser.uid).get();
-      print('📄 AuthService: Firestore response received, exists: ${doc.exists}');
-      
-      if (doc.exists) {
-        _currentUser = UserModel.fromMap(doc.data()!);
-        print('✅ User loaded from Firestore: ${_currentUser!.name} (Budget: ${_currentUser!.monthlyBudget})');
-      } else {
-        print('🆕 AuthService: User not found, creating new user...');
-        final user = UserModel(
-          uid: fbUser.uid,
-          email: fbUser.email ?? '',
-          name: fbUser.displayName ?? (fbUser.email?.split('@').first ?? 'Utilisateur'),
-          monthlyBudget: 0,
-          createdAt: DateTime.now(),
-          aiAdviceEnabled: true,
-        );
-        await _firestore.collection('users').doc(user.uid).set(user.toMap());
-        _currentUser = user;
-        print('✅ New user created: ${_currentUser!.name}');
+      if (kDebugMode) {
+        print('❌ Error clearing local data: $e');
       }
-      
-      // Déclencher le rechargement des transactions
-      if (_onUserLoaded != null) {
-        print('🔄 AuthService: Triggering transaction reload for user: ${_currentUser!.uid}');
-        _onUserLoaded!(_currentUser!.uid);
-      }
-      
-      notifyListeners();
-    } catch (e) {
-      print('❌ Error loading user: $e');
-      _setError('Erreur lors du chargement du profil utilisateur');
     }
   }
 
+  // Mettre à jour l'utilisateur
+  Future<void> updateUser(UserModel updatedUser) async {
+    _currentUser = updatedUser;
+    await _saveUserLocally(updatedUser);
+    notifyListeners();
+  }
+
+  // Gestion des états
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
@@ -246,25 +193,9 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _getAuthErrorMessage(String code) {
-    switch (code) {
-      case 'user-not-found':
-        return 'Aucun utilisateur trouvé avec cet email';
-      case 'wrong-password':
-        return 'Mot de passe incorrect';
-      case 'email-already-in-use':
-        return 'Cet email est déjà utilisé';
-      case 'weak-password':
-        return 'Le mot de passe est trop faible';
-      case 'invalid-email':
-        return 'Email invalide';
-      case 'user-disabled':
-        return 'Ce compte a été désactivé';
-      case 'too-many-requests':
-        return 'Trop de tentatives. Réessayez plus tard';
-      default:
-        return 'Erreur d\'authentification';
-    }
+  // Effacer l'erreur manuellement
+  void clearError() {
+    _clearError();
   }
 }
 

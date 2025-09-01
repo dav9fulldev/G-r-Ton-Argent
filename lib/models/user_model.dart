@@ -74,6 +74,19 @@ class UserModel extends HiveObject {
     };
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': uid,
+      'email': email,
+      'name': name,
+      'monthlyBudget': monthlyBudget,
+      'createdAt': createdAt.toIso8601String(),
+      'aiAdviceEnabled': aiAdviceEnabled,
+      'profilePhotoUrl': profilePhotoUrl,
+      'language': language,
+    };
+  }
+
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       uid: map['uid'] ?? '',
@@ -84,6 +97,19 @@ class UserModel extends HiveObject {
       aiAdviceEnabled: map['aiAdviceEnabled'] ?? true,
       profilePhotoUrl: map['profilePhotoUrl'],
       language: map['language'] ?? 'fr',
+    );
+  }
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      uid: json['id'] ?? '',
+      email: json['email'] ?? '',
+      name: json['name'] ?? '',
+      monthlyBudget: (json['monthlyBudget'] ?? 0.0).toDouble(),
+      createdAt: DateTime.parse(json['createdAt']),
+      aiAdviceEnabled: json['aiAdviceEnabled'] ?? true,
+      profilePhotoUrl: json['profilePhotoUrl'],
+      language: json['language'] ?? 'fr',
     );
   }
 

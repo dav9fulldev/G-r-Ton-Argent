@@ -26,22 +26,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final authService = Provider.of<AuthService>(context, listen: false);
     
     try {
-      await authService.resetPassword(_emailController.text.trim());
+      // Backend REST: pas de reset password implémenté. Afficher un message d'info.
+      // TODO: Implémenter via endpoint /auth/reset si disponible
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Email de réinitialisation envoyé. Vérifiez votre boîte de réception.'),
-            backgroundColor: Colors.green,
+            content: Text('Fonction non disponible pour le moment.'),
+            backgroundColor: Colors.orange,
           ),
         );
-        Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authService.error ?? 'Erreur lors de l\'envoi de l\'email'),
+            content: Text(authService.error ?? 'Fonction non disponible'),
             backgroundColor: Colors.red,
           ),
         );

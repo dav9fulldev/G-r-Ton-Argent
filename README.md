@@ -18,18 +18,18 @@ GèrTonArgent est une application multiplateforme (Flutter) fonctionnant sur And
 ## 🚀 Fonctionnalités
 
 ### ✅ Fonctionnalités Implémentées
-- **Authentification Firebase** — Connexion sécurisée (email/mot de passe)
+- **Authentification JWT (API REST)** — Connexion sécurisée (email/mot de passe)
 - **Gestion des transactions** — Ajout, modification et suppression
 - **Solde en temps réel** — Calcul automatique du solde mensuel
 - **Répartition des dépenses** — Graphique par catégorie (fl_chart)
 - **Historique des transactions** — Liste filtrable par date/catégorie
-- **Budget mensuel + alertes** — Alerte FCM en cas de dépassement
+- **Budget mensuel + alertes** — Alertes locales (sans FCM)
 - **Stockage hors ligne** — Synchronisation locale via Hive
 - **Interface responsive** — Mobile et Web
 - **Conseils avant dépense (IA)** — Optionnel (bêta), désactivable dans les paramètres
 
 ### 🔄 Fonctionnalités en Développement
-- Intégration GPT API complète (Cloud Functions + prompts dynamiques)
+- Intégration complète API Node.js (transactions, budget, analytics)
 - Fonctionnalités sociales
 - Commandes vocales
 - Paiements QR Code
@@ -38,10 +38,10 @@ GèrTonArgent est une application multiplateforme (Flutter) fonctionnant sur And
 ## 🛠️ Technologies Utilisées
 
 - **Frontend**: Flutter 3.x (mobile + web)
-- **Backend**: Firebase (Authentication, Firestore, Cloud Functions)
-- **Base de données**: Firestore + Hive (hors ligne)
+- **Backend**: API Node.js + Express (séparé, repo distinct)
+- **Base de données**: MySQL (backend) + Hive (hors ligne côté app)
 - **Graphiques**: fl_chart
-- **Notifications**: Firebase Cloud Messaging (FCM)
+- **Notifications**: Notifications locales (Flutter Local Notifications)
 - **IA**: Firebase AI Logic avec Google Gemini (conseils financiers intelligents)
 - **Gestion d'état**: Provider Pattern
 
@@ -49,14 +49,14 @@ GèrTonArgent est une application multiplateforme (Flutter) fonctionnant sur And
 
 - **Frontend**: Flutter rend l'UI et gère l'état et la navigation
 - **Services**: Auth, transactions, notifications et IA encapsulés dans `lib/services/`
-- **Backend**: Firebase (Auth, Firestore, Cloud Functions pour calculs/IA)
+- **Backend**: API REST (Node.js) hébergée séparément (voir repo backend)
 - **Hors ligne**: Hive pour cache et usage offline-first
-- **Observabilité**: Logs Firebase (à configurer selon besoin)
+- **Observabilité**: Logs applicatifs
 
-## 📦 Modèle de Données (Firestore)
+## 📦 Modèle de Données (API REST)
 
-- `users` — données de base utilisateur: `email`, `name`, `monthlyBudget`
-- `transactions` — `amount`, `type` (income|expense), `category`, `date`, `userId`
+- Endpoints principaux:
+- `POST /auth/register`, `POST /auth/login`, `GET/POST /transactions`, `GET/PUT /budget`, `GET /analytics`
 
 ## 📱 Captures d'Écran
 
@@ -67,8 +67,7 @@ GèrTonArgent est une application multiplateforme (Flutter) fonctionnant sur And
 ### Prérequis
 - Flutter SDK 3.8.0 ou supérieur
 - Dart SDK
-- Firebase Project
-- Compte OpenAI (optionnel pour les conseils IA)
+- Backend Node.js + MySQL (repo séparé)
 
 ### 1. Cloner le Projet
 ```bash
@@ -81,49 +80,15 @@ cd ger-ton-argent
 flutter pub get
 ```
 
-### 3. Configuration Firebase
+### 3. Configuration de l'API Backend
+Le backend (Node.js + MySQL) est maintenant dans un repo séparé.
+Configurez l'URL de l'API dans `lib/config/api_config.dart`.
 
-#### Créer un Projet Firebase
-1. Allez sur [Firebase Console](https://console.firebase.google.com/)
-2. Créez un nouveau projet
-3. Activez Authentication (Email/Password)
-4. Créez une base de données Firestore
-5. Configurez Cloud Messaging
+<!-- Ancienne section Firebase supprimée après migration vers API REST -->
 
-#### Configurer l'Application
-1. Ajoutez votre application Android/iOS dans Firebase
-2. Téléchargez le fichier `google-services.json` (Android) ou `GoogleService-Info.plist` (iOS)
-3. Placez le fichier dans le dossier approprié :
-   - Android: `android/app/google-services.json`
-   - iOS: `ios/Runner/GoogleService-Info.plist`
-
-#### Mettre à Jour firebase_options.dart
-Remplacez les valeurs mock dans `lib/firebase_options.dart` par vos vraies valeurs Firebase :
-
-```dart
-static const FirebaseOptions web = FirebaseOptions(
-  apiKey: 'votre-api-key',
-  appId: 'votre-app-id',
-  messagingSenderId: 'votre-sender-id',
-  projectId: 'votre-project-id',
-  authDomain: 'votre-project.firebaseapp.com',
-  storageBucket: 'votre-project.appspot.com',
-);
-```
-
-### 4. Configuration Firebase AI Logic avec Gemini
-Pour activer les conseils IA intelligents :
-
-1. **Activez Firebase AI Logic** dans votre projet Firebase
-2. **Configurez Gemini** avec votre clé API
-3. **Suivez le guide détaillé** dans `FIREBASE_AI_SETUP.md`
-
-```bash
-# Voir la configuration complète
-cat FIREBASE_AI_SETUP.md
-```
-
-> **Important** : Cette intégration utilise Firebase AI Logic comme proxy sécurisé vers Gemini, évitant d'exposer la clé API dans l'application mobile.
+### 4. IA Gemini (optionnel)
+L'IA utilise directement l'API Gemini via `lib/services/gemini_service.dart`.
+Ajoutez votre clé API si nécessaire.
 
 ### 5. Lancer l'Application
 
@@ -162,10 +127,10 @@ lib/
 │   ├── transactions/                # Gestion des transactions
 │   └── splash_screen.dart           # Écran de démarrage
 ├── services/                         # Services métier
-│   ├── gemini_service.dart          # Service IA avec Firebase AI Logic
-│   ├── auth_service.dart            # Authentification Firebase
+│   ├── gemini_service.dart          # Service IA (API Gemini)
+│   ├── auth_service.dart            # Authentification via API REST (JWT)
 │   ├── connectivity_service.dart    # Connectivité
-│   ├── notification_service.dart    # Notifications (FCM)
+│   ├── notification_service.dart    # Notifications locales
 │   ├── transaction_service.dart     # Gestion des transactions
 │   ├── mock_auth_service.dart       # Mocks pour tests
 │   ├── mock_notification_service.dart

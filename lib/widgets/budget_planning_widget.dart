@@ -53,7 +53,8 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      await authService.updateUserBudget(amount);
+      final updated = authService.currentUser!.copyWith(monthlyBudget: amount);
+      await authService.updateUser(updated);
       
       if (mounted) {
         setState(() {
@@ -90,8 +91,8 @@ class _BudgetPlanningWidgetState extends State<BudgetPlanningWidget> {
         if (user == null) return const SizedBox.shrink();
 
         final budgetInitial = user.monthlyBudget;
-        final totalRevenus = transactionService.totalIncome;
-        final totalDepenses = transactionService.totalExpenses;
+        final totalRevenus = transactionService.currentMonthIncomes.fold(0.0, (s, t) => s + t.amount);
+        final totalDepenses = transactionService.currentMonthExpenses.fold(0.0, (s, t) => s + t.amount);
         
         // Calcul correct du solde et du restant selon la formule demandée
         final solde = budgetInitial + totalRevenus - totalDepenses;

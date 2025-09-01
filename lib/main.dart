@@ -1,36 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import 'firebase_options.dart';
 import 'models/transaction_model.dart';
 import 'models/user_model.dart';
+import 'models/budget_model.dart';
 import 'services/auth_service.dart';
 import 'services/transaction_service.dart';
 import 'services/notification_service.dart';
 import 'services/gemini_service.dart';
-
+import 'services/api_service.dart';
 import 'services/connectivity_service.dart';
-import 'services/profile_service.dart';
 import 'services/localization_service.dart';
 import 'screens/splash_screen.dart';
 import 'utils/theme.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
-
-// 🔹 Handler pour notifications reçues en arrière-plan
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print("📩 Notification reçue en arrière-plan: ${message.notification?.title}");
-}
 
 void main() async {
   try {
@@ -47,49 +36,23 @@ void main() async {
     Hive.registerAdapter(TransactionCategoryAdapter());
     Hive.registerAdapter(TransactionModelAdapter());
     Hive.registerAdapter(UserModelAdapter());
+    Hive.registerAdapter(BudgetModelAdapter());
     
     // Open Hive boxes
     await Hive.openBox<TransactionModel>('transactions');
-    await Hive.openBox('offline_queue');
+    await Hive.openBox<UserModel>('users');
+    await Hive.openBox<BudgetModel>('budgets');
 
-    // Initialize Firebase only if not on web or if web initialization succeeds
-    bool firebaseInitialized = false;
+    // Initialize API Service
+    final apiService = ApiService();
+    await apiService.initialize();
+
+    // Initialize notification service
     try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      
-      // Connect to Firebase emulators in debug mode (WEB ONLY)
-      // DISABLED for APK distribution - will use production Firebase
-      // if (kDebugMode && identical(0, 0.0)) { // This checks if we're on web
-      //   try {
-      //     FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-      //     print('✅ Connected to Firestore emulator on localhost:8080');
-      //   } catch (e) {
-      //     print('⚠️ Failed to connect to Firestore emulator: $e');
-      //   }
-      // }
-      
-      firebaseInitialized = true;
-      print('✅ Firebase initialized successfully');
+      final notificationService = NotificationService();
+      await notificationService.initialize();
     } catch (e) {
-      print('⚠️ Firebase initialization failed: $e');
-      // Continue without Firebase for web development
-    }
-    
-    // Initialize notification service only if Firebase is available
-    if (firebaseInitialized) {
-      try {
-        final notificationService = NotificationService();
-        await notificationService.initialize();
-      } catch (e) {
-        print('⚠️ Notification service initialization failed: $e');
-      }
-    }
-
-    // 🔹 Écoute notifications en arrière-plan (only if Firebase is initialized)
-    if (firebaseInitialized) {
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      print('⚠️ Notification service initialization failed: $e');
     }
 
     // Explicitly define supported locales to avoid loading es-ES.json
@@ -138,9 +101,9 @@ class GerTonArgentApp extends StatelessWidget {
         ChangeNotifierProvider<TransactionService>(create: (_) => TransactionService()),
         ChangeNotifierProvider<NotificationService>(create: (_) => NotificationService()),
         ChangeNotifierProvider<GeminiService>(create: (_) => GeminiService()),
-
+        // ApiService is not a ChangeNotifier; access via singletons in services
         ChangeNotifierProvider<ConnectivityService>(create: (_) => ConnectivityService()),
-        ChangeNotifierProvider<ProfileService>(create: (_) => ProfileService()),
+        // ProfileService removed (Firebase Storage dependency). Reintroduce when backend endpoints are ready.
         ChangeNotifierProvider<LocalizationService>(create: (_) => LocalizationService()),
       ],
       child: Consumer<AuthService>(
@@ -148,9 +111,9 @@ class GerTonArgentApp extends StatelessWidget {
           // Configurer le callback de rechargement des transactions
           WidgetsBinding.instance.addPostFrameCallback((_) {
             final transactionService = Provider.of<TransactionService>(context, listen: false);
-            authService.setOnUserLoadedCallback((userId) {
-              print('🔄 Main: User loaded, reloading transactions for: $userId');
-              transactionService.forceRefresh(userId);
+            authService.setOnUserLoadedCallback(() {
+              print('🔄 Main: User loaded, reloading transactions');
+              transactionService.forceRefresh();
             });
           });
           

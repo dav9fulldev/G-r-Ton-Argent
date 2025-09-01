@@ -164,16 +164,12 @@ class _SpendingInsightsWidgetState extends State<SpendingInsightsWidget> {
         return service.currentMonthTransactions;
       case 'Mois dernier':
         final lastMonth = DateTime(now.year, now.month - 1);
-        return service.getTransactionsForDateRange(
-          DateTime(lastMonth.year, lastMonth.month, 1),
-          DateTime(lastMonth.year, lastMonth.month + 1, 0),
-        );
+        final start = DateTime(lastMonth.year, lastMonth.month, 1);
+        final end = DateTime(lastMonth.year, lastMonth.month + 1, 0);
+        return service.transactions.where((t) => t.date.isAfter(start.subtract(const Duration(days: 1)) ) && t.date.isBefore(end.add(const Duration(days: 1)))).toList();
       case '3 derniers mois':
         final threeMonthsAgo = DateTime(now.year, now.month - 3);
-        return service.getTransactionsForDateRange(
-          threeMonthsAgo,
-          now,
-        );
+        return service.transactions.where((t) => t.date.isAfter(threeMonthsAgo.subtract(const Duration(days: 1))) && t.date.isBefore(now.add(const Duration(days: 1)))).toList();
       default:
         return service.currentMonthTransactions;
     }

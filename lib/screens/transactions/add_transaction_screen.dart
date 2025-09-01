@@ -90,19 +90,23 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     setState(() => _isSubmitting = true);
     try {
-      await tx.addTransaction(
+      final transaction = TransactionModel(
+        id: '', // L'API générera l'ID
         userId: auth.currentUser!.uid,
         amount: amount,
         type: _type,
         category: _category!,
         date: _selectedDate,
         description: _descriptionController.text.trim(),
+        createdAt: DateTime.now(),
       );
 
+      final success = await tx.addTransaction(transaction);
+
       // Show budget alerts for expenses
-      if (isExpense) {
+      if (isExpense && success) {
         final budgetInitial = auth.currentUser!.monthlyBudget;
-        final currentBalance = tx.getCurrentMonthBalance(budgetInitial);
+        final currentBalance = tx.currentBalance;
         final newBalance = currentBalance - amount;
         await notification.showBudgetOverrunAlert(
           currentBalance: newBalance,

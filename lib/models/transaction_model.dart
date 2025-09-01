@@ -108,6 +108,19 @@ class TransactionModel extends HiveObject {
     };
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'amount': amount,
+      'type': type.name,
+      'category': category.name,
+      'date': date.toIso8601String(),
+      'description': description,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
     return TransactionModel(
       id: map['id'] ?? '',

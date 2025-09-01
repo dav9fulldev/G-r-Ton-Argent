@@ -1,5 +1,5 @@
 name: ger_ton_argent
-description: Personal finance manager for Côte d'Ivoire (Flutter + Firebase + Hive)
+description: Personal finance manager for Côte d'Ivoire (Flutter + Node.js API + Hive)
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -14,12 +14,9 @@ dependencies:
   intl: ^0.20.2
   google_fonts: ^6.2.1
 
-  # Firebase
-  firebase_core: ^3.4.0
-  firebase_auth: ^5.1.0
-  cloud_firestore: ^5.4.4
-  firebase_messaging: ^15.1.2
-  # firebase_ai: ^0.1.0  # Version obsolète, nous utiliserons une approche HTTP directe
+  # HTTP Client for REST API
+  http: ^1.2.0
+  dio: ^5.4.0
 
   # Local storage
   hive: ^2.2.3
@@ -31,12 +28,11 @@ dependencies:
   # Utils
   uuid: ^4.4.0
   flutter_local_notifications: ^17.2.2
-  http: ^1.2.0
   connectivity_plus: ^5.0.2
+  shared_preferences: ^2.2.2
   
   # Image handling
   image_picker: ^1.0.7
-  firebase_storage: ^12.1.0
   
   # Localization
   flutter_localizations:

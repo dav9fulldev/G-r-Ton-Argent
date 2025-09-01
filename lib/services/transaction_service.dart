@@ -1,24 +1,40 @@
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:uuid/uuid.dart';
 import '../models/transaction_model.dart';
+import 'api_service.dart';
 
 class TransactionService extends ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final Uuid _uuid = const Uuid();
+  static final TransactionService _instance = TransactionService._internal();
+  factory TransactionService() => _instance;
+  TransactionService._internal();
+
+  final ApiService _apiService = ApiService();
   List<TransactionModel> _transactions = [];
   bool _isLoading = false;
   String? _error;
   bool _isOnline = true;
 
+  // Getters
   List<TransactionModel> get transactions => _transactions;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isOnline => _isOnline;
-  bool get isOffline => !_isOnline; // Ajout de la propriété isOffline
+  bool get isOffline => !_isOnline;
 
-  // Get transactions for current month
+  // Calculer le solde actuel
+  double get currentBalance {
+    double balance = 0;
+    for (var transaction in _transactions) {
+      if (transaction.type == TransactionType.income) {
+        balance += transaction.amount;
+      } else {
+        balance -= transaction.amount;
+      }
+    }
+    return balance;
+  }
+
+  // Obtenir les transactions du mois actuel
   List<TransactionModel> get currentMonthTransactions {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
@@ -30,355 +46,209 @@ class TransactionService extends ChangeNotifier {
     }).toList();
   }
 
-  // Calculate current month balance (corrected formula)
-  // solde = budgetInitial + totalRevenus - totalDepenses
-  double getCurrentMonthBalance(double budgetInitial) {
-    double income = 0;
-    double expenses = 0;
-    
-    for (final transaction in currentMonthTransactions) {
-      if (transaction.type == TransactionType.income) {
-        income += transaction.amount;
-      } else {
-        expenses += transaction.amount;
-      }
-    }
-    
-    return budgetInitial + income - expenses;
-  }
-
-  // Calculate remaining budget (corrected formula)
-  // restant = budgetInitial - totalDepenses + totalRevenus
-  double getRemainingBudget(double budgetInitial) {
-    double income = 0;
-    double expenses = 0;
-    
-    for (final transaction in currentMonthTransactions) {
-      if (transaction.type == TransactionType.income) {
-        income += transaction.amount;
-      } else {
-        expenses += transaction.amount;
-      }
-    }
-    
-    return budgetInitial - expenses + income;
-  }
-
-  // Calculate budget progression percentage
-  // progression = (restant / budgetInitial) * 100
-  double getBudgetProgressionPercentage(double budgetInitial) {
-    if (budgetInitial <= 0) return 0;
-    final restant = getRemainingBudget(budgetInitial);
-    return (restant / budgetInitial) * 100;
-  }
-
-  // Removed deprecated method - use getCurrentMonthBalance() instead
-
-  // Get expenses by category for current month
-  Map<TransactionCategory, double> get expensesByCategory {
-    final Map<TransactionCategory, double> categoryExpenses = {};
-    
-    for (final transaction in currentMonthTransactions) {
-      if (transaction.type == TransactionType.expense) {
-        categoryExpenses[transaction.category] = 
-            (categoryExpenses[transaction.category] ?? 0) + transaction.amount;
-      }
-    }
-    
-    return categoryExpenses;
-  }
-
-  // Get total income for current month
-  double get totalIncome {
+  // Obtenir les dépenses du mois actuel
+  List<TransactionModel> get currentMonthExpenses {
     return currentMonthTransactions
-        .where((t) => t.type == TransactionType.income)
-        .fold(0.0, (sum, t) => sum + t.amount);
+        .where((transaction) => transaction.type == TransactionType.expense)
+        .toList();
   }
 
-  // Get total expenses for current month
-  double get totalExpenses {
+  // Obtenir les revenus du mois actuel
+  List<TransactionModel> get currentMonthIncomes {
     return currentMonthTransactions
-        .where((t) => t.type == TransactionType.expense)
-        .fold(0.0, (sum, t) => sum + t.amount);
+        .where((transaction) => transaction.type == TransactionType.income)
+        .toList();
   }
 
-  Future<void> loadTransactions(String userId) async {
+  // Charger les transactions
+  Future<void> loadTransactions() async {
     _setLoading(true);
     _clearError();
 
     try {
-      // Clear any existing transactions first
-      _transactions.clear();
-      
-      // Load from Firestore first (source of truth)
-      if (_isOnline) {
-        await _loadFromFirestore(userId);
+      // Essayer de charger depuis l'API
+      if (_apiService.isAuthenticated) {
+        final apiTransactions = await _apiService.getTransactions();
+        _transactions = apiTransactions;
+        
+        // Sauvegarder en local
+        await _saveTransactionsLocally(apiTransactions);
+        
+        _setOnline(true);
       } else {
-        // Only load from local if offline
-        await _loadFromLocal(userId);
+        // Charger depuis le stockage local
+        await _loadTransactionsFromLocal();
+        _setOnline(false);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error loading transactions: $e');
       }
       
-      _setLoading(false);
-    } catch (e) {
-      _setError('Erreur lors du chargement des transactions: $e');
+      // En cas d'erreur API, charger depuis le local
+      await _loadTransactionsFromLocal();
+      _setOnline(false);
+      _setError('Mode hors ligne - données locales');
+    } finally {
       _setLoading(false);
     }
   }
 
-  Future<void> _loadFromLocal(String userId) async {
+  // Charger depuis le stockage local
+  Future<void> _loadTransactionsFromLocal() async {
     try {
-      final box = Hive.box<TransactionModel>('transactions');
-      final localTransactions = box.values
-          .where((transaction) => transaction.userId == userId)
-          .toList();
-      
-      _transactions = localTransactions;
+      final transactionBox = await Hive.openBox<TransactionModel>('transactions');
+      _transactions = transactionBox.values.toList();
       _transactions.sort((a, b) => b.date.compareTo(a.date));
     } catch (e) {
-      print('Error loading from local storage: $e');
+      if (kDebugMode) {
+        print('❌ Error loading transactions from local: $e');
+      }
+      _transactions = [];
     }
   }
 
-  Future<void> _loadFromFirestore(String userId) async {
+  // Sauvegarder en local
+  Future<void> _saveTransactionsLocally(List<TransactionModel> transactions) async {
     try {
-      print('🔄 Loading transactions from Firestore for user: $userId');
+      final transactionBox = await Hive.openBox<TransactionModel>('transactions');
+      await transactionBox.clear();
+      await transactionBox.addAll(transactions);
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error saving transactions locally: $e');
+      }
+    }
+  }
+
+  // Ajouter une transaction
+  Future<bool> addTransaction(TransactionModel transaction) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      TransactionModel newTransaction;
       
-      final snapshot = await _firestore
-          .collection('transactions')
-          .where('userId', isEqualTo: userId)
-          .orderBy('date', descending: true)
-          .get();
+      if (_apiService.isAuthenticated) {
+        // Ajouter via l'API
+        newTransaction = await _apiService.createTransaction(transaction);
+        _setOnline(true);
+      } else {
+        // Ajouter en local seulement
+        newTransaction = transaction;
+        _setOnline(false);
+      }
 
-      final firestoreTransactions = snapshot.docs
-          .map((doc) => TransactionModel.fromMap(doc.data()))
-          .toList();
-
-      print('📊 Found ${firestoreTransactions.length} transactions in Firestore');
-
-      // Use Firestore as source of truth (no merge with local data)
-      _transactions = firestoreTransactions;
+      _transactions.add(newTransaction);
       _transactions.sort((a, b) => b.date.compareTo(a.date));
 
-      // Calculate totals for debugging
-      double totalIncome = 0;
-      double totalExpenses = 0;
-      for (final transaction in _transactions) {
-        if (transaction.type == TransactionType.income) {
-          totalIncome += transaction.amount;
-        } else {
-          totalExpenses += transaction.amount;
-        }
-      }
+      // Sauvegarder en local
+      await _saveTransactionsLocally(_transactions);
       
-      print('💰 Total Income: ${totalIncome.toStringAsFixed(0)} FCFA');
-      print('💸 Total Expenses: ${totalExpenses.toStringAsFixed(0)} FCFA');
-      print('📈 Net: ${(totalIncome - totalExpenses).toStringAsFixed(0)} FCFA');
-
-      // Save to local storage for offline access
-      await _saveToLocal();
-      
-      print('✅ Loaded ${_transactions.length} transactions from Firestore for user $userId');
-    } catch (e) {
-      print('❌ Error loading from Firestore: $e');
-      _isOnline = false;
-    }
-  }
-
-  Future<void> _saveToLocal() async {
-    try {
-      final box = Hive.box<TransactionModel>('transactions');
-      await box.clear();
-      await box.addAll(_transactions);
-      print('✅ Saved ${_transactions.length} transactions to local storage');
-    } catch (e) {
-      print('Error saving to local storage: $e');
-    }
-  }
-
-  Future<void> addTransaction({
-    required String userId,
-    required double amount,
-    required TransactionType type,
-    required TransactionCategory category,
-    required DateTime date,
-    required String description,
-  }) async {
-    final transaction = TransactionModel(
-      id: _uuid.v4(),
-      userId: userId,
-      amount: amount,
-      type: type,
-      category: category,
-      date: date,
-      description: description,
-      createdAt: DateTime.now(),
-    );
-
-    print('🔄 Adding transaction: ${transaction.id} - ${transaction.amount} FCFA - ${transaction.type} - ${transaction.category}');
-
-    try {
-      // Add to local list immediately for responsive UI
-      _transactions.insert(0, transaction);
-      await _saveToLocal();
       notifyListeners();
-      print('✅ Transaction added to local storage');
+      return true;
+    } catch (e) {
+      _setError(e.toString());
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
 
-      // Add to Firestore if online
-      if (_isOnline) {
-        print('🌐 Saving to Firestore...');
-        await _firestore
-            .collection('transactions')
-            .doc(transaction.id)
-            .set(transaction.toMap());
-        print('✅ Transaction saved to Firestore: ${transaction.id}');
-        
-        // Verify the transaction was saved
-        final savedDoc = await _firestore
-            .collection('transactions')
-            .doc(transaction.id)
-            .get();
-        
-        if (savedDoc.exists) {
-          print('✅ Transaction verified in Firestore');
-        } else {
-          print('❌ Transaction not found in Firestore after save!');
-          throw Exception('Transaction not saved to Firestore');
-        }
+  // Mettre à jour une transaction
+  Future<bool> updateTransaction(TransactionModel transaction) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      TransactionModel updatedTransaction;
+      
+      if (_apiService.isAuthenticated) {
+        // Mettre à jour via l'API
+        updatedTransaction = await _apiService.updateTransaction(transaction);
+        _setOnline(true);
       } else {
-        // Queue for later sync
-        await _addToOfflineQueue(transaction);
-        print('📱 Transaction queued for offline sync: ${transaction.id}');
+        // Mettre à jour en local seulement
+        updatedTransaction = transaction;
+        _setOnline(false);
       }
-    } catch (e) {
-      // Remove from local list if Firestore fails
-      _transactions.removeAt(0);
-      await _saveToLocal();
-      notifyListeners();
-      _setError('Erreur lors de l\'ajout de la transaction: $e');
-      print('❌ Error adding transaction: $e');
-      rethrow;
-    }
-  }
 
-  Future<void> updateTransaction(TransactionModel transaction) async {
-    try {
-      // Update in local list immediately
       final index = _transactions.indexWhere((t) => t.id == transaction.id);
       if (index != -1) {
-        _transactions[index] = transaction;
-        await _saveToLocal();
+        _transactions[index] = updatedTransaction;
+        _transactions.sort((a, b) => b.date.compareTo(a.date));
+        
+        // Sauvegarder en local
+        await _saveTransactionsLocally(_transactions);
+        
         notifyListeners();
+        return true;
       }
-
-      // Update in Firestore if online
-      if (_isOnline) {
-        await _firestore
-            .collection('transactions')
-            .doc(transaction.id)
-            .update(transaction.toMap());
-      } else {
-        // Queue for later sync
-        await _addToOfflineQueue(transaction, isUpdate: true);
-      }
+      
+      return false;
     } catch (e) {
-      _setError('Erreur lors de la mise à jour de la transaction: $e');
-      rethrow;
+      _setError(e.toString());
+      return false;
+    } finally {
+      _setLoading(false);
     }
   }
 
-  Future<void> deleteTransaction(String transactionId) async {
+  // Supprimer une transaction
+  Future<bool> deleteTransaction(String transactionId) async {
+    _setLoading(true);
+    _clearError();
+
     try {
-      // Remove from local list immediately
+      if (_apiService.isAuthenticated) {
+        // Supprimer via l'API
+        await _apiService.deleteTransaction(transactionId);
+        _setOnline(true);
+      } else {
+        _setOnline(false);
+      }
+
       _transactions.removeWhere((t) => t.id == transactionId);
-      await _saveToLocal();
+      
+      // Sauvegarder en local
+      await _saveTransactionsLocally(_transactions);
+      
       notifyListeners();
-
-      // Delete from Firestore if online
-      if (_isOnline) {
-        await _firestore
-            .collection('transactions')
-            .doc(transactionId)
-            .delete();
-      } else {
-        // Queue for later sync
-        await _addToOfflineQueue(null, transactionId: transactionId, isDelete: true);
-      }
+      return true;
     } catch (e) {
-      _setError('Erreur lors de la suppression de la transaction: $e');
-      rethrow;
+      _setError(e.toString());
+      return false;
+    } finally {
+      _setLoading(false);
     }
   }
 
-  Future<void> _addToOfflineQueue(
-    TransactionModel? transaction, {
-    String? transactionId,
-    bool isUpdate = false,
-    bool isDelete = false,
-  }) async {
-    try {
-      final box = Hive.box('offline_queue');
-      final queueItem = {
-        'action': isDelete ? 'delete' : (isUpdate ? 'update' : 'add'),
-        'transaction': transaction?.toMap(),
-        'transactionId': transactionId,
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      };
-      await box.add(queueItem);
-    } catch (e) {
-      print('Error adding to offline queue: $e');
+  // Forcer le rechargement depuis l'API
+  Future<void> forceRefresh() async {
+    if (_apiService.isAuthenticated) {
+      await loadTransactions();
     }
   }
 
-  Future<void> syncOfflineQueue() async {
-    if (!_isOnline) return;
+  // Synchroniser les données locales avec l'API
+  Future<void> syncWithServer() async {
+    if (!_apiService.isAuthenticated) return;
 
     try {
-      final box = Hive.box('offline_queue');
-      final queue = box.values.toList();
-      
-      for (final item in queue) {
-        try {
-          switch (item['action']) {
-            case 'add':
-              final transaction = TransactionModel.fromMap(item['transaction']);
-              await _firestore
-                  .collection('transactions')
-                  .doc(transaction.id)
-                  .set(transaction.toMap());
-              break;
-            case 'update':
-              final transaction = TransactionModel.fromMap(item['transaction']);
-              await _firestore
-                  .collection('transactions')
-                  .doc(transaction.id)
-                  .update(transaction.toMap());
-              break;
-            case 'delete':
-              await _firestore
-                  .collection('transactions')
-                  .doc(item['transactionId'])
-                  .delete();
-              break;
-          }
+      final apiTransactions = await _apiService.getTransactions();
+      _transactions = apiTransactions;
+      await _saveTransactionsLocally(apiTransactions);
+      _setOnline(true);
+      notifyListeners();
         } catch (e) {
-          print('Error syncing queue item: $e');
-        }
+      if (kDebugMode) {
+        print('❌ Error syncing with server: $e');
       }
-      
-      await box.clear();
-    } catch (e) {
-      print('Error syncing offline queue: $e');
+      _setOnline(false);
     }
   }
 
-  // Get transactions for a specific date range
-  List<TransactionModel> getTransactionsForDateRange(DateTime start, DateTime end) {
-    return _transactions.where((transaction) {
-      return transaction.date.isAfter(start.subtract(const Duration(days: 1))) &&
-             transaction.date.isBefore(end.add(const Duration(days: 1)));
-    }).toList();
-  }
-
+  // Gestion des états
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
@@ -394,58 +264,29 @@ class TransactionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setOnlineStatus(bool online) {
+  void _setOnline(bool online) {
     _isOnline = online;
-    if (online) {
-      syncOfflineQueue();
-    }
+    notifyListeners();
   }
 
-  // Force refresh from Firestore (useful after login)
-  Future<void> forceRefresh(String userId) async {
-    print('🔄 Force refreshing transactions for user $userId');
-    _isOnline = true;
-    
-    try {
-      // Clear local data first
-      _transactions.clear();
-      await _saveToLocal();
-      
-      // Force reload from Firestore
-      await _loadFromFirestore(userId);
-      
-      print('✅ Force refresh completed for user $userId');
-    } catch (e) {
-      print('❌ Error during force refresh: $e');
-      // Fallback to local data if Firestore fails
-      await _loadFromLocal(userId);
-    }
+  // Effacer l'erreur manuellement
+  void clearError() {
+    _clearError();
   }
 
-  // Debug method to check data consistency
-  Future<void> debugDataConsistency(String userId) async {
-    print('🔍 Debugging data consistency for user: $userId');
-    
-    // Check local data
-    print('📱 Local transactions: ${_transactions.length}');
-    for (final transaction in _transactions.take(5)) {
-      print('  - ${transaction.id}: ${transaction.amount} FCFA (${transaction.type})');
-    }
-    
-    // Check Firestore data
-    try {
-      final snapshot = await _firestore
-          .collection('transactions')
-          .where('userId', isEqualTo: userId)
-          .get();
+  // Debug: vérifier la cohérence des données
+  Future<void> debugDataConsistency() async {
+    if (kDebugMode) {
+      print('🔍 Debug: Transaction count - Local: ${_transactions.length}');
       
-      print('🌐 Firestore transactions: ${snapshot.docs.length}');
-      for (final doc in snapshot.docs.take(5)) {
-        final data = doc.data();
-        print('  - ${doc.id}: ${data['amount']} FCFA (${data['type']})');
+      if (_apiService.isAuthenticated) {
+        try {
+          final apiTransactions = await _apiService.getTransactions();
+          print('🔍 Debug: Transaction count - API: ${apiTransactions.length}');
+        } catch (e) {
+          print('🔍 Debug: Could not fetch API transactions: $e');
+        }
       }
-    } catch (e) {
-      print('❌ Error checking Firestore: $e');
     }
   }
 }

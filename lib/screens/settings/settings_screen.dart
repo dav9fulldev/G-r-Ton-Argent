@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../services/auth_service.dart';
-import '../../services/notification_service.dart';
-import '../../services/profile_service.dart';
+// import '../../services/notification_service.dart';
+// import '../../services/profile_service.dart';
 import '../../services/localization_service.dart';
 import '../auth/login_screen.dart';
 
@@ -59,7 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      await authService.updateUserBudget(amount);
+      await authService.updateUser(authService.currentUser!.copyWith(monthlyBudget: amount));
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -94,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      await authService.updateAiAdviceSetting(enabled);
+      await authService.updateUser(authService.currentUser!.copyWith(aiAdviceEnabled: enabled));
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -118,26 +118,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _updateProfilePhoto() async {
     final authService = Provider.of<AuthService>(context, listen: false);
-    final profileService = Provider.of<ProfileService>(context, listen: false);
     
     if (authService.currentUser == null) return;
-
-    await profileService.showImageSourceDialog(
-      context,
-      authService.currentUser!.uid,
-      (String? photoUrl) async {
-        if (photoUrl != null) {
-          await authService.updateProfilePhoto(photoUrl);
-          if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('profile_photo_updated'.tr()),
-            backgroundColor: Colors.green,
-          ),
-        );
-          }
-        }
-      },
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Fonction non disponible pour le moment.'),
+        backgroundColor: Colors.orange,
+      ),
     );
   }
 
@@ -149,8 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       final localizationService = Provider.of<LocalizationService>(context, listen: false);
-      
-      await authService.updateLanguage(languageCode);
+      await authService.updateUser(authService.currentUser!.copyWith(language: languageCode));
       await localizationService.changeLanguage(context, languageCode);
       
       if (mounted) {
@@ -195,11 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (confirmed == true) {
       try {
         final authService = Provider.of<AuthService>(context, listen: false);
-        final notificationService = Provider.of<NotificationService>(context, listen: false);
-        
-        if (authService.currentUser != null) {
-          await notificationService.deleteFcmToken(authService.currentUser!.uid);
-        }
+        // Pas de suppression de token FCM (non utilisé)
         
         await authService.signOut();
         

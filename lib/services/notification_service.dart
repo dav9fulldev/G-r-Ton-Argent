@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService extends ChangeNotifier {
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
 
@@ -13,26 +11,9 @@ class NotificationService extends ChangeNotifier {
     if (_isInitialized) return;
 
     try {
-      // Skip Firebase Messaging initialization on web
-      if (!kIsWeb) {
-        // Request permission for push notifications
-        await requestPermission();
-
-        // Initialize local notifications
-        await _initializeLocalNotifications();
-
-        // Create notification channels
-        await _createNotificationChannels();
-
-        // Handle background messages
-        FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-        // Handle foreground messages
-        FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-
-        // Handle notification taps
-        FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
-      }
+      // Initialize local notifications only (no Firebase Messaging)
+      await _initializeLocalNotifications();
+      await _createNotificationChannels();
 
       _isInitialized = true;
       notifyListeners();
@@ -64,34 +45,12 @@ class NotificationService extends ChangeNotifier {
   }
 
   Future<void> requestPermission() async {
-    NotificationSettings settings = await _messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted permission');
-    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-      print('User granted provisional permission');
-    } else {
-      print('User declined or has not accepted permission');
-    }
+    // No-op: Local notifications don't require explicit permission on Android.
+    // iOS permissions are requested during initialization if needed.
+    return;
   }
 
-  Future<String?> getToken() async {
-    return _messaging.getToken();
-  }
-
-  Future<void> deleteFcmToken(String uid) async {
-    try {
-      await _messaging.deleteToken();
-    } catch (_) {}
-  }
+  // FCM token methods removed (no Firebase Messaging)
 
   // Show budget overrun alert
   Future<void> showBudgetOverrunAlert({
@@ -166,19 +125,7 @@ class NotificationService extends ChangeNotifier {
     );
   }
 
-  void _handleForegroundMessage(RemoteMessage message) {
-    print('Got a message whilst in the foreground!');
-    print('Message data: ${message.data}');
-
-    if (message.notification != null) {
-      print('Message also contained a notification: ${message.notification}');
-    }
-  }
-
-  void _handleNotificationTap(RemoteMessage message) {
-    print('Notification tapped: ${message.data}');
-    // Handle navigation based on notification type
-  }
+  // Firebase Messaging handlers removed
 
   Future<void> _createNotificationChannels() async {
     // Create budget alerts channel
@@ -222,10 +169,5 @@ class NotificationService extends ChangeNotifier {
     print('Local notification tapped: ${response.payload}');
     // Handle local notification tap
   }
-}
-
-// Background message handler
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Handling a background message: ${message.messageId}');
 }
 
