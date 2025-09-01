@@ -140,6 +140,10 @@ class TransactionModel extends HiveObject {
     );
   }
 
+  factory TransactionModel.fromJson(Map<String, dynamic> json) {
+    return TransactionModel.fromMap(json);
+  }
+
   @override
   String toString() {
     return 'TransactionModel(id: $id, userId: $userId, amount: $amount, type: $type, category: $category, date: $date, description: $description, createdAt: $createdAt)';

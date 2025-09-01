@@ -56,9 +56,9 @@ flutter:
 flutter_native_splash:
   color: "#000000"
   image: "assets/images/logo.png"
-  web: false
+  web: true
   android: true
-  ios: true
+  ios: false
   windows: false
   linux: false
   macos: false

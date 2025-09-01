@@ -1,109 +1,80 @@
-# GèrTonArgent - Gestionnaire de Budget Personnel
+# GèrTonArgent - Gestionnaire de Finances Personnelles
 
-Une application mobile et web moderne pour la gestion de budget personnel, spécialement conçue pour les utilisateurs en Côte d'Ivoire.
-
-## 🧩 Problème
-
-En Côte d'Ivoire, de nombreux jeunes (étudiants et jeunes actifs) n'ont pas d'outil structuré pour gérer efficacement leurs finances personnelles. Les dépenses quotidiennes sont réalisées sans visibilité globale, entraînant des dépassements de budget et des difficultés en fin de mois.
-
-## 💡 Solution
-
-GèrTonArgent est une application multiplateforme (Flutter) fonctionnant sur Android, iOS et Web. Elle permet de:
-- Créer un compte personnel
-- Enregistrer revenus et dépenses
-- Visualiser le solde restant en temps réel
-- Voir la répartition des dépenses par catégorie (graphique)
-- Recevoir des alertes en cas de dépassement de budget
+Une application Flutter moderne pour la gestion des finances personnelles, optimisée pour Android et Web, avec un backend Node.js et une base de données MySQL.
 
 ## 🚀 Fonctionnalités
 
-### ✅ Fonctionnalités Implémentées
-- **Authentification JWT (API REST)** — Connexion sécurisée (email/mot de passe)
-- **Gestion des transactions** — Ajout, modification et suppression
-- **Solde en temps réel** — Calcul automatique du solde mensuel
-- **Répartition des dépenses** — Graphique par catégorie (fl_chart)
-- **Historique des transactions** — Liste filtrable par date/catégorie
-- **Budget mensuel + alertes** — Alertes locales (sans FCM)
-- **Stockage hors ligne** — Synchronisation locale via Hive
-- **Interface responsive** — Mobile et Web
-- **Conseils avant dépense (IA)** — Optionnel (bêta), désactivable dans les paramètres
+- **Gestion des transactions** : Ajout, modification et suppression de revenus et dépenses
+- **Suivi du budget** : Définition et suivi du budget mensuel par catégorie
+- **Tableau de bord** : Visualisation des finances avec graphiques et statistiques
+- **Conseils IA** : Assistant financier intelligent avec Google Gemini API
+- **Mode hors ligne** : Stockage local avec synchronisation automatique
+- **Interface responsive** : Optimisée pour mobile et web
 
-### 🔄 Fonctionnalités en Développement
-- Intégration complète API Node.js (transactions, budget, analytics)
-- Fonctionnalités sociales
-- Commandes vocales
-- Paiements QR Code
-- Gamification
+## 🛠️ Architecture Technique
 
-## 🛠️ Technologies Utilisées
+### Frontend (Flutter)
+- **Framework** : Flutter 3.x
+- **Langage** : Dart
+- **Gestion d'état** : Provider Pattern
+- **Stockage local** : Hive (base de données NoSQL)
+- **Graphiques** : fl_chart
+- **HTTP Client** : Dio
+- **IA** : Google Gemini API
 
-- **Frontend**: Flutter 3.x (mobile + web)
-- **Backend**: API Node.js + Express (séparé, repo distinct)
-- **Base de données**: MySQL (backend) + Hive (hors ligne côté app)
-- **Graphiques**: fl_chart
-- **Notifications**: Notifications locales (Flutter Local Notifications)
-- **IA**: Firebase AI Logic avec Google Gemini (conseils financiers intelligents)
-- **Gestion d'état**: Provider Pattern
+### Backend (Node.js)
+- **Runtime** : Node.js
+- **Framework** : Express.js
+- **Base de données** : MySQL
+- **Authentification** : JWT (JSON Web Tokens)
+- **Sécurité** : bcrypt, helmet, rate limiting
+- **Validation** : express-validator
 
-## 🧱 Architecture Technique
-
-- **Frontend**: Flutter rend l'UI et gère l'état et la navigation
-- **Services**: Auth, transactions, notifications et IA encapsulés dans `lib/services/`
-- **Backend**: API REST (Node.js) hébergée séparément (voir repo backend)
-- **Hors ligne**: Hive pour cache et usage offline-first
-- **Observabilité**: Logs applicatifs
-
-## 📦 Modèle de Données (API REST)
-
-- Endpoints principaux:
-- `POST /auth/register`, `POST /auth/login`, `GET/POST /transactions`, `GET/PUT /budget`, `GET /analytics`
-
-## 📱 Captures d'Écran
-
-*Captures d'écran à ajouter*
-
-## 🚀 Installation et Configuration
+## 📦 Installation
 
 ### Prérequis
 - Flutter SDK 3.8.0 ou supérieur
-- Dart SDK
-- Backend Node.js + MySQL (repo séparé)
+- Node.js 18+ (pour le backend)
+- MySQL 8.0+ (pour la base de données)
+- Android Studio (pour le développement Android)
 
 ### 1. Cloner le Projet
 ```bash
-git clone https://github.com/votre-username/ger-ton-argent.git
-cd ger-ton-argent
+git clone https://github.com/dav9fulldev/G-r-Ton-Argent.git
+cd G-r-Ton-Argent
 ```
 
-### 2. Installer les Dépendances
+### 2. Configuration du Backend
+Le backend est dans un repository séparé. Suivez les instructions dans le dossier `backend/` pour :
+- Installer les dépendances Node.js
+- Configurer la base de données MySQL
+- Lancer le serveur API
+
+### 3. Configuration du Frontend
 ```bash
+# Installer les dépendances Flutter
 flutter pub get
+
+# Configurer l'URL de l'API
+# Modifier lib/config/api_config.dart selon votre environnement
 ```
 
-### 3. Configuration de l'API Backend
-Le backend (Node.js + MySQL) est maintenant dans un repo séparé.
-Configurez l'URL de l'API dans `lib/config/api_config.dart`.
-
-<!-- Ancienne section Firebase supprimée après migration vers API REST -->
-
-### 4. IA Gemini (optionnel)
-L'IA utilise directement l'API Gemini via `lib/services/gemini_service.dart`.
-Ajoutez votre clé API si nécessaire.
-
-### 5. Lancer l'Application
+### 4. Lancer l'Application
 
 #### Mode Développement
 ```bash
-flutter run
+# Frontend
+flutter run -d web-server --web-port 3000
+
+# Backend (dans un autre terminal)
+cd backend
+npm start
 ```
 
 #### Build de Production
 ```bash
 # Android
 flutter build apk --release
-
-# iOS
-flutter build ios --release
 
 # Web
 flutter build web --release
@@ -113,192 +84,102 @@ flutter build web --release
 
 ```
 lib/
-├── main.dart                         # Point d'entrée de l'application
-├── firebase_options.dart             # Configuration Firebase
-├── models/                           # Modèles de données
-│   ├── transaction_model.dart
-│   ├── transaction_model.g.dart
+├── main.dart                    # Point d'entrée de l'application
+├── config/
+│   └── api_config.dart         # Configuration de l'API
+├── models/                     # Modèles de données
 │   ├── user_model.dart
-│   └── user_model.g.dart
-├── screens/                          # Écrans de l'application
-│   ├── auth/                        # Authentification
-│   ├── home/                        # Dashboard principal
-│   ├── settings/                    # Paramètres
-│   ├── transactions/                # Gestion des transactions
-│   └── splash_screen.dart           # Écran de démarrage
-├── services/                         # Services métier
-│   ├── gemini_service.dart          # Service IA (API Gemini)
-│   ├── auth_service.dart            # Authentification via API REST (JWT)
-│   ├── connectivity_service.dart    # Connectivité
-│   ├── notification_service.dart    # Notifications locales
-│   ├── transaction_service.dart     # Gestion des transactions
-│   ├── mock_auth_service.dart       # Mocks pour tests
-│   ├── mock_notification_service.dart
-│   └── mock_transaction_service.dart
-├── widgets/                          # Composants réutilisables
-│   ├── app_logo.dart
-│   ├── balance_card.dart
-│   ├── budget_planning_widget.dart
-│   ├── expense_chart.dart           # Graphique (fl_chart)
-│   ├── financial_tips_widget.dart
-│   ├── spending_insights_widget.dart
-│   ├── splash_screen.dart
-│   └── transaction_list_item.dart
-└── utils/                            # Utilitaires
-    └── theme.dart                   # Thème de l'application
+│   ├── transaction_model.dart
+│   └── budget_model.dart
+├── services/                   # Services métier
+│   ├── api_service.dart        # Service API REST
+│   ├── auth_service.dart       # Authentification
+│   ├── transaction_service.dart # Gestion des transactions
+│   └── gemini_service.dart     # Service IA
+├── screens/                    # Écrans de l'application
+│   ├── auth/                   # Authentification
+│   ├── home/                   # Tableau de bord
+│   ├── transactions/           # Gestion des transactions
+│   └── settings/               # Paramètres
+└── widgets/                    # Composants réutilisables
+    ├── charts/                 # Graphiques
+    ├── forms/                  # Formulaires
+    └── common/                 # Composants communs
 ```
 
-Des services « mock » sont fournis pour faciliter les tests sans dépendre des services distants.
+## 🔧 Configuration
 
-## 🔬 Étude Utilisateur (30 répondants)
-
-Fonctionnalités prioritaires attendues:
-
-| Fonctionnalité | % de répondants |
-|---|---|
-| 🗓️ Planification du budget mensuel | 78% |
-| 🔔 Alertes de dépassement | 68% |
-| 📊 Répartition des dépenses (graphique) | 58% |
-| ⏳ Historique des transactions | 56% |
-| 💰 Visualisation du solde en temps réel | 52% |
-| 🧠 Conseils avant dépense | 2% |
-
-Ces résultats confirment la pertinence d'un outil clair, visuel et proactif. Les « conseils avant dépense » restent optionnels et désactivables.
-
-## 🗺️ Plan de Développement (Sprints)
-
-- **Sprint 1 — Auth + Base UI**: Accueil, login/register (Firebase Auth), création du modèle `Transaction`
-- **Sprint 2 — Saisie**: Formulaire d'entrée, écriture Firestore, affichage historique
-- **Sprint 3 — Visualisation**: Dashboard + graphique (fl_chart)
-- **Sprint 4 — Budget + Alertes**: Limite mensuelle, notification FCM en dépassement
-- **Sprint 5 — Finitions**: Responsive Web, tests Android/iOS/Web, documentation et soutenance
-
-## 🔧 Configuration Avancée
-
-### Variables d'Environnement
-Créez un fichier `.env` à la racine du projet :
-
+### Variables d'Environnement Backend
 ```env
-FIREBASE_API_KEY=votre-api-key
-FIREBASE_PROJECT_ID=votre-project-id
-OPENAI_API_KEY=votre-openai-key
+# Base de données
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=votre_mot_de_passe
+DB_NAME=gertonargent_db
+DB_PORT=3306
+
+# JWT
+JWT_SECRET=votre_secret_jwt
+JWT_EXPIRES_IN=7d
+
+# Serveur
+PORT=3001
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
 ```
 
-### Règles Firestore
-Configurez les règles de sécurité Firestore :
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    match /transactions/{transactionId} {
-      allow read, write: if request.auth != null && 
-        request.auth.uid == resource.data.userId;
-    }
-  }
+### Configuration Frontend
+```dart
+// lib/config/api_config.dart
+class ApiConfig {
+  static const String baseUrl = 'http://localhost:3001/api';
+  // Pour la production : 'https://votre-api.com/api'
 }
 ```
-
-## 🤖 IA — Conseils avant dépense (Optionnel/Bêta)
-
-Objectif: fournir un message contextuel au moment de l'enregistrement d'une dépense pour encourager une décision réfléchie.
-
-- **Déclenchement**: Cloud Function lors de la création d'une nouvelle dépense
-- **Personnalisation**: basée sur solde restant du mois, % de budget utilisé et catégorie
-- **Technologie**: GPT API (OpenAI) via Cloud Functions
-- **Affichage**: message dynamique dans l'interface Flutter
-- **Confidentialité**: données anonymisées, fonctionnalité désactivable
-
-Exemple de message:
-
-« Votre solde actuel est 12 500 FCFA. Cette dépense de 5 000 FCFA représente 40% de vos fonds mensuels restants. Est-ce essentiel maintenant ? Vous pourriez attendre ou réduire le montant. »
-
-Flux de traitement:
-
-Flutter (Formulaire)
-↓
-Cloud Function → GPT API
-↓
-Message IA affiché à l'utilisateur
 
 ## 🧪 Tests
 
 ```bash
-# Tests unitaires
+# Tests Flutter
 flutter test
 
-# Tests d'intégration
-flutter test integration_test/
+# Tests Backend
+cd backend
+npm test
 ```
 
-## 📈 Déploiement
+## 📱 Captures d'Écran
 
-### Firebase Hosting (Web)
-```bash
-flutter build web
-firebase deploy --only hosting
-```
-
-- **Web**: déploiement via Firebase Hosting
-- **Android**: APK/AAB pour test et distribution
-- **Sauvegarde des données**: Firestore
-
-### Google Play Store (Android)
-```bash
-flutter build appbundle --release
-# Téléchargez le fichier .aab et uploadez-le sur Google Play Console
-```
-
-### App Store (iOS)
-```bash
-flutter build ios --release
-# Ouvrez Xcode et archivez l'application
-```
+*Captures d'écran à ajouter*
 
 ## 🤝 Contribution
 
 1. Fork le projet
-2. Créez une branche feature (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
+2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
+3. Commit les changements (`git commit -m 'Add some AmazingFeature'`)
 4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une Pull Request
+5. Ouvrir une Pull Request
 
-## 📝 Licence
+## 📄 Licence
 
 Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ## 🆘 Support
 
 Pour toute question ou problème :
-- Ouvrez une issue sur GitHub
-- Contactez l'équipe de développement
-- Consultez la documentation Firebase
+- Ouvrir une issue sur GitHub
+- Consulter la documentation du backend
+- Vérifier les logs de l'application
 
-## 🎯 Roadmap
+## 🔄 Changelog
 
-### Version 1.1
-- [ ] Intégration complète GPT API (Cloud Functions)
-- [ ] Fonctionnalités sociales
-- [ ] Commandes vocales
-- [ ] Paiements QR Code
+### Version 2.0.0
+- Migration de Firebase vers Node.js + MySQL
+- Nouvelle architecture backend REST
+- Amélioration des performances
+- Support complet hors ligne
 
-### Version 1.2
-- [ ] Gamification
-- [ ] Objectifs financiers
-- [ ] Rapports avancés
-- [ ] Export de données
-
-### Version 2.0
-- [ ] IA prédictive
-- [ ] Intégration bancaire
-- [ ] Multi-devises
-- [ ] API publique
-
----
-
-**Développé avec ❤️ pour la communauté ivoirienne**
-
-
+### Version 1.0.0
+- Version initiale avec Firebase
+- Fonctionnalités de base
+- Interface utilisateur

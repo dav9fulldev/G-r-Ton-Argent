@@ -89,7 +89,7 @@ class UserModel extends HiveObject {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      uid: map['uid'] ?? '',
+      uid: map['id'] ?? map['uid'] ?? '',
       email: map['email'] ?? '',
       name: map['name'] ?? '',
       monthlyBudget: (map['monthlyBudget'] ?? 0.0).toDouble(),

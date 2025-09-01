@@ -1,7 +1,7 @@
 class ApiConfig {
   // Configuration de l'API REST
-  static const String baseUrl = 'http://localhost:3000/api'; // Pour le développement local
-  // static const String baseUrl = 'https://your-api-domain.com/api'; // Pour la production
+  static const String baseUrl = 'http://localhost:3001/api'; // Pour le développement local
+  // static const String baseUrl = 'https://gertonargent-api.onrender.com/api'; // Pour la production
   
   // Endpoints d'authentification
   static const String registerEndpoint = '/auth/register';
