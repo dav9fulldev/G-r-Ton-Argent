@@ -13,7 +13,7 @@ flutter pub get
 
 # Build pour Android
 echo "🤖 Build Android APK..."
-flutter build apk --release
+flutter build apk --releaseais isramene ck
 
 # Build pour Web
 echo "🌐 Build Web..."
